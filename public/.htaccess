@@ -1,0 +1,46 @@
+#<IfModule mime_module>
+#    AddHandler application/x-httpd-ea-php82 .php
+#</IfModule>
+
+    <IfModule mod_rewrite.c>
+        <IfModule mod_negotiation.c>
+            Options -MultiViews -Indexes
+        </IfModule>
+
+        RewriteEngine On
+
+        # Handle Authorization Header
+        RewriteCond %{HTTP:Authorization} .
+        RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+        # Handle X-XSRF-Token Header
+        RewriteCond %{HTTP:x-xsrf-token} .
+        RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+        # Redirect Trailing Slashes If Not A Folder...
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteCond %{REQUEST_URI} (.+)/$
+        RewriteRule ^ %1 [L,R=301]
+
+        # Send Requests To Front Controller...
+        RewriteCond %{REQUEST_FILENAME} !-d
+        RewriteCond %{REQUEST_FILENAME} !-f
+        RewriteRule ^ index.php [L]
+    </IfModule>
+# Check if mod is installed. If not, you can try to comment the condition
+<IfModule mod_php7.c>
+  php_value post_max_size 200M
+  php_value upload_max_filesize 200M
+  php_value memory_limit 300M
+  php_value max_execution_time 259200
+  php_value max_input_time 259200
+  php_value session.gc_maxlifetime 1200
+</IfModule>
+
+<IfModule mod_autoindex.c>
+  Options -Indexes
+</IfModule>
+<FilesMatch "^\.">
+    Order allow,deny
+    Deny from all
+</FilesMatch>

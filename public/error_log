@@ -1,0 +1,7 @@
+[12-Feb-2025 08:23:15 UTC] PHP Warning:  require(/home/applljeq/public_html/TheGuild/staging/ara/public/../vendor/autoload.php): Failed to open stream: No such file or directory in /home/applljeq/public_html/TheGuild/staging/ara/public/index.php on line 13
+[12-Feb-2025 08:23:15 UTC] PHP Fatal error:  Uncaught Error: Failed opening required '/home/applljeq/public_html/TheGuild/staging/ara/public/../vendor/autoload.php' (include_path='.:/opt/alt/php81/usr/share/pear:/opt/alt/php81/usr/share/php:/usr/share/pear:/usr/share/php') in /home/applljeq/public_html/TheGuild/staging/ara/public/index.php:13
+Stack trace:
+#0 {main}
+  thrown in /home/applljeq/public_html/TheGuild/staging/ara/public/index.php on line 13
+[12-Feb-2025 08:50:40 UTC] PHP Fatal error:  Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.2.0". You are running 8.1.31. in /home/applljeq/public_html/TheGuild/staging/ara/vendor/composer/platform_check.php on line 24
+[12-Feb-2025 09:57:27 UTC] PHP Fatal error:  Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.2.0". You are running 8.1.31. in /home/applljeq/public_html/TheGuild/staging/ara/vendor/composer/platform_check.php on line 24
