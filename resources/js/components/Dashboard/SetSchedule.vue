@@ -3,13 +3,13 @@
         <NavBar />
 
         <div class="max-w-lg mx-auto p-6">
-            <h1 class="text-2xl text-center text-[#232850FF] mb-6">Set Your Hours</h1>
+            <h1 class="text-2xl text-center text-[#171A1FFF] mb-6">Set Your Hours</h1>
 
             <form @submit.prevent="submitForm">
                 <div v-for="(day, index) in schedule" :key="index" class="mb-6">
                     <!-- Day Header -->
                     <div class="items-center space-x-2">
-                        <h2 class="text-normal text-[#232850FF]">{{ day.name }}</h2>
+                        <h2 class="text-normal text-[#171A1FFF]">{{ day.name }}</h2>
                         <label class="flex items-center space-x-2 cursor-pointer">
                             <input type="checkbox" v-model="day.closed" class="peer hidden">
                             <div class="w-6 h-6 flex items-center justify-center rounded-[8px] border-2 border-[#43474AFF] bg-white peer-checked:bg-white peer-checked:border-[#43474AFF] transition-all">
@@ -24,10 +24,10 @@
                     <!-- Time Inputs -->
                     <div v-if="!day.closed" class="mt-3 space-y-3">
                         <div v-for="(slot, slotIndex) in day.slots" :key="slotIndex" class="space-y-1">
-                            <label class="text-sm text-[#43474AFF]">Opens at</label>
+                            <label class="text-sm text-[#43474AFF]">Start</label>
                             <input type="time" v-model="slot.open" class="w-full p-2 border border-[#43474AFF] rounded-md focus:ring-2 focus:ring-blue-300 focus:outline-none">
 
-                            <label class="text-sm text-[#43474AFF]">Closes at</label>
+                            <label class="text-sm text-[#43474AFF]">End</label>
                             <input type="time" v-model="slot.close" class="w-full p-2 border border-[#43474AFF] rounded-md focus:ring-2 focus:ring-blue-300 focus:outline-none">
                         </div>
 

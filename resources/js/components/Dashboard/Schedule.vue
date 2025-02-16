@@ -5,7 +5,7 @@
         <!-- Statistics Section -->
         <div class="max-w-lg mx-auto p-6">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl text-[#000000FF]">June, 12</h2>
+                <h2 class="text-xl text-[#171A1FFF]">June, 12</h2>
 
                 <!-- Date Picker -->
                 <div class="relative">
@@ -19,8 +19,8 @@
                 <div
                     class="bg-white rounded-[12px] shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col items-center justify-center text-center">
                     <div class="flex flex-col items-center space-y-2">
-                        <i class="fas fa-headset text-lg text-gray-700"></i>
-                        <span class="text-xl">DAX</span>
+                        <i class="fas fa-headset text-xl text-[#171A1FFF]"></i>
+                        <span class="text-sm text-[#666666FF]">DAX</span>
                     </div>
                 </div>
 
@@ -30,7 +30,7 @@
                     <div class="flex items-center space-x-2">
                         <span class="text-xl font-bold text-green-500">$100</span>
                     </div>
-                    <p class="text-sm text-gray-500">
+                    <p class="text-sm text-[#666666FF]">
                         Today's Potential Earnings
                     </p>
                 </div>
@@ -39,12 +39,12 @@
 
         <!-- Latest Updates Section -->
         <div class="max-w-lg mx-auto p-6">
-            <h2 class="text-xl text-[#000000FF]">Latest Updates</h2>
+            <h2 class="text-xl text-[#171A1FFF]">Latest Updates</h2>
 
             <div class="space-y-6 mt-3">
                 <!-- Loop Through Grouped Updates by Time -->
                 <div v-for="(updates, time) in groupedUpdates" :key="time">
-                    <h3 class="text-lg font-normal text-[#000000FF] mt-4">
+                    <h3 class="text-lg font-normal text-[#171A1FFF] mt-4">
                         {{ time }}
                     </h3>
 
@@ -76,9 +76,9 @@
                                         <i class="fas fa-dollar-sign mr-1"></i>
                                         {{ update.amount }}
                                     </span>
-                                    <i class="fas fa-thumbs-up text-xl text-gray-600"></i>
-                                    <i class="fas fa-play-circle text-xl text-gray-600"></i>
-                                    <i class="fas fa-info-circle text-xl text-gray-600"></i>
+                                    <i class="fas fa-thumbs-up text-xl text-[#171A1FFF]"></i>
+                                    <i class="fas fa-play-circle text-xl text-[#171A1FFF]"></i>
+                                    <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>
                                 </div>
                                 <!-- Toggle Arrow -->
                                 <i @click="toggleExpand(time, index)"

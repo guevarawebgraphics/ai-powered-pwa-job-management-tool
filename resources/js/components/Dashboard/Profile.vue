@@ -24,7 +24,7 @@
             <!-- Name & Title -->
             <div class="mt-3 text-center">
                 <div class="relative">
-                    <h2 v-if="!isEditingName" class="text-lg text-[#232850FF]">{{ name }}</h2>
+                    <h2 v-if="!isEditingName" class="text-lg text-[#171A1FFF]">{{ name }}</h2>
                     <input 
                         v-else 
                         v-model="tempName" 
@@ -73,10 +73,10 @@
                     class="bg-white rounded-lg shadow-sm border p-4 flex justify-between items-center">
                     
                     <div class="flex items-center space-x-3">
-                        <i :class="item.icon" class="text-[#232850FF] text-lg"></i>
+                        <i :class="item.icon" class="text-[#171A1FFF] text-lg"></i>
                         
                         <input v-if="item.editing" type="text" v-model="item.tempValue"
-                            class="border border-gray-300 rounded-md px-2 py-1 text-sm text-gray-700 focus:outline-none focus:ring focus:ring-blue-300 w-full" />
+                            class="border border-gray-300 rounded-md px-2 py-1 text-sm text-[#171A1FFF] focus:outline-none focus:ring focus:ring-blue-300 w-full" />
 
                         <span v-else class="text-sm text-gray-700">{{ item.value }}</span>
                     </div>
@@ -102,15 +102,15 @@
                 <!-- Set Schedule -->
                 <div class="bg-white rounded-lg shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4">
                     <div class="flex justify-between items-center">
-                        <h3 class="text-lg font-bold text-[#232850FF]">Set Schedule</h3>
+                        <h3 class="text-lg font-bold text-[#171A1FFF]">Set Schedule</h3>
                         <button class="text-gray-500 hover:text-gray-700" @click="goToSetSchedule">
                             <i class="fas fa-edit"></i>
                         </button>
                     </div>
                     <div class="mt-2">
                         <div v-for="(schedule, index) in workSchedule" :key="index" class="flex justify-between">
-                            <span class="text-gray-700 font-semibold">{{ schedule.day }}</span>
-                            <span class="text-gray-600">{{ schedule.hours }}</span>
+                            <span class="text-[#505050FF] font-semibold">{{ schedule.day }}</span>
+                            <span class="text-[#505050FF]">{{ schedule.hours }}</span>
                         </div>
                     </div>
                 </div>
@@ -119,7 +119,7 @@
                 <div
                     class="bg-white rounded-lg shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex items-center justify-between">
                     <div class="flex flex-col items-center">
-                        <h3 class="text-lg font-bold text-[#232850FF] text-center">Set Advanced Schedule</h3>
+                        <h3 class="text-lg font-bold text-[#171A1FFF] text-center">Set Advanced Schedule</h3>
                         <div class="mt-2 border-2 border-blue-300 p-3 rounded-lg">
                             <i class="fas fa-calendar-check text-blue-500 text-4xl"></i>
                         </div>
@@ -142,7 +142,7 @@
             <div class="mt-6 w-full max-w-md space-y-6">
                 <!-- Dropdown -->
                 <div class="bg-white rounded-lg shadow-md border p-4 relative">
-                    <label class="text-lg font-bold text-[#232850FF]">
+                    <label class="text-lg font-bold text-[#171A1FFF]">
                         Advanced Skills <span class="text-gray-600 text-sm">(Select all that apply)</span>
                     </label>
 
@@ -172,7 +172,7 @@
                 <!-- Toggle Options -->
                 <div class="bg-white rounded-lg shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4">
                     <div class="flex justify-between items-center">
-                        <span class="text-lg font-bold text-[#232850FF]">Notifications</span>
+                        <span class="text-lg font-bold text-[#171A1FFF]">Notifications</span>
                         <label class="flex items-center cursor-pointer">
                             <input type="checkbox" v-model="notificationsEnabled" @change="updateSettings('is_notify', notificationsEnabled)" class="sr-only">
                             <div class="relative w-10 h-5 bg-gray-300 rounded-full transition-all duration-300"
@@ -184,7 +184,7 @@
                     </div>
 
                     <div class="flex justify-between items-center mt-3">
-                        <span class="text-lg font-bold text-[#232850FF]">Location Services</span>
+                        <span class="text-lg font-bold text-[#171A1FFF]">Location Services</span>
                         <label class="flex items-center cursor-pointer">
                             <input type="checkbox" v-model="locationEnabled" @change="updateSettings('is_location', locationEnabled)" class="sr-only">
                             <div class="relative w-10 h-5 bg-gray-300 rounded-full transition-all duration-300"
@@ -199,7 +199,7 @@
 
                 <!-- Chat for Help -->
                 <div class="bg-white rounded-lg shadow-md border p-4 flex justify-between items-center">
-                    <span class="text-lg font-bold text-[#232850FF]">Open a Chat for Help</span>
+                    <span class="text-lg font-bold text-[#171A1FFF]">Open a Chat for Help</span>
                     <div class="border-2 border-blue-400 p-3 rounded-lg">
                         <i class="fas fa-comment text-blue-500 text-3xl"></i>
                     </div>

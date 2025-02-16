@@ -25,9 +25,9 @@
 
                     <!-- Notification Content -->
                     <div class="flex-1">
-                        <h3 class="text-sm font-bold text-gray-800">{{ notification.title }}</h3>
-                        <p class="text-sm text-gray-500">{{ notification.description }}</p>
-                        <span class="text-xs text-gray-400">{{ notification.time }}</span>
+                        <h3 class="text-sm font-bold text-[#171A1FFF]">{{ notification.title }}</h3>
+                        <p class="text-sm text-[#323842FF]">{{ notification.description }}</p>
+                        <span class="text-xs text-[#323842FF]">{{ notification.time }}</span>
                     </div>
 
                     <!-- Unread Indicator -->
