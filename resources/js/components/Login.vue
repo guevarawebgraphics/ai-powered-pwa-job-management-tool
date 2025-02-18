@@ -14,7 +14,7 @@
             </div>
 
             <!-- Remove action and use @submit.prevent for Vue handling -->
-            <form @submit.prevent="login" class="space-y-6">
+            <form action="#" class="space-y-6">
                 <div class="relative">
                     <div class="relative flex items-center">
                         <i class="fas fa-envelope absolute left-3 text-[#221C21FF]"></i>
@@ -32,9 +32,20 @@
                 <div class="flex items-center justify-between">
                     <a href="#" @click="redirectToForgot()" class="text-sm text-blue-500 hover:underline text-[#221C21FF]">Forgot password?</a>
                 </div>
-                <button type="submit"
+                <!-- <button type="submit"
                     class="w-full px-4 py-2 font-semibold text-white bg-[#232850] rounded-xl hover:bg-[#1d2142] focus:outline-none focus:ring-2 focus:ring-blue-300">
                     Continue
+                </button> -->
+
+                <button 
+                    @click.prevent="login"
+                    :disabled="loading"
+                    class="w-full px-4 py-2 font-semibold text-white bg-[#232850] rounded-xl hover:bg-[#1d2142] focus:outline-none focus:ring-2 focus:ring-blue-300"
+                >
+                    <span v-if="!loading">Continue</span>
+                    <span v-if="loading">
+                        <i class="fas fa-spinner fa-spin mr-2"></i> Loading...
+                    </span>
                 </button>
             </form>
             <p class="text-sm text-center text-gray-600">
@@ -54,10 +65,15 @@ export default {
         return {
             email: '',
             password: '',
+            loading: false, 
         };
     },
     methods: {
         async login() {
+
+            
+            this.loading = true;
+
             try {
                 await axios.get('/sanctum/csrf-cookie'); 
 
@@ -89,6 +105,10 @@ export default {
                     title: 'Login Failed',
                     text: 'Invalid email or password. Please try again.',
                 });
+            } finally {
+                
+                this.loading = false;
+
             }
         },
         redirectToRegister() {

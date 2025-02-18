@@ -11,16 +11,16 @@
         </div>
 
         <!-- Right Icons -->
-        <div class="relative flex space-x-4">
+        <div class="relative flex space-x-6">  <!-- Increased spacing -->
             <button class="text-gray-800 text-2xl hover:text-gray-600">
                 <i class="fa-solid fa-circle-plus text-[#171A1FFF]"></i>
             </button>
-            <button class="text-gray-800 text-2xl hover:text-gray-600">
-                <i class="fa-regular fa-bell  text-[#171A1FFF]"></i>
+            <button @click="goToNotification" class="text-gray-800 text-2xl hover:text-gray-600">
+                <i class="fa-regular fa-bell text-[#171A1FFF]"></i>
             </button>
 
             <!-- Settings Dropdown -->
-            <div class="relative">
+            <div class="relative ml-2">  <!-- Adds extra margin to push dropdown slightly right -->
                 <button @click="toggleDropdown" class="text-gray-800 text-2xl hover:text-gray-600 focus:outline-none">
                     <i class="fas fa-cog text-[#6b6c70]"></i>
                 </button>
@@ -38,6 +38,7 @@
                 </div>
             </div>
         </div>
+
     </nav>
 </template>
 
@@ -59,6 +60,9 @@ export default {
             } else {
                 this.$router.go(-1); // Default behavior: go back
             }
+        },
+        goToNotification() {
+            this.$router.push('/notification');
         },
         toggleDropdown() {
             this.dropdownOpen = !this.dropdownOpen;

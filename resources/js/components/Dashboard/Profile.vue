@@ -24,7 +24,7 @@
             <!-- Name & Title -->
             <div class="mt-3 text-center">
                 <div class="relative">
-                    <h2 v-if="!isEditingName" class="text-lg text-[#171A1FFF]">{{ name }}</h2>
+                    <h2 v-if="!isEditingName" class="text-xl text-[#171A1FFF]">{{ name }}</h2>
                     <input 
                         v-else 
                         v-model="tempName" 
@@ -76,9 +76,12 @@
                         <i :class="item.icon" class="text-[#171A1FFF] text-lg"></i>
                         
                         <input v-if="item.editing" type="text" v-model="item.tempValue"
+                            :placeholder="getPlaceholder(item.key)"
                             class="border border-gray-300 rounded-md px-2 py-1 text-sm text-[#171A1FFF] focus:outline-none focus:ring focus:ring-blue-300 w-full" />
 
-                        <span v-else class="text-sm text-gray-700">{{ item.value }}</span>
+                        <span v-else class="text-sm text-gray-700">
+                            {{ item.value || getPlaceholder(item.key) }}
+                        </span>
                     </div>
 
                     <div class="flex space-x-2">
@@ -244,12 +247,12 @@ export default {
             locationEnabled: false,
 
             contactInfo: [
-                    { icon: "fas fa-building", value: "", tempValue: "", key: "mobile_no", editing: false },
-                    { icon: "fas fa-home", value: "", tempValue: "", key: "home_no", editing: false },
-                    { icon: "fas fa-at", value: "", tempValue: "", key: "email", editing: false },
-                    { icon: "fas fa-map-marker-alt", value: "", tempValue: "", key: "current_address", editing: false },
-                    { icon: "fa-regular fa-map", value: "", tempValue: "", key: "service_area", editing: false },
-                ],
+                { icon: "fas fa-building", value: "", tempValue: "", key: "mobile_no", editing: false },
+                { icon: "fas fa-home", value: "", tempValue: "", key: "home_no", editing: false },
+                { icon: "fas fa-at", value: "", tempValue: "", key: "email", editing: false },
+                { icon: "fas fa-map-marker-alt", value: "", tempValue: "", key: "current_address", editing: false },
+                { icon: "fa-regular fa-map", value: "", tempValue: "", key: "service_area", editing: false },
+            ],
             // workSchedule: [
             //     { day: "Saturday", hours: "9 AM - 5 PM" },
             //     { day: "Sunday", hours: "8 AM - 8 PM" },
@@ -264,6 +267,16 @@ export default {
         };
     },
     methods: {
+        getPlaceholder(key) {
+            const placeholders = {
+                mobile_no: "Enter Mobile Number",
+                home_no: "Enter Home Number",
+                email: "Enter Email Address",
+                current_address: "Enter Current Address",
+                service_area: "Enter Service Area"
+            };
+            return placeholders[key] || "Enter Information";
+        },
         async updateSettings(field, value) {
             try {
                 

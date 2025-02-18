@@ -518,3 +518,5 @@
 #55 C:\\xampp\\htdocs\\ara\\public\\index.php(17): Illuminate\\Foundation\\Application->handleRequest(Object(Illuminate\\Http\\Request))
 #56 {main}
 "} 
+[2025-02-18 15:32:37] local.INFO: {"id":3,"name":"Richard G.","email":"kingrgdev+mcfitnessgym@gmail.com","email_verified_at":null,"created_at":"2025-02-09T08:19:42.000000Z","updated_at":"2025-02-18T15:32:35.000000Z","deleted_at":null,"profile_photo":"http:\/\/127.0.0.1\/images\/profile_photo\/1739094392_e612451e-01d8-4452-b410-f83a2fd30b76.jfif","mobile_no":"09770517315221321321","home_no":"09770517315","professional_title":"Software Engineer","skills":"List Item  2,List Item  3,List Item  4,List Item 1","current_address":"5755 Oberlin Drive134234234","service_area":"21312312312","is_notify":"0","is_location":"1","otp_code":null,"otp_expires_at":null,"is_verified":1}  
+[2025-02-18 16:35:00] local.INFO: Received Data: {"mobile_no":null} 

@@ -17,7 +17,7 @@
             <!-- Name & Title -->
             <div class="mt-3 text-center">
                 <div class="relative inline-block">
-                    <h2 class="text-lg text-[#171A1FFF]">Full Name</h2>
+                    <h2 class="text-xl text-[#171A1FFF]">Full Name</h2>
                     <!-- Edit Icon -->
                     <button class="absolute -right-6 top-1">
                         <i class="fas fa-edit text-[#BCC1CAFF]"></i>
@@ -46,41 +46,45 @@
 
             <!-- Stats Grid -->
             <div class="grid grid-cols-2 gap-3">
-                <div
-                    class="bg-white rounded-[12px] shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col items-start">
+                <button type="button"
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
+           transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <div class="flex items-center space-x-2">
                         <i class="fas fa-headphones-simple text-lg text-[#171A1FFF]"></i>
                         <span class="text-xl font-medium text-[#666666FF]">DAX</span>
                     </div>
                     <!-- <p class="text-sm text-gray-500">Day gig streak</p> -->
-                </div>
+                </button>
 
-                <div
-                    class="bg-white rounded-[12px] shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col items-start">
+                <button type="button"
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
+           transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <div class="flex items-center space-x-2">
                         <i class="fas fa-calendar-alt text-lg text-[#232850FF]"></i>
                         <span class="text-xl font-bold text-[#171A1FFF]">3</span>
                     </div>
                     <p class="text-sm text-[#666666FF]">Jobs Booked Today</p>
-                </div>
+                </button>
 
-                <div
-                    class="bg-white rounded-[12px] shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col items-start">
+                <button type="button"
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
+           transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <div class="flex items-center space-x-2">
                         <i class="fas fa-thumbs-up text-lg text-[#171A1FFF]"></i>
                         <span class="text-sm font-medium text-[#666666FF]">New Job Request Dryer, no Heat, Stuart</span>
                     </div>
                     <!-- <p class="text-sm text-gray-500">New Job Request Dryer, no Heat, Stuart</p> -->
-                </div>
+                </button>
 
-                <div
-                    class="bg-white rounded-[12px] shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col items-start">
+                <button type="button"
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
+           transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <p class="text-sm text-[#666666FF]">Earnings</p>
                     <div class="flex items-center space-x-2">
                         <span class="text-xl font-bold text-[#171A1FFF]">$2150</span>
                         <i class="fas fa-arrow-up text-green-500 text-sm"></i>
                     </div>
-                </div>
+                </button>
             </div>
         </div>
 
@@ -98,7 +102,7 @@
 
                         <!-- Content -->
                         <div class="flex-1">
-                            <h3 class="text-lg font-medium text-[#222222FF]">{{ update.title }}</h3>
+                            <h3 class="text-normal font-medium text-[#222222FF]">{{ update.title }}</h3>
                             <p class="text-sm text-[#666666FF]">{{ update.description }}</p>
                         </div>
                     </div>
@@ -152,7 +156,7 @@
 
                         <!-- Content -->
                         <div class="flex-1">
-                            <p class="text-lg font-normal text-gray-800">{{ update.title }}</p>
+                            <p class="text-normal font-normal text-gray-800">{{ update.title }}</p>
                             <p class="text-sm text-gray-500">{{ update.description }}</p>
                         </div>
                     </div>
