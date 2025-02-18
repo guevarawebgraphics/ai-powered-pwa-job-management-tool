@@ -12,11 +12,15 @@
 
         <!-- DAX & Lifetime Spend -->
         <div class="max-w-lg mx-auto grid grid-cols-2 gap-4 p-6">
-            <div class="bg-white shadow-md rounded-lg p-4 flex items-center justify-center">
+
+            
+            <div class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 text-center 
+           transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                 <i class="fas fa-headset text-2xl text-gray-700"></i>
                 <p class="text-sm font-medium ml-2">DAX</p>
             </div>
-            <div class="bg-white shadow-md rounded-lg p-4 text-center">
+            <div class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 text-center 
+           transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                 <p class="text-lg font-bold text-green-600">$750</p>
                 <p class="text-sm text-gray-500">Lifetime Spend</p>
             </div>
