@@ -21,11 +21,13 @@
 
             <!-- Gig Stats -->
             <div class="grid grid-cols-2 gap-4 mt-4">
-                <div class="bg-white shadow-md rounded-lg p-4 flex flex-col items-center">
+                <div class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
+           transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <i class="fas fa-headset text-2xl text-gray-700"></i>
                     <p class="text-sm font-medium mt-2">DAX</p>
                 </div>
-                <div class="bg-white shadow-md rounded-lg p-4 flex flex-col items-center">
+                <div class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
+           transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <p class="text-lg font-bold text-gray-700">#1</p>
                 </div>
             </div>

@@ -46,7 +46,8 @@
             <!-- Stats Grid -->
             <div class="grid grid-cols-2 gap-3">
                 <div
-                    class="bg-white rounded-lg shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col items-start">
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
+           transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <div class="flex items-center space-x-2">
                         <i class="fas fa-fire text-lg text-gray-700"></i>
                         <span class="text-xl font-bold">3</span>
@@ -55,7 +56,8 @@
                 </div>
 
                 <div
-                    class="bg-white rounded-lg shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col items-start">
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
+           transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <div class="flex items-center space-x-2">
                         <i class="fas fa-calendar-alt text-lg text-gray-700"></i>
                         <span class="text-xl font-bold">117</span>
@@ -64,7 +66,8 @@
                 </div>
 
                 <div
-                    class="bg-white rounded-lg shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col items-start">
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
+           transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <div class="flex items-center space-x-2">
                         <i class="fas fa-thumbs-up text-lg text-gray-700"></i>
                         <span class="text-xl font-bold">27</span>
@@ -73,7 +76,8 @@
                 </div>
 
                 <div
-                    class="bg-white rounded-lg shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col items-start">
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
+           transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <p class="text-sm text-gray-500">Earnings</p>
                     <div class="flex items-center space-x-2">
                         <span class="text-xl font-bold">$2150</span>
