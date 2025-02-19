@@ -40,17 +40,34 @@ class AuthController extends Controller
 
         $user = $data['user'];
 
-        // Generate 6-digit OTP
-        $otp = rand(100000, 999999);
+        $ip = request()->header('X-Forwarded-For') ?? request()->ip();
 
-        // Store OTP in DB with expiration
-        $user->update([
-            'otp_code' => $otp,
-            'otp_expires_at' => Carbon::now()->addMinutes(10),
-        ]);
+        \Log::info('Current IP: ' . $user->current_ip);
+        \Log::info('New IP: ' . $ip);
 
-        // Send OTP via email
-        $user->notify(new SendOtpNotification($otp));
+        if ( $user->current_ip != $ip ) {
+            // Generate 6-digit OTP
+            $otp = rand(100000, 999999);
+
+            // Store OTP in DB with expiration
+            $user->update([
+                'otp_code' => $otp,
+                'otp_expires_at' => Carbon::now()->addMinutes(10),
+            ]);
+
+            // Send OTP via email
+            $user->notify(new SendOtpNotification($otp));
+
+        } else {
+            
+            $user->update(['current_ip' => $ip ]);
+
+            $user->update([
+                'otp_code' => NULL,
+                'otp_expires_at' => NULL,
+                'is_verified' => 1,
+            ]);
+        }
 
 
         return response()->json([
