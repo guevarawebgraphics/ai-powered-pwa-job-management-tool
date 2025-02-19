@@ -44,7 +44,7 @@ class AuthController extends Controller
 
         \Log::info('Current IP: ' . $user->current_ip);
         \Log::info('New IP: ' . $ip);
- 
+  
         if ( $user->current_ip != $ip || !$user->current_ip ) {
             // Generate 6-digit OTP
             $otp = rand(100000, 999999);
