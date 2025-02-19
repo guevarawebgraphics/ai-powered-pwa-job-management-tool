@@ -30,7 +30,7 @@ class User extends Authenticatable
         'is_verified',
         'otp_code',
         'otp_expires_at',
-        'current_device',
+        'current_ip',
         'mobile_no', 'home_no','professional_title','skills','current_address','is_notify','is_location'
     ];
 

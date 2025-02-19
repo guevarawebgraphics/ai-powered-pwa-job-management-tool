@@ -21,6 +21,10 @@ class AuthService
     {
         $user = User::where('email', $credentials['email'])->first();
 
+        $ip = request()->header('X-Forwarded-For') ?? request()->ip();
+
+        $user->update(['current_ip' => $ip ]);
+
         if (!$user || !Hash::check($credentials['password'], $user->password)) {
             throw ValidationException::withMessages([
                 'email' => ['The provided credentials are incorrect.'],

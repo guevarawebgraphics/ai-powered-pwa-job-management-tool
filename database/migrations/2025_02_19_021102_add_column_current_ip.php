@@ -9,14 +9,14 @@ return new class extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('current_device')->nullable();
+            $table->string('current_ip')->nullable();
         });
     }
 
     public function down()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('current_device');
+            $table->dropColumn('current_ip');
         });
     }
 };
