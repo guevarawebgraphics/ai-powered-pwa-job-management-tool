@@ -11,7 +11,7 @@
         </div>
 
         <!-- Right Icons -->
-        <div class="relative flex space-x-6">  <!-- Increased spacing -->
+        <div class="relative flex space-x-6"> <!-- Increased spacing -->
             <button class="text-gray-800 text-2xl hover:text-gray-600">
                 <i class="fa-solid fa-circle-plus text-[#171A1FFF]"></i>
             </button>
@@ -20,7 +20,7 @@
             </button>
 
             <!-- Settings Dropdown -->
-            <div class="relative ml-2">  <!-- Adds extra margin to push dropdown slightly right -->
+            <div class="relative ml-2"> <!-- Adds extra margin to push dropdown slightly right -->
                 <button @click="toggleDropdown" class="text-gray-800 text-2xl hover:text-gray-600 focus:outline-none">
                     <i class="fas fa-cog text-[#6b6c70]"></i>
                 </button>
@@ -31,8 +31,7 @@
                         class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
                         <i class="fas fa-user mr-2"></i> Profile
                     </button>
-                    <button @click="logout"
-                        class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
+                    <button @click="logout" class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
                         <i class="fas fa-sign-out-alt mr-2"></i> Logout
                     </button>
                 </div>
@@ -40,17 +39,52 @@
         </div>
 
     </nav>
+
+
+    <!-- Toast Notifications (Bottom Right, Multiple Stacking) -->
+    <div class="fixed bottom-15 right-5 z-50 space-y-2">
+        <transition-group name="fade">
+            <div v-for="notification in notifications" :key="notification.id"
+                class="p-4 border border-gray-300 rounded-lg bg-gray-50 dark:border-gray-600 dark:bg-gray-800 w-80 shadow-lg">
+                <div class="flex items-center">
+                    <svg class="shrink-0 w-4 h-4 me-2 dark:text-gray-300" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+                    </svg>
+                    <span class="sr-only">Info</span>
+                    <h3 class="text-lg font-medium text-gray-800 dark:text-gray-300">New Notification</h3>
+                </div>
+                <div class="mt-2 mb-4 text-sm text-gray-800 dark:text-gray-300">
+                    {{ notification.message }}
+                </div>
+                <div class="flex">
+                    <button @click="notifications = notifications.filter(n => n.id !== notification.id)" type="button"
+                        class="text-gray-800 bg-transparent border border-gray-700 hover:bg-gray-800 hover:text-white focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-xs px-3 py-1.5 text-center dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-gray-800 dark:text-gray-300 dark:hover:text-white">
+                        Dismiss
+                    </button>
+                </div>
+            </div>
+        </transition-group>
+    </div>
+
+
 </template>
 
 <script>
+
 import axios from 'axios';
 import Swal from 'sweetalert2';
+import '/resources/js/echo.js';
 
 export default {
     name: "NavBar",
     data() {
         return {
-            dropdownOpen: false
+            dropdownOpen: false,
+            showNotification: false,
+            notificationMessage: "",
+            notifications: [], // ✅ Store multiple notifications
         };
     },
     methods: {
@@ -107,10 +141,32 @@ export default {
                     text: 'An error occurred. Please try again.',
                 });
             }
-        }
+        },
 
 
-    }
+
+    },
+    mounted() {
+        window.Echo.channel('notifications') // Public Channel (No Auth)
+            .listen('NewNotificationEvent', (event) => {
+                console.log('🔔 New notification received:', event.message);
+
+                // ✅ Add new notification to the array
+                const newNotification = {
+                    id: Date.now(), // Unique ID
+                    message: event.message
+                };
+
+                this.notifications.push(newNotification);
+
+                // ✅ Auto-remove after 5 seconds
+                setTimeout(() => {
+                    this.notifications = this.notifications.filter(n => n.id !== newNotification.id);
+                }, 5000);
+            });
+
+    },
+   
 };
 </script>
 
