@@ -17,6 +17,7 @@ Route::get('/login', function () {
 
 Route::get('/reverb', function () {
     event(new NewNotificationEvent('This is a real-time notification!'));
+    return response()->json(['success' => 'Successfully stored', 'time' => date('F d, Y h:i:s a', strtotime(now())) ], 200);
 })->name('reverb.index');
 
 Route::prefix('forgot')->group(function () {
@@ -26,6 +27,15 @@ Route::prefix('forgot')->group(function () {
     Route::post('/reset-password', [App\Http\Controllers\PageController::class, 'resetPassword'])->name('password.reset');
 
 });
+
+
+Route::prefix('notify')->group(function () {
+    Route::post('/store', [App\Http\Controllers\NotificationController::class, 'store']);
+    Route::get('/{userId}/{notifyType}', [App\Http\Controllers\NotificationController::class, 'index']);
+    Route::post('/update/{notifyID}', [App\Http\Controllers\NotificationController::class, 'update']);
+    Route::get('/get/{userId}/unseen', [App\Http\Controllers\NotificationController::class, 'getUnseen']);
+});
+
 
 Route::middleware('auth:sanctum')->group(function () {
     
@@ -47,7 +57,5 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/send', [App\Http\Controllers\AuthController::class, 'otpSend']);
         Route::post('/store', [App\Http\Controllers\AuthController::class, 'otpStore']);
     });
-
-
 
 });

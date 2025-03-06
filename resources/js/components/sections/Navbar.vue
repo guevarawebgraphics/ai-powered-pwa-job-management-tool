@@ -11,16 +11,24 @@
         </div>
 
         <!-- Right Icons -->
-        <div class="relative flex space-x-6"> <!-- Increased spacing -->
+        <div class="relative flex space-x-6">
             <button class="text-gray-800 text-2xl hover:text-gray-600">
                 <i class="fa-solid fa-circle-plus text-[#171A1FFF]"></i>
             </button>
-            <button @click="goToNotification" class="text-gray-800 text-2xl hover:text-gray-600">
+
+            <!-- 🔔 Notification Bell with Badge -->
+            <button @click="goToNotification" class="relative text-gray-800 text-2xl hover:text-gray-600">
                 <i class="fa-regular fa-bell text-[#171A1FFF]"></i>
+
+                <!-- Red Badge for Unseen Notifications -->
+                <span v-if="unseenCount > 0"
+                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
+                    {{ unseenCount }}
+                </span>
             </button>
 
             <!-- Settings Dropdown -->
-            <div class="relative ml-2"> <!-- Adds extra margin to push dropdown slightly right -->
+            <div class="relative ml-2">
                 <button @click="toggleDropdown" class="text-gray-800 text-2xl hover:text-gray-600 focus:outline-none">
                     <i class="fas fa-cog text-[#6b6c70]"></i>
                 </button>
@@ -37,42 +45,10 @@
                 </div>
             </div>
         </div>
-
     </nav>
-
-
-    <!-- Toast Notifications (Bottom Right, Multiple Stacking) -->
-    <div class="fixed bottom-15 right-5 z-50 space-y-2">
-        <transition-group name="fade">
-            <div v-for="notification in notifications" :key="notification.id"
-                class="p-4 border border-gray-300 rounded-lg bg-gray-50 dark:border-gray-600 dark:bg-gray-800 w-80 shadow-lg">
-                <div class="flex items-center">
-                    <svg class="shrink-0 w-4 h-4 me-2 dark:text-gray-300" aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-                        <path
-                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
-                    </svg>
-                    <span class="sr-only">Info</span>
-                    <h3 class="text-lg font-medium text-gray-800 dark:text-gray-300">New Notification</h3>
-                </div>
-                <div class="mt-2 mb-4 text-sm text-gray-800 dark:text-gray-300">
-                    {{ notification.message }}
-                </div>
-                <div class="flex">
-                    <button @click="notifications = notifications.filter(n => n.id !== notification.id)" type="button"
-                        class="text-gray-800 bg-transparent border border-gray-700 hover:bg-gray-800 hover:text-white focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-xs px-3 py-1.5 text-center dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-gray-800 dark:text-gray-300 dark:hover:text-white">
-                        Dismiss
-                    </button>
-                </div>
-            </div>
-        </transition-group>
-    </div>
-
-
 </template>
 
 <script>
-
 import axios from 'axios';
 import Swal from 'sweetalert2';
 import '/resources/js/echo.js';
@@ -82,17 +58,16 @@ export default {
     data() {
         return {
             dropdownOpen: false,
-            showNotification: false,
-            notificationMessage: "",
-            notifications: [], // ✅ Store multiple notifications
+            notifications: [], // Store multiple notifications
+            unseenCount: 0 // 🔴 Store unseen notification count
         };
     },
     methods: {
         goBack() {
             if (this.$route.path === "/set-schedule") {
-                this.$router.push("/profile"); // Redirect to profile if on /set-schedule
+                this.$router.push("/profile");
             } else {
-                this.$router.go(-1); // Default behavior: go back
+                this.$router.go(-1);
             }
         },
         goToNotification() {
@@ -103,23 +78,20 @@ export default {
         },
         goToProfile() {
             this.$router.push('/profile');
-            this.dropdownOpen = false; // Close dropdown after navigation
+            this.dropdownOpen = false;
         },
         async logout() {
             try {
-                const token = localStorage.getItem('token'); // ✅ Retrieve token from localStorage
+                const token = localStorage.getItem('token');
 
                 if (!token) {
                     throw new Error('No authentication token found');
                 }
 
                 await axios.post('/api/logout', {}, {
-                    headers: {
-                        Authorization: `Bearer ${token}` // ✅ Send token in Authorization header
-                    }
+                    headers: { Authorization: `Bearer ${token}` }
                 });
 
-                // ✅ Clear token from localStorage
                 localStorage.removeItem('token');
 
                 Swal.fire({
@@ -130,9 +102,7 @@ export default {
                     showConfirmButton: false
                 });
 
-                // ✅ Redirect to login page
                 window.location.href = '/login';
-
             } catch (error) {
                 console.error('Logout failed:', error.response?.data || error);
                 Swal.fire({
@@ -143,39 +113,62 @@ export default {
             }
         },
 
+        /** 🔴 Fetch unseen notification count */
+        async fetchUnseenCount() {
+            try {
+                const userId = 3; // Replace with dynamic user ID if needed
+                const response = await axios.get(`/api/notify/get/${userId}/unseen`);
 
-
+                if (response.data && response.data.count !== undefined) {
+                    this.unseenCount = response.data.count;
+                }
+            } catch (error) {
+                console.error("❌ Failed to fetch unseen notification count:", error);
+            }
+        }
     },
-    mounted() {
-        window.Echo.channel('notifications') // Public Channel (No Auth)
-            .listen('NewNotificationEvent', (event) => {
-                console.log('🔔 New notification received:', event.message);
+    async mounted() {
+        await this.fetchUnseenCount(); // Fetch unseen notifications count on mount
 
-                // ✅ Add new notification to the array
+        // Listen for real-time notifications
+        window.Echo.channel('notifications')
+            .listen('NewNotificationEvent', (event) => {
+                console.log('🔔 New notification received:', event);
+
+                // Update unseen notification count dynamically
+                this.unseenCount++;
+
+                // Extract the message content
+                const content = event.message?.content || 'No content';
+                const title = event.message?.name || 'New Notification';
+
                 const newNotification = {
-                    id: Date.now(), // Unique ID
-                    message: event.message
+                    id: Date.now(),
+                    title: title,
+                    message: content
                 };
 
                 this.notifications.push(newNotification);
 
-                // ✅ Auto-remove after 5 seconds
+                // Auto-remove after 5 seconds
                 setTimeout(() => {
                     this.notifications = this.notifications.filter(n => n.id !== newNotification.id);
                 }, 5000);
+
+
+                this.fetchUnseenCount(); 
             });
 
-    },
-   
+
+        window.Echo.channel('notifications')
+        .listen('SeenNotificationEvent', (event) => {
+            this.fetchUnseenCount(); 
+        });
+    }
 };
 </script>
 
 <style scoped>
-/* Optional: Adjust padding to avoid content being covered by navbar */
-.content {
-    padding-top: 4rem;
-}
-
 /* Ensure dropdown doesn't disappear immediately */
 .relative:hover .absolute {
     display: block;
