@@ -5,25 +5,22 @@
         <!-- Guild Profile -->
         <div class="flex flex-col items-center p-6">
             <!-- Profile Picture -->
-            <div class="relative">
-                <img src="../../../../public/images/profile.png" alt="Profile Picture"
-                    class="w-24 h-24 rounded-md border border-gray-300 shadow-md" />
-                <!-- Edit Icon (Top Right) -->
-                <button class="absolute top-0 right-0 bg-white border rounded-full p-1 shadow-md">
-                    <i class="fas fa-external-link-alt text-[#BCC1CAFF]"></i>
-                </button>
+            <div class="relative w-24 h-24">
+                <!-- Profile Picture -->
+                <img :src="previewPhoto" alt="Profile Picture"
+                    class="w-24 h-24 rounded-md border border-gray-300 shadow-md object-cover" />
+
+                <!-- File Input (Hidden) -->
+                <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="uploadProfilePhoto" />
+
             </div>
 
             <!-- Name & Title -->
             <div class="mt-3 text-center">
                 <div class="relative inline-block">
-                    <h2 class="text-xl text-[#171A1FFF]">Full Name</h2>
-                    <!-- Edit Icon -->
-                    <button class="absolute -right-6 top-1">
-                        <i class="fas fa-edit text-[#BCC1CAFF]"></i>
-                    </button>
+                    <h2 class="text-xl text-[#171A1FFF]">{{ name ?? '--' }}</h2>
                 </div>
-                <p class="text-[#9095A0FF]">Professional title</p>
+                <p class="text-[#9095A0FF]">{{ professionalTitle ?? '--' }}</p>
             </div>
 
             <!-- Star Rating -->
@@ -40,7 +37,7 @@
         <!-- Statistics Section -->
         <div class="max-w-lg mx-auto p-6">
             <div class="flex justify-between items-center mb-4">
-                <h2 class="text-xl text-[#171A1FFF]">June, 12</h2>
+                <h2 class="text-xl text-[#171A1FFF]">{{ formattedDate }}</h2>
                 <span class="text-gray-500 text-sm">Last 28 days</span>
             </div>
 
@@ -95,7 +92,7 @@
             <div class="space-y-4 mt-3">
                 <div v-for="(update, index) in latestUpdates" :key="index"
                     class="bg-white rounded-[12px] shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col space-y-2">
-                    <div class="flex items-start space-x-3">
+                    <div class="flex items-start space-x-3 cursor-pointer" @click="goToGig(update.gig_id)">
                         <!-- Image/Icon -->
                         <img v-if="update.image" :src="update.image" class="w-12 h-12 rounded-md" />
                         <i v-else :class="update.icon" class="text-3xl text-gray-700"></i>
@@ -113,7 +110,8 @@
                     <div class="flex justify-between items-center">
                         <div class="flex space-x-4 items-center">
                             <span class="text-green-500 font-bold text-lg flex items-center">
-                                <i class="fas fa-dollar-sign mr-1"></i> {{ update.amount }}
+                                <!-- <i class="fas fa-dollar-sign mr-1"></i>  -->
+                                {{ update.amount }}
                             </span>
                             <i class="fas fa-thumbs-up text-xl text-[#171A1FFF]"></i>
                             <i class="fas fa-play-circle text-xl text-[#171A1FFF]"></i>
@@ -128,7 +126,9 @@
                     <!-- Expanded Content -->
                     <div v-if="expandedIndex === index" class="mt-2 p-2 bg-gray-100 rounded-md">
                         <p class="text-sm text-gray-700">
-                            This is additional information about "{{ update.title }}". You can add more details here.
+                            <!-- This is additional information about "{{ update.title }}". You can add more details here. -->
+                            {{ update.repair_notes ?? `This is additional information about "${update.title}". You can
+                            add more details here.` }}
                         </p>
                     </div>
                 </div>
@@ -173,7 +173,7 @@
                             <i class="fas fa-play-circle text-xl text-[#171A1FFF]"></i>
                             <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>
                         </div>
-                        
+
                         <!-- Toggle Arrow -->
                         <i @click="toggleExpandV2(index)"
                             class="fas fa-chevron-down text-xl text-gray-500 cursor-pointer transition-transform duration-300"
@@ -205,34 +205,39 @@
 <script>
 import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
+import axios from "axios"; // Ensure axios is imported
 
 export default {
     components: { NavBar, BottomNav },
     name: "DashboardIndex",
     data() {
         return {
-            expandedIndex: null, // Stores the index of the expanded update
+            expandedIndex: null,
             expandedIndexV2: null,
-            latestUpdates: [
-                {
-                    image: "../../../../images/washing-machine.png",
-                    title: "Next Job in 3 hours.",
-                    description: "Be prepared and Kick Ass. Watch suggested Repair videos, wash your butt and put on the uniform..",
-                    amount: "100",
-                },
-                {
-                    icon: "fas fa-award",
-                    title: "Congratulations !!",
-                    description: "Master of Electric Dryer No Heat Master of Electric Dryer No Heat",
-                    amount: "50",
-                },
-                {
-                    image: "../../../../images/washing-machine.png",
-                    title: "Next Job in 3 hours.",
-                    description: "Be prepared and Kick Ass. Watch suggested Repair videos, wash your butt and put on the uniform..",
-                    amount: "300",
-                },
-            ],
+            previewPhoto: '/images/avatar.png',
+            name: "--",
+            professionalTitle: "--",
+            // latestUpdates: [
+            //     {
+            //         image: "../../../../images/washing-machine.png",
+            //         title: "Next Job in 3 hours.",
+            //         description: "Be prepared and Kick Ass. Watch suggested Repair videos, wash your butt and put on the uniform..",
+            //         amount: "100",
+            //     },
+            //     {
+            //         icon: "fas fa-award",
+            //         title: "Congratulations !!",
+            //         description: "Master of Electric Dryer No Heat Master of Electric Dryer No Heat",
+            //         amount: "50",
+            //     },
+            //     {
+            //         image: "../../../../images/washing-machine.png",
+            //         title: "Next Job in 3 hours.",
+            //         description: "Be prepared and Kick Ass. Watch suggested Repair videos, wash your butt and put on the uniform..",
+            //         amount: "300",
+            //     },
+            // ],
+            latestUpdates: [],
             earnWhileYouLearn: [
                 {
                     image: "../../../../images/earn-while-you-learn.png",
@@ -246,18 +251,98 @@ export default {
                     description: "First 75 days 1 hours",
                     amount: "300",
                 },
-            ]
+            ],
+            gigHistoryData: [], // Store the fetched gig history
+            loadingGigHistory: true, // Loading state
         };
     },
+    computed: {
+        formattedDate() {
+            const today = new Date();
+            const options = { month: "long", day: "numeric" };
+            return today.toLocaleDateString("en-US", options);
+        }
+    },
+    created() {
+        this.gigHistory(); // Automatically call gigHistory when the component is created
+        this.fetchUserData();
+    },
+
     methods: {
         toggleExpand(index) {
-            // If the same index is clicked, collapse it, otherwise expand
             this.expandedIndex = this.expandedIndex === index ? null : index;
         },
         toggleExpandV2(index) {
-            // If the same index is clicked, collapse it, otherwise expand
             this.expandedIndexV2 = this.expandedIndexV2 === index ? null : index;
-        }
+        },
+        goToGig(id) {
+            this.$router.push(`/gig/${id}`);
+        },
+        async gigHistory() {
+            try {
+                const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
+                const token = import.meta.env.VITE_API_KEY;
+
+                console.log("Fetching Gig History...");
+
+                const response = await axios.get(`${api_endpoint}/gigs/retrieveGigByTechID.php`, {
+                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+                });
+
+                this.gigHistoryData = response.data.data; // Store fetched data
+                this.loadingGigHistory = false; // Stop loading
+
+                // Transform data for latestUpdates
+                this.latestUpdates = this.gigHistoryData.map(gig => ({
+                    gig_id: gig.gig_id,
+                    image: "../../../../images/washing-machine.png", // Keeping static image
+                    title: `Gig #${gig.gig_cryptic} - ${gig.machine_brand} ${gig.appliance_type}`,
+                    description: gig.initial_issue || "No issue description available.",
+                    amount: `$${gig.gig_price}`, // Format price
+                    repair_notes: `${gig.repair_notes}`
+                }));
+
+                console.log("Transformed latestUpdates:", this.latestUpdates);
+
+            } catch (error) {
+                console.error("Error fetching gig history data:", error);
+                this.loadingGigHistory = false;
+            }
+        },
+        async fetchUserData() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.error("No token found in localStorage");
+                return;
+            }
+            try {
+                const response = await axios.get('/api/user', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const userData = response.data;
+
+                // Check if profile_photo exists and is valid
+                if (userData.profile_photo && userData.profile_photo !== "null") {
+                    this.previewPhoto = userData.profile_photo.startsWith("http")
+                        ? userData.profile_photo
+                        : `${process.env.VUE_APP_BASE_URL}/storage/${userData.profile_photo}`;
+                } else {
+                    this.previewPhoto = "/images/avatar.png";
+                }
+
+                // Set user info
+                this.name = userData.name;
+                this.professionalTitle = userData.professional_title;
+
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
+        },
     }
 };
+
 </script>

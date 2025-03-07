@@ -20,6 +20,7 @@ import GigReport from './components/Dashboard/GigReport.vue';
 import GigRepair from './components/Dashboard/Repair.vue';
 import ModelPage from './components/Dashboard/Model.vue';
 import Customer from './components/Dashboard/CustomerUI.vue';
+import GigIndex from './components/Dashboard/GigIndex.vue';
 import Forget from './components/Forget.vue';
 import ResetPassword from './components/ResetPassword.vue';
 
@@ -41,6 +42,7 @@ const routes = [
     { path: '/notification', component: Notification, meta: { requiresAuth: true, requiresVerification: true } },
     { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true, requiresVerification: true } },
     { path: '/schedules', component: Schedules, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/gig/:id', component: GigIndex, meta: { requiresAuth: true, requiresVerification: true } },
     { path: '/gig-start', component: GigStart, meta: { requiresAuth: true, requiresVerification: true } },
     { path: '/gig-end', component: GigEnd, meta: { requiresAuth: true, requiresVerification: true } },
     { path: '/gig-report', component: GigReport, meta: { requiresAuth: true, requiresVerification: true } },
