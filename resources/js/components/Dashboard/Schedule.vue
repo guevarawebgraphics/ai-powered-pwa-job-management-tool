@@ -75,7 +75,7 @@
                             <div class="flex justify-between items-center">
                                 <div class="flex space-x-4 items-center">
                                     <span class="text-green-500 font-bold text-lg flex items-center">
-                                        <i class="fas fa-dollar-sign mr-1"></i>
+                                        <!-- <i class="fas fa-dollar-sign mr-1"></i> -->
                                         {{ update.amount }}
                                     </span>
                                     <i class="fas fa-thumbs-up text-xl text-[#171A1FFF]"></i>
@@ -93,9 +93,8 @@
                             <!-- Expanded Content -->
                             <div v-if="expandedIndex === `${time}-${index}`" class="mt-2 p-2 bg-gray-100 rounded-md">
                                 <p class="text-sm text-gray-700">
-                                    This is additional information about "{{
-                                    update.title
-                                    }}". You can add more details here.
+                                   {{ update.repair_notes ?? `This is additional information about "${update.title}". You can
+                            add more details here.` }}
                                 </p>
                             </div>
                         </div>
@@ -111,6 +110,8 @@
 <script>
 import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
+
+import axios from "axios"; // Ensure axios is imported
 
 export default {
     components: { NavBar, BottomNav },
@@ -153,6 +154,8 @@ export default {
                     amount: "100",
                 },
             ],
+            gigHistoryData: [],
+            latestUpdates: [],
         };
     },
     computed: {
@@ -164,6 +167,9 @@ export default {
             }, {});
         },
     },
+    created() {
+        this.gigHistory();
+    },
     methods: {
         toggleExpand(time, index) {
             // Convert time & index into a unique identifier
@@ -173,6 +179,63 @@ export default {
             // Otherwise, close all and open the clicked one
             this.expandedIndex = this.expandedIndex === itemKey ? null : itemKey;
         },
+
+
+        async gigHistory() {
+            try {
+                const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
+                const token = import.meta.env.VITE_API_KEY;
+
+                console.log("Fetching Gig History...");
+
+                const response = await axios.get(`${api_endpoint}/gigs/retrieveGigByTechID.php`, {
+                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+                });
+
+                this.gigHistoryData = response.data.data; // Store fetched data
+
+                console.log(`${response}`);
+
+                // Transform data for latestUpdates
+                this.latestUpdates = this.gigHistoryData.map(gig => {
+                    let recommendedRepairs = [];
+
+                    // Parse `top_recommended_repairs` if it's a valid JSON string
+                    try {
+                        recommendedRepairs = gig.top_recommended_repairs
+                            ? Object.values(JSON.parse(gig.top_recommended_repairs))
+                            : [];
+                    } catch (error) {
+                        console.error("Error parsing recommended repairs:", error);
+                    }
+
+                    // Extract time from start_datetime
+                    const gigTime = new Date(gig.start_datetime).toLocaleTimeString("en-US", {
+                        hour: "numeric",
+                        minute: "2-digit",
+                        hour12: true
+                    });
+
+                    return {
+                        gig_id: gig.gig_id,
+                        time: gigTime, // Group by gig time
+                        image: "../../../../images/washing-machine.png", // Static image
+                        title: `Gig #${gig.gig_cryptic} - ${gig.machine_brand} ${gig.appliance_type}`,
+                        description: gig.initial_issue || "No issue description available.",
+                        amount: `$${gig.gig_price}`, // Format price
+                        repair_notes: gig.repair_notes || "No repair notes available.",
+                        recommended_repairs: recommendedRepairs.join(", ") || "No recommended repairs."
+                    };
+                });
+
+                console.log("Transformed latestUpdates:", this.latestUpdates);
+
+            } catch (error) {
+                console.error("Error fetching gig history data:", error);
+            }
+        }
+
+
     },
 };
 </script>
