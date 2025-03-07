@@ -105,7 +105,8 @@
                     <p class="text-gray-700 text-sm font-semibold">35 Minutes from Your Current Location</p>
                     <p class="text-gray-600">
                         {{ this.gigData.street_address }} <br />
-                        {{ this.gigData.city }}, {{ this.gigData.state }} {{ this.gigData.country }} {{ this.gigData.zip_code }}
+                        {{ this.gigData.city }}, {{ this.gigData.state }} {{ this.gigData.country }} {{
+                        this.gigData.zip_code }}
                     </p>
                 </div>
             </div>
@@ -117,7 +118,7 @@
                 <div>
                     <p class="text-gray-700 text-sm font-semibold">{{ this.gigData.machine_brand }}</p>
                     <p class="text-gray-600">Model #: {{ this.gigData.model_number }}</p>
-                    <p class="text-gray-500">Serial:  {{ this.gigData.serial_number }}</p>
+                    <p class="text-gray-500">Serial: {{ this.gigData.serial_number }}</p>
                 </div>
             </div>
 
@@ -144,17 +145,18 @@
                 </p>
 
                 <div class="space-y-3 mt-4">
-                    <div v-for="(repair, index) in repairHelp" :key="index"
+                    <div v-for="repair in numberedRepairs" :key="repair.title"
                         class="bg-white rounded-lg shadow-md border p-4">
                         <p class="text-lg font-bold text-gray-700">
-                            {{ index + 1 }}
+                            #{{ repair.number }} {{ repair.title }}
                         </p>
-                        <p class="text-gray-700 text-sm">{{ repair.title }}</p>
-                        <p class="text-gray-500 text-xs">
-                            {{ repair.details }}
+                        <p class="text-gray-700 text-sm"><strong>Symptoms:</strong> {{ repair.symptoms }}</p>
+                        <p class="text-gray-500 text-xs"><strong>Solution:</strong> {{ repair.solution }}</p>
+                        <p class="text-gray-500 text-xs"><strong>Parts Needed:</strong> {{ repair.parts.join(", ") }}
                         </p>
                     </div>
                 </div>
+
             </div>
 
             <!-- Easy Repair Video -->
@@ -190,32 +192,10 @@ export default {
     name: "GigPage",
     data() {
         return {
-            repairHelp: [
-                {
-                    title: "Contact Andrea NOW",
-                    details: "772-232-9596",
-                },
-                {
-                    title: "Jensen Beach Location",
-                    details: "2519 SE Ocean Dr, Jensen Beach, FL 34957",
-                },
-                {
-                    title: "Samsung Dryer",
-                    details:
-                        "Model #: WDW9500SS/AA-001, Serial: SN1600005756923",
-                },
-                {
-                    title: "Samsung Dryer",
-                    details:
-                        "Model #: WDW9500SS/AA-001, Serial: SN1600005756923",
-                },
-                {
-                    title: "Samsung Dryer",
-                    details:
-                        "Model #: WDW9500SS/AA-001, Serial: SN1600005756923",
-                },
-            ],
+            repairHelp: [],
+            count: 1,
             gigData: [],
+            machineData: [],
             gigID: null
         };
     },
@@ -224,6 +204,7 @@ export default {
 
         if (this.gigID) {
             this.gigDetail(this.gigID);
+            this.machineDetail(1, this.gigID);
         }
     },
     watch: {
@@ -231,9 +212,19 @@ export default {
         '$route.params.id'(gigID) {
             this.gigID = gigID;
             this.gigDetail(gigID);
+            this.machineDetail(1, gigID);
         }
     },
     computed: {
+        numberedRepairs() {
+            if (!Array.isArray(this.repairHelp)) {
+                return []; // Return empty array if it's not an array
+            }
+            return this.repairHelp.map((repair, index) => ({
+                ...repair,
+                number: index + 1 // Properly numbers each repair item
+            }));
+        },
         formattedCreatedAt() {
             if (!this.gigData || !this.gigData.created_at) return "N/A"; // Handle missing data
 
@@ -265,6 +256,45 @@ export default {
                 console.error("Error fetching gig history data:", error);
             }
         },
+        async machineDetail(machineID, gigID) {
+            try {
+                const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
+                const token = import.meta.env.VITE_API_KEY;
+
+                const response = await axios.get(`${api_endpoint}/machines/retrieveMachineByID.php`, {
+                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+                });
+
+                this.machineData = response.data.data;
+                
+                if (this.machineData.common_repairs) {
+                    console.log("Raw common_repairs data:", this.machineData.common_repairs); // Log before parsing
+
+                    try {
+                        const parsedData = JSON.parse(this.machineData.common_repairs);
+
+                        if (typeof parsedData === "object" && !Array.isArray(parsedData)) {
+                            // Convert object values to an array
+                            this.repairHelp = Object.values(parsedData);
+                        } else {
+                            this.repairHelp = []; // Ensure it's an array
+                        }
+
+                        console.log("Parsed repairHelp (Array format):", this.repairHelp);
+                    } catch (error) {
+                        console.error("Error parsing common_repairs JSON:", error);
+                        this.repairHelp = [];
+                    }
+                }
+
+
+                console.log('Machine Repairs:', this.repairHelp);
+            } catch (error) {
+                console.error("Error fetching repair history data:", error);
+            }
+        }
+
+
     }
 };
 </script>
