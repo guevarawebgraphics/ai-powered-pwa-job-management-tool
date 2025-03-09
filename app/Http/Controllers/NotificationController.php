@@ -33,7 +33,9 @@ class NotificationController extends Controller
         
         $query = $this->notificationService->store( $request->all() );
 
-        event(new NewNotificationEvent($request->all()));
+        if (config('app.env') == "local") {
+            event(new NewNotificationEvent($request->all()));
+        }
 
         return response()->json([
             'message' => 'Successfully stored!',
@@ -47,9 +49,11 @@ class NotificationController extends Controller
 
         $notify = Notification::find($notifyID);
 
-        // event(new NewNotificationEvent($notify->toArray()));
-        
-        event(new SeenNotificationEvent($notify->toArray()));
+        if (config('app.env') == "local") {
+            // event(new NewNotificationEvent($notify->toArray()));
+            
+            event(new SeenNotificationEvent($notify->toArray()));
+        }
 
         return response()->json([
             'message' => 'Successfully updated!',

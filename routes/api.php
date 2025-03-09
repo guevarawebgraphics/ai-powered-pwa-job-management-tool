@@ -16,7 +16,9 @@ Route::get('/login', function () {
 })->name('login');
 
 Route::get('/reverb', function () {
-    event(new NewNotificationEvent('This is a real-time notification!'));
+    if (config('app.env') == "local") {
+        event(new NewNotificationEvent('This is a real-time notification!'));
+    }
     return response()->json(['success' => 'Successfully stored', 'time' => date('F d, Y h:i:s a', strtotime(now())) ], 200);
 })->name('reverb.index');
 
