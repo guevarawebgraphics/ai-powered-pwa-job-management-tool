@@ -53,7 +53,7 @@
                     <div class="space-y-4 mt-2">
                         <div v-for="(update, index) in updates" :key="index"
                             class="bg-white rounded-[12px] shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col space-y-2">
-                            <div class="flex items-start space-x-3">
+                            <div class="flex items-start space-x-3 cursor-pointer" @click="goToGig(update.id)">
                                 <!-- Image/Icon -->
                                 <img v-if="update.image" :src="update.image" class="w-12 h-12 rounded-md" />
                                 <i v-else :class="update.icon" class="text-3xl text-gray-700"></i>
@@ -171,6 +171,11 @@ export default {
         this.gigHistory();
     },
     methods: {
+
+        goToGig(id) {
+            this.$router.push(`/gig/${id}`);
+        },
+
         toggleExpand(time, index) {
             // Convert time & index into a unique identifier
             const itemKey = `${time}-${index}`;
