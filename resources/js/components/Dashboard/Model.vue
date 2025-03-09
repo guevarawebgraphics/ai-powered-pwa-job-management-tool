@@ -5,15 +5,15 @@
         <!-- Model Information -->
         <div class="max-w-lg mx-auto p-6">
             <h2 class="text-lg font-medium text-center text-[#232850FF]">
-                WDW9500SS/AA-001
+                {{ this.machineData.model_number }}
             </h2>
 
             <div class="flex items-center justify-between mt-4">
                 <div class="flex items-center space-x-3">
                     <i class="fas fa-washer text-2xl text-gray-700"></i>
                     <div>
-                        <p class="text-sm text-gray-800 font-medium text-[#222222FF]">Samsung</p>
-                        <p class="text-xs text-[#666666FF]">Dryer</p>
+                        <p class="text-sm text-gray-800 font-medium text-[#222222FF]">{{ this.machineData.brand_name }}</p>
+                        <p class="text-xs text-[#666666FF]">{{ this.machineData.machine_type }}</p>
                     </div>
                 </div>
                 <img src="../../../../public/images/dryer.png" alt="Dryer" class="w-24 rounded-md" />
@@ -77,12 +77,48 @@
 <script>
 import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
+import axios from "axios"; // Ensure ax
 
 export default {
     components: { NavBar, BottomNav },
     name: "ModelPage",
     data() {
-        return {};
+        return {
+            modelID: null,
+            machineData: []
+        };
     },
+    created() {
+        this.modelID = this.$route.params.id;
+
+        if (this.modelID) {
+            this.modelDetail(this.modelID);
+        }
+    },
+    watch: {
+        // Watch for changes in route (if navigating to another customer)
+        '$route.params.id'(modelID) {
+            modelDetail(modelID);
+        }
+    },
+    methods: {
+        async modelDetail(modelID) {
+            try {
+                const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
+                const token = import.meta.env.VITE_API_KEY;
+
+                const response = await axios.get(`${api_endpoint}/machines/retrieveMachineByID.php`, {
+                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+                });
+
+                this.machineData = response.data.data;
+
+                console.log(this.machineData);
+
+            } catch (error) {
+                console.error("Error fetching gig history data:", error);
+            }
+        }
+    }
 };
 </script>

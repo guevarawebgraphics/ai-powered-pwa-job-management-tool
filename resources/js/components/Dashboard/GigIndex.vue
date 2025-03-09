@@ -54,7 +54,7 @@
             <!-- Customer Information -->
             <div class="bg-white rounded-lg shadow-md border p-4 space-y-3">
                 <!-- Top Section -->
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center cursor-pointer" @click="goToCustomer(1)">
                     <div class="flex items-center space-x-3">
                         <!-- Profile Icon -->
                         <i class="fas fa-id-card text-gray-500 text-3xl"></i>
@@ -112,7 +112,7 @@
             </div>
 
             <!-- Samsung Dryer Details -->
-            <div class="bg-white rounded-lg shadow-md border p-4 flex items-start space-x-3">
+            <div class="bg-white rounded-lg shadow-md border p-4 flex items-start space-x-3 cursor-pointer" @click="goToModel(1)">
                 <!-- Appliance Icon -->
                 <i class="fas fa-tshirt text-gray-500 text-3xl"></i>
                 <div>
@@ -239,6 +239,12 @@ export default {
         }
     },
     methods: {
+        goToModel(modelID) {
+            this.$router.push(`/model/${modelID}`);
+        },
+        goToCustomer(id) {
+            this.$router.push(`/customer/${id}`);
+        },
         async gigDetail(gigID) {
             try {
                 const api_endpoint = import.meta.env.VITE_API_ENDPOINT;

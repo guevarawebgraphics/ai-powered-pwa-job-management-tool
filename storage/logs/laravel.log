@@ -5125,3 +5125,7 @@ Did you mean this?
 #51 C:\\xampp\\htdocs\\american-repair-appliance\\public\\index.php(17): Illuminate\\Foundation\\Application->handleRequest(Object(Illuminate\\Http\\Request))
 #52 {main}
 "} 
+[2025-03-09 08:36:20] local.INFO: Current IP: 49.144.199.98  
+[2025-03-09 08:36:20] local.INFO: New IP: 127.0.0.1  
+[2025-03-09 08:36:51] local.INFO: Current IP: 49.144.199.98  
+[2025-03-09 08:36:51] local.INFO: New IP: 127.0.0.1  
