@@ -26,7 +26,6 @@ jobs:
           server-dir: /
           protocol: ftps # More secure than FTP
           passive: true # Prevents connection issues
-          timeout: 60000 # Increases timeout
           exclude: |
             vendor/**        # Prevents syncing vendor folder
             node_modules/**  # Prevents node_modules sync
