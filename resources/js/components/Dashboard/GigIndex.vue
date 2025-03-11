@@ -146,7 +146,7 @@
 
                 <div class="space-y-3 mt-4">
                     <div v-for="repair in numberedRepairs" :key="repair.title"
-                        class="bg-white rounded-lg shadow-md border p-4">
+                        class="bg-white rounded-lg shadow-md border p-4 cursor-pointer" @click="goToRepair(repair.id, this.gigID)">
                         <p class="text-lg font-bold text-gray-700">
                             #{{ repair.number }} {{ repair.title }}
                         </p>
@@ -242,6 +242,9 @@ export default {
         goToModel(modelID) {
             this.$router.push(`/model/${modelID}`);
         },
+        goToRepair(repairId, gigId) {
+            this.$router.push(`/gig/${gigId}/repair/${repairId}`);
+        },
         goToCustomer(id) {
             this.$router.push(`/customer/${id}`);
         },
@@ -250,7 +253,7 @@ export default {
                 const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
                 const token = import.meta.env.VITE_API_KEY;
 
-                const response = await axios.get(`${api_endpoint}/gigs/retrieveGigByGigID.php`, {
+                const response = await axios.get(`${api_endpoint}/gigs/retrieveGigByGigID.php?gig_id=${gigID}`, {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
                 });
 

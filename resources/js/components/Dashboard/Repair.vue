@@ -110,11 +110,60 @@
 import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
 
+import axios from "axios"; // Ensure ax
+
 export default {
     components: { NavBar, BottomNav },
     name: "GigRepairPage",
     data() {
-        return {};
+        return {
+            gigId: null,
+            repairId: null,
+            repairData: [],
+            gigData: [],
+            machineData: [],
+        };
     },
+    created() {
+        this.gigId = this.$route.params.gigId;
+        this.repairId = this.$route.params.repairId;
+        if (this.gigId) {
+            this.gigDetail(this.gigId);
+        }
+        if (this.repairId) {
+            this.repairDetail(this.repairId);
+        }
+    },
+    watch: {
+        // Watch for changes in route (if navigating to another customer)
+        '$route.params.gigId'(gigID) {
+            this.gigID = gigID;
+        },
+        '$route.params.repairId'(repairId) {
+            this.repairId = repairId;
+        }
+    },
+    methods: {
+        async gigDetail(gigId) {
+            try {
+                const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
+                const token = import.meta.env.VITE_API_KEY;
+
+                const response = await axios.get(`${api_endpoint}/gigs/retrieveGigByGigID.php`, {
+                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+                });
+
+                this.gigData = response.data.data[0];
+
+                console.log(this.gigData);
+
+            } catch (error) {
+                console.error("Error fetching gig history data:", error);
+            }
+        },
+        repairDetail(repairId) {
+            console.log(`Repair ID: ${repairId}`);
+        },
+    }
 };
 </script>
