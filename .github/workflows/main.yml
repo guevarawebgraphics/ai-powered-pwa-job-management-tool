@@ -26,27 +26,3 @@ jobs:
           server-dir: /
           protocol: ftps # More secure than FTP
           passive: true # Prevents connection issues
-          exclude: |
-            vendor/**        # Prevents syncing vendor folder
-            node_modules/**  # Prevents node_modules sync
-            storage/**       # Prevents Laravel storage files from being uploaded
-            .git/**          # Prevents Git files
-            .env*            # Prevents all .env files (.env, .env.production, etc.)
-            .gitignore       # Prevents .gitignore itself from being uploaded
-            .phpunit.cache   # Prevents PHPUnit cache files
-            /public/hot      # Prevents public/hot file
-            /public/storage  # Prevents storage symlink from public
-            /storage/*.key   # Prevents storage key files
-            /storage/pail    # Prevents storage pail folder
-            .phpactor.json   # Prevents PHPActor config
-            .phpunit.result.cache # Prevents PHPUnit result cache
-            Homestead.json   # Prevents Homestead files
-            Homestead.yaml   # Prevents Homestead config
-            npm-debug.log    # Prevents npm debug log
-            yarn-error.log   # Prevents yarn error log
-            auth.json        # Prevents auth.json
-            /.fleet          # Prevents fleet folder
-            /.idea           # Prevents PhpStorm/WebStorm IDE config files
-            /.nova           # Prevents Laravel Nova config files
-            /.vscode         # Prevents VS Code config files
-            /.zed            # Prevents Zed editor config files
