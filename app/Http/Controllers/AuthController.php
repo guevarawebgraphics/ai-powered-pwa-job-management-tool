@@ -146,6 +146,17 @@ class AuthController extends Controller
     
         return response()->json(['message' => 'Email verified successfully']);
     }
+
+    public function getUserData(Request $request)
+    {
+        $user = $request->user();
+        $total_jobs_booked = $count = \DB::table('gigs')->where('assigned_tech_id', 6)->count();
+        $data = [
+            'user'  =>  $user,
+            'total_jobs_booked' =>  $total_jobs_booked
+        ];
+        return $data;
+    }
     
     
 }

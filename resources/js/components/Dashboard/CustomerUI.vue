@@ -38,7 +38,7 @@
                         <p class="text-xs text-gray-500">{{ customerData.phone_number }}</p>
                     </div>
                 </div>
-                <i class="fas fa-edit text-gray-400"></i>
+                <!-- <i class="fas fa-edit text-gray-400"></i> -->
             </div>
             <div class="bg-white shadow-md rounded-lg p-4 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
@@ -48,7 +48,7 @@
                         <p class="text-xs text-gray-500">{{ customerData.email }}</p>
                     </div>
                 </div>
-                <i class="fas fa-edit text-gray-400"></i>
+                <!-- <i class="fas fa-edit text-gray-400"></i> -->
             </div>
             <div class="bg-white shadow-md rounded-lg p-4 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
@@ -62,12 +62,12 @@
                         </p>
                     </div>
                 </div>
-                <i class="fas fa-edit text-gray-400"></i>
+                <!-- <i class="fas fa-edit text-gray-400"></i> -->
             </div>
             <div class="bg-white shadow-md rounded-lg p-4">
-                <p class="text-sm font-medium text-[#666666FF]">Dog's Name is "Biscuit"</p>
-                <p class="text-xs text-gray-500">Gate Code #1975</p>
-                <p class="text-xs text-gray-500">Husband's name "Fred"</p>
+                <p class="text-sm font-medium text-[#666666FF]">{{ customerData.extra_field1 }}</p>
+                <!-- <p class="text-xs text-gray-500">Gate Code #1975</p> -->
+                <p class="text-xs text-gray-500">{{ customerData.extra_field2 }}</p>
             </div>
         </div>
 
@@ -161,9 +161,15 @@ export default {
 
                 console.log("Fetching data for ID:", id);
 
-                const response = await axios.get(`${api_endpoint}/clients/retrieveClient.php`, {
-                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
-                });
+                const response = await axios.post(`${api_endpoint}/clients/retrieveClient.php`,
+                    {
+                        client_id: id
+                    },
+                    {
+                        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+                    }
+                );
+                console.log(response);
 
                 this.customerData = response.data.data;
                 this.loading = false; // Turn off loading

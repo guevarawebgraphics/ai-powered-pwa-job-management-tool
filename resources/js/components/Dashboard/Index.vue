@@ -53,12 +53,12 @@
                     <!-- <p class="text-sm text-gray-500">Day gig streak</p> -->
                 </button>
 
-                <button type="button"
+                <button type="button" @click="goToSchedule()"
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <div class="flex items-center space-x-2">
                         <i class="fas fa-calendar-alt text-lg text-[#232850FF]"></i>
-                        <span class="text-xl font-bold text-[#171A1FFF]">3</span>
+                        <span class="text-xl font-bold text-[#171A1FFF]">{{ this.total_jobs }}</span>
                     </div>
                     <p class="text-sm text-[#666666FF]">Jobs Booked Today</p>
                 </button>
@@ -215,28 +215,11 @@ export default {
             expandedIndex: null,
             expandedIndexV2: null,
             previewPhoto: '/images/avatar.png',
+
+            user_id: null,
+            total_jobs: 0,
             name: "--",
             professionalTitle: "--",
-            // latestUpdates: [
-            //     {
-            //         image: "../../../../images/washing-machine.png",
-            //         title: "Next Job in 3 hours.",
-            //         description: "Be prepared and Kick Ass. Watch suggested Repair videos, wash your butt and put on the uniform..",
-            //         amount: "100",
-            //     },
-            //     {
-            //         icon: "fas fa-award",
-            //         title: "Congratulations !!",
-            //         description: "Master of Electric Dryer No Heat Master of Electric Dryer No Heat",
-            //         amount: "50",
-            //     },
-            //     {
-            //         image: "../../../../images/washing-machine.png",
-            //         title: "Next Job in 3 hours.",
-            //         description: "Be prepared and Kick Ass. Watch suggested Repair videos, wash your butt and put on the uniform..",
-            //         amount: "300",
-            //     },
-            // ],
             latestUpdates: [],
             earnWhileYouLearn: [
                 {
@@ -264,8 +247,11 @@ export default {
         }
     },
     created() {
-        this.gigHistory(); // Automatically call gigHistory when the component is created
-        this.fetchUserData();
+
+        this.fetchUserData().then(() => {
+            console.log("User ID after fetchUserData:", this.user_id);
+            this.gigHistory(); // Now it will have the correct user_id
+        });
     },
 
     methods: {
@@ -278,6 +264,9 @@ export default {
         goToGig(id) {
             this.$router.push(`/gig/${id}`);
         },
+        goToSchedule() {
+            this.$router.push(`/schedules`);
+        },
         async gigHistory() {
             try {
                 const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
@@ -285,11 +274,19 @@ export default {
 
                 console.log("Fetching Gig History...");
 
-                const response = await axios.get(`${api_endpoint}/gigs/retrieveGigByTechID.php`, {
-                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
-                });
+                console.log("User ID: " + this.user_id );
+
+                const response = await axios.post(`${api_endpoint}/gigs/retrieveGigByTechID.php`,
+                    { techID: this.user_id }, // Passing techID in the request body
+                    {
+                        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+                    }
+                );
 
                 this.gigHistoryData = response.data.data; // Store fetched data
+
+                console.log(`Gig History`, response );
+
                 this.loadingGigHistory = false; // Stop loading
 
                 // Transform data for latestUpdates
@@ -323,7 +320,7 @@ export default {
                     }
                 });
 
-                const userData = response.data;
+                const userData = response.data.user;
 
                 // Check if profile_photo exists and is valid
                 if (userData.profile_photo && userData.profile_photo !== "null") {
@@ -337,7 +334,8 @@ export default {
                 // Set user info
                 this.name = userData.name;
                 this.professionalTitle = userData.professional_title;
-
+                this.user_id = userData.id;
+                this.total_jobs = response.data.total_jobs_booked;
             } catch (error) {
                 console.error("Error fetching user data:", error);
             }

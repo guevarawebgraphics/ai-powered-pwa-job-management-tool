@@ -16,6 +16,7 @@
 
             <!-- Stats Grid -->
             <div class="grid grid-cols-2 gap-3">
+                
                 <div
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
@@ -193,9 +194,13 @@ export default {
 
                 console.log("Fetching Gig History...");
 
-                const response = await axios.get(`${api_endpoint}/gigs/retrieveGigByTechID.php`, {
-                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
-                });
+                const response = await axios.post(`${api_endpoint}/gigs/retrieveGigByTechID.php`,
+                    { techID: 6 }, // Passing techID in the request body
+                    {
+                        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+                    }
+                );
+
 
                 this.gigHistoryData = response.data.data; // Store fetched data
 

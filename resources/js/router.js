@@ -71,7 +71,7 @@ router.beforeEach(async (to, from, next) => {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            const user = response.data;
+            const user = response.data.user;
             const isVerified = user.is_verified; // Assuming backend returns this
 
             if (to.meta.requiresVerification && !isVerified) {

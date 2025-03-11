@@ -44,9 +44,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout']);
 
     Route::prefix('user')->group(function () {
-        Route::get('/', function (Request $request) {
-            return $request->user();
-        });
+        // Route::get('/', function (Request $request) {
+        //     return $request->user();
+        // });
+        Route::get('/', [App\Http\Controllers\AuthController::class, 'getUserData']);
         Route::post('/update', [App\Http\Controllers\AuthController::class, 'update']);
     });
 

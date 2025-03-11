@@ -79,7 +79,7 @@ export default {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
-            const user = user_query.data;
+            const user = user_query.data.user;
             this.user_data = user;
 
             this.fetchNotifications();

@@ -12,11 +12,12 @@
                 <div class="flex items-center space-x-3">
                     <i class="fas fa-washer text-2xl text-gray-700"></i>
                     <div>
-                        <p class="text-sm text-gray-800 font-medium text-[#222222FF]">{{ this.machineData.brand_name }}</p>
+                        <p class="text-sm text-gray-800 font-medium text-[#222222FF]">{{ this.machineData.brand_name }}
+                        </p>
                         <p class="text-xs text-[#666666FF]">{{ this.machineData.machine_type }}</p>
                     </div>
                 </div>
-                <img src="../../../../public/images/dryer.png" alt="Dryer" class="w-24 rounded-md" />
+                <img :src="machineData.machine_photo" alt="Dryer" class="w-24 rounded-md" />
             </div>
 
             <!-- DAX Section -->

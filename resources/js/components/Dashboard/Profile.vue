@@ -263,7 +263,7 @@ export default {
             //     { day: "Friday", hours: "8 AM - 8 PM" },
             // ],
             workSchedule: [],
-            advancedSchedule: false,
+            advancedSchedule: false
         };
     },
     methods: {
@@ -345,7 +345,7 @@ export default {
                     }
                 });
 
-                const userData = response.data;
+                const userData = response.data.user;
 
                 // Check if profile_photo exists and is valid
                 if (userData.profile_photo && userData.profile_photo !== "null") {

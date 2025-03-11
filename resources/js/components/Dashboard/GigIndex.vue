@@ -54,7 +54,7 @@
             <!-- Customer Information -->
             <div class="bg-white rounded-lg shadow-md border p-4 space-y-3">
                 <!-- Top Section -->
-                <div class="flex justify-between items-center cursor-pointer" @click="goToCustomer(1)">
+                <div class="flex justify-between items-center cursor-pointer" @click="goToCustomer(this.gigData.client_id)">
                     <div class="flex items-center space-x-3">
                         <!-- Profile Icon -->
                         <i class="fas fa-id-card text-gray-500 text-3xl"></i>
@@ -62,8 +62,8 @@
                             <p class="font-bold text-lg text-gray-900">
                                 {{ this.gigData.client_name }}
                             </p>
-                            <p class="text-sm text-gray-500">**Return Customer**</p>
-                            <p class="text-xs text-gray-500">*Dog’s Name: Biscuit*</p>
+                            <p class="text-sm text-gray-500">{{ this.gigData.client_extra_field1 }}</p>
+                            <p class="text-xs text-gray-500">{{ this.gigData.client_extra_field2 }}</p>
                         </div>
                     </div>
                     <!-- Star Icon -->
