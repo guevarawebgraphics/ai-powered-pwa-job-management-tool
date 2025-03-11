@@ -221,7 +221,7 @@ export default {
             }
             return this.repairHelp.map((repair, index) => ({
                 ...repair,
-                number: index + 1 // Properly numbers each repair item
+                number: index + 1 // Assigns a sequential number to each item
             }));
         },
         formattedCreatedAt() {
@@ -277,19 +277,13 @@ export default {
 
                 this.machineData = response.data.data;
                 
-                console.log(`Machine Data:`, this.machineData);
                 if (this.machineData.common_repairs) {
                     console.log("Raw common_repairs data:", this.machineData.common_repairs); // Log before parsing
 
                     try {
                         const parsedData = JSON.parse(this.machineData.common_repairs);
 
-                        if (typeof parsedData === "object" && !Array.isArray(parsedData)) {
-                            // Convert object values to an array
-                            this.repairHelp = Object.values(parsedData);
-                        } else {
-                            this.repairHelp = []; // Ensure it's an array
-                        }
+                        this.repairHelp = parsedData;
 
                         console.log("Parsed repairHelp (Array format):", this.repairHelp);
                     } catch (error) {
@@ -297,8 +291,9 @@ export default {
                         this.repairHelp = [];
                     }
                 }
+                
 
-
+                
                 console.log('Machine Repairs:', this.repairHelp);
             } catch (error) {
                 console.error("Error fetching repair history data:", error);

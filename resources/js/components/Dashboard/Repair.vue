@@ -5,30 +5,61 @@
         <!-- Repair Details Section -->
         <div class="max-w-lg mx-auto p-6">
             <h2 class="text-lg text-center text-[#232850]">
-                Electric Dryer Tumbling , Not Heating
+                {{ this.selectedRepair.title }}
             </h2>
-            <a href="#" class="block text-center text-blue-500 underline">{{ this.gigData.model_number }}</a>
+            <a href="#" class="block text-center text-blue-500 underline"
+                @click.prevent="goToModel(machineData.machine_id)">{{ this.gigData.model_number }}</a>
 
-            <div class="flex items-center mt-4">
-                <i class="fas fa-wrench text-2xl text-gray-700"></i>
-                <p class="text-sm text-red-600 ml-3">Most Common Repair</p>
-                <p class="text-sm font-semibold text-red-600">
-                    Replace the Heating Element
+            <div class="flex items-start mt-4 relative">
+                <p class="text-sm font-semibold  flex flex-col space-y-1">
+                    <span class="flex items-center space-x-1 text-gray-600">
+                        <i class="fas fa-wrench text-sm text-gray-700"></i>
+                        <span>Most Common Repair</span>
+                    </span>
+                    <span class="flex items-center space-x-1 text-red-600">
+                        <i data-tooltip-target="tooltip-symptoms" data-tooltip-style="light"
+                            class="fas fa-info-circle text-gray-700 text-sm"></i>
+                        <span>{{ this.selectedRepair.symptoms }}</span>
+                    </span>
+                    <span class="flex items-center space-x-1 text-green-600">
+                        <i data-tooltip-target="tooltip-solution" data-tooltip-style="light"
+                            class="fas fa-check text-gray-700 text-sm"></i>
+                        <span>{{ this.selectedRepair.solution }}</span>
+                    </span>
+
                 </p>
+
+                <!-- Tooltip for Symptoms -->
+                <div id="tooltip-symptoms" role="tooltip"
+                    class="absolute z-10 invisible px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg shadow-md opacity-0 tooltip">
+                    Symptoms
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
+
+                <!-- Tooltip for Solution -->
+                <div id="tooltip-solution" role="tooltip"
+                    class="absolute z-10 invisible px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg shadow-md opacity-0 tooltip">
+                    Solution
+                    <div class="tooltip-arrow" data-popper-arrow></div>
+                </div>
             </div>
+
+
 
             <hr class="border-gray-300 my-4" />
 
             <!-- Gig Stats -->
             <div class="grid grid-cols-2 gap-4 mt-4">
-                <div class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
+                <div
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <i class="fas fa-headset text-2xl text-gray-700"></i>
                     <p class="text-sm font-medium mt-2">DAX</p>
                 </div>
-                <div class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
+                <div
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
-                    <p class="text-lg font-bold text-gray-700">#1</p>
+                    <p class="text-lg font-bold text-gray-700">#{{ this.selectedRepair.id }}</p>
                 </div>
             </div>
 
@@ -122,6 +153,7 @@ export default {
             repairData: [],
             gigData: [],
             machineData: [],
+            selectedRepair:[]
         };
     },
     created() {
@@ -129,9 +161,6 @@ export default {
         this.repairId = this.$route.params.repairId;
         if (this.gigId) {
             this.gigDetail(this.gigId);
-        }
-        if (this.repairId) {
-            this.repairDetail(this.repairId);
         }
     },
     watch: {
@@ -155,15 +184,64 @@ export default {
 
                 this.gigData = response.data.data[0];
 
+                this.repairDetail(this.gigData.machine_id, this.repairId);
+
                 console.log(this.gigData);
 
             } catch (error) {
                 console.error("Error fetching gig history data:", error);
             }
         },
-        repairDetail(repairId) {
-            console.log(`Repair ID: ${repairId}`);
+        async repairDetail(machineID, repairId) {
+            try {
+                const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
+                const token = import.meta.env.VITE_API_KEY;
+
+                const response = await axios.get(`${api_endpoint}/machines/retrieveMachineByID.php?machine_id=${machineID}`, {
+                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+                });
+
+                this.machineData = response.data.data;
+
+                if (this.machineData && this.machineData.common_repairs) {
+                    let commonRepairs = [];
+
+                    try {
+                        commonRepairs = JSON.parse(this.machineData.common_repairs); // Parse JSON string
+                    } catch (error) {
+                        console.error("Error parsing common_repairs JSON:", error);
+                        return;
+                    }
+
+                    // Debugging: Log the parsed array and repairId
+                    console.log("Parsed common_repairs:", commonRepairs);
+                    console.log("repairId Type:", typeof repairId, "Value:", repairId);
+
+                    // Ensure repairId is a number for comparison
+                    const numericRepairId = Number(repairId);
+
+                    if (Array.isArray(commonRepairs)) {
+                        const repair = commonRepairs.find(repair => Number(repair.id) === numericRepairId);
+
+                        if (repair) {
+                            console.log("Matching repair:", repair);
+                            this.selectedRepair = repair;
+                        } else {
+                            console.log("Repair not found for ID:", numericRepairId);
+                        }
+                    } else {
+                        console.log("Parsed common_repairs is not an array:", commonRepairs);
+                    }
+                } else {
+                    console.log("common_repairs is missing or null:", this.machineData);
+                }
+            } catch (error) {
+                console.error("Error fetching repair data:", error);
+            }
         },
+        goToModel(modelID) {
+            this.$router.push(`/model/${modelID}`);
+        }
     }
 };
 </script>
