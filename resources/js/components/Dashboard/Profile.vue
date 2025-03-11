@@ -277,6 +277,7 @@ export default {
             };
             return placeholders[key] || "Enter Information";
         },
+        
         async updateSettings(field, value) {
             try {
                 
@@ -301,12 +302,14 @@ export default {
                 console.error(`Error updating ${field}:`, error.message);
             }
         },
+
         editName() {
             this.tempName = this.name;
             this.tempTitle = this.professionalTitle;
             this.isEditingName = true;
             this.isEditingTitle = true;
         },
+
         async saveChanges() {
             const token = localStorage.getItem("token");
             try {
@@ -327,10 +330,12 @@ export default {
                 console.error("Error updating:", error);
             }
         },
+
         cancelChanges() {
             this.isEditingName = false;
             this.isEditingTitle = false;
         },
+
         async fetchUserData() {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -379,10 +384,12 @@ export default {
                 console.error("Error fetching user data:", error);
             }
         },
+
         toggleEdit(index) {
             this.contactInfo[index].editing = true;
             this.contactInfo[index].tempValue = this.contactInfo[index].value; // Store original value
         },
+
         async saveContact(index) {
             const item = this.contactInfo[index];
             const token = localStorage.getItem('token');
@@ -407,10 +414,12 @@ export default {
                 Swal.fire("Error", "Failed to update record!", "error");
             }
         },
+
         cancelEdit(index) {
             this.contactInfo[index].tempValue = this.contactInfo[index].value; // Revert changes
             this.contactInfo[index].editing = false; // Hide edit mode
         },
+
         // Update contact info in real-time
         updateContact(index) {
             const field = this.contactInfo[index].key;
@@ -432,9 +441,11 @@ export default {
                     console.error("Update failed:", error);
                 });
         },
+
         toggleDropdown() {
             this.isDropdownOpen = !this.isDropdownOpen;
         },
+
         closeDropdown(event) {
             if (!this.$el.contains(event.target)) {
                 this.isDropdownOpen = false;
