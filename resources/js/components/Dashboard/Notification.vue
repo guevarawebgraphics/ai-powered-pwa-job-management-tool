@@ -20,7 +20,7 @@
                     <h2 class="text-xs font-bold text-gray-500 uppercase mb-2">{{ section.date }}</h2>
                     <div v-for="(notification, index) in section.items" :key="index" 
                         @click="markAsRead(notification)"
-                        class="bg-white rounded-lg shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex items-center space-x-4 mb-3">
+                        class="bg-white rounded-lg shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex items-center space-x-4 mb-3 cursor-pointer">
 
                         <!-- Icon -->
                         <i :class="notification.icon" class="text-2xl text-[#9095A0FF]"></i>

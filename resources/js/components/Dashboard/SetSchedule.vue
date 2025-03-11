@@ -1,4 +1,4 @@
-<template> 
+<template>
     <div class="mt-20 mb-20">
         <NavBar />
 
@@ -12,8 +12,11 @@
                         <h2 class="text-normal text-[#171A1FFF]">{{ day.name }}</h2>
                         <label class="flex items-center space-x-2 cursor-pointer">
                             <input type="checkbox" v-model="day.closed" class="peer hidden">
-                            <div class="w-6 h-6 flex items-center justify-center rounded-[8px] border-2 border-[#43474AFF] bg-white peer-checked:bg-white peer-checked:border-[#43474AFF] transition-all">
-                                <svg v-if="day.closed" class="w-4 h-4 text-[#43474AFF]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <div
+                                class="w-6 h-6 flex items-center justify-center rounded-[8px] border-2 border-[#43474AFF] bg-white peer-checked:bg-white peer-checked:border-[#43474AFF] transition-all">
+                                <svg v-if="day.closed" class="w-4 h-4 text-[#43474AFF]" viewBox="0 0 24 24" fill="none"
+                                    stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
                                     <polyline points="20 6 9 17 4 12" />
                                 </svg>
                             </div>
@@ -25,10 +28,18 @@
                     <div v-if="!day.closed" class="mt-3 space-y-3">
                         <div v-for="(slot, slotIndex) in day.slots" :key="slotIndex" class="space-y-1">
                             <label class="text-sm text-[#43474AFF]">Start</label>
-                            <input type="time" v-model="slot.open" class="w-full p-2 border border-[#43474AFF] rounded-md focus:ring-2 focus:ring-blue-300 focus:outline-none">
+                            <input type="time" v-model="slot.open"
+                                class="w-full p-2 border border-[#43474AFF] rounded-md focus:ring-2 focus:ring-blue-300 focus:outline-none">
 
                             <label class="text-sm text-[#43474AFF]">End</label>
-                            <input type="time" v-model="slot.close" class="w-full p-2 border border-[#43474AFF] rounded-md focus:ring-2 focus:ring-blue-300 focus:outline-none">
+                            <input type="time" v-model="slot.close"
+                                class="w-full p-2 border border-[#43474AFF] rounded-md focus:ring-2 focus:ring-blue-300 focus:outline-none">
+
+                            <!-- Remove Slot Button -->
+                            <button type="button" @click="removeSlot(index, slotIndex)"
+                                class="mt-2 text-red-500 hover:text-red-700">
+                                <i class="fas fa-trash-alt"></i> Remove
+                            </button>
                         </div>
 
                         <!-- Add Time Slot Button -->
@@ -39,7 +50,8 @@
                 </div>
 
                 <!-- Submit Button -->
-                <button type="submit" class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700">
+                <button type="submit"
+                    class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700">
                     Submit
                 </button>
             </form>
@@ -130,6 +142,19 @@ export default {
         addSlot(index) {
             this.schedule[index].slots.push({ open: "", close: "" });
         },
+        removeSlot(dayIndex, slotIndex) {
+            if (this.schedule[dayIndex].slots.length === 1 && !this.schedule[dayIndex].closed) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Cannot Remove Slot',
+                    text: 'At least one start and end time is required for open days.',
+                });
+                return;
+            }
+
+            this.schedule[dayIndex].slots.splice(slotIndex, 1);
+        },
+
         async submitForm() {
             try {
 

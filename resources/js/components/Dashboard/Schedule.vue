@@ -54,7 +54,7 @@
                     <div class="space-y-4 mt-2">
                         <div v-for="(update, index) in updates" :key="index"
                             class="bg-white rounded-[12px] shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col space-y-2">
-                            <div class="flex items-start space-x-3 cursor-pointer" @click="goToGig(update.id)">
+                            <div class="flex items-start space-x-3 cursor-pointer" @click="goToGig(update.gig_id)">
                                 <!-- Image/Icon -->
                                 <img v-if="update.image" :src="update.image" class="w-12 h-12 rounded-md" />
                                 <i v-else :class="update.icon" class="text-3xl text-gray-700"></i>
@@ -119,6 +119,12 @@ export default {
     name: "SchedulePage",
     data() {
         return {
+            previewPhoto: '/images/avatar.png',
+
+            user_id: null,
+            total_jobs: 0,
+            name: "--",
+            professionalTitle: "--",
             selectedDate: new Date().toISOString().substr(0, 10), // Default to today's date
             expandedIndex: null, // Store the currently expanded index
             latestUpdates: [
@@ -169,7 +175,11 @@ export default {
         },
     },
     created() {
-        this.gigHistory();
+
+        this.fetchUserData().then(() => {
+            console.log("User ID after fetchUserData:", this.user_id);
+            this.gigHistory(); // Now it will have the correct user_id
+        });
     },
     methods: {
 
@@ -243,7 +253,42 @@ export default {
             } catch (error) {
                 console.error("Error fetching gig history data:", error);
             }
-        }
+        },
+
+        async fetchUserData() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.error("No token found in localStorage");
+                return;
+            }
+            try {
+                const response = await axios.get('/api/user', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const userData = response.data.user;
+
+                // Check if profile_photo exists and is valid
+                if (userData.profile_photo && userData.profile_photo !== "null") {
+                    this.previewPhoto = userData.profile_photo.startsWith("http")
+                        ? userData.profile_photo
+                        : `${process.env.VUE_APP_BASE_URL}/storage/${userData.profile_photo}`;
+                } else {
+                    this.previewPhoto = "/images/avatar.png";
+                }
+
+                // Set user info
+                this.name = userData.name;
+                this.professionalTitle = userData.professional_title;
+                this.user_id = userData.id;
+                this.total_jobs = response.data.total_jobs_booked;
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
+        },
 
 
     },

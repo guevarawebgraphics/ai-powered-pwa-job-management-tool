@@ -89,10 +89,19 @@ export default {
     name: "NavBar",
     data() {
         return {
+            user_id: null,
+            total_jobs: 0,
+            name: "--",
+            professionalTitle: "--",
             dropdownOpen: false,
             notifications: [], // Store multiple notifications
             unseenCount: 0 // 🔴 Store unseen notification count
         };
+    },
+    created() {
+        this.fetchUserData().then(() => {
+            this.fetchUnseenCount(); // Now it will have the correct user_id
+        });
     },
     methods: {
         goBack() {
@@ -144,11 +153,46 @@ export default {
                 });
             }
         },
+        async fetchUserData() {
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.error("No token found in localStorage");
+                return;
+            }
+            try {
+                const response = await axios.get('/api/user', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const userData = response.data.user;
+
+                // Check if profile_photo exists and is valid
+                if (userData.profile_photo && userData.profile_photo !== "null") {
+                    this.previewPhoto = userData.profile_photo.startsWith("http")
+                        ? userData.profile_photo
+                        : `${process.env.VUE_APP_BASE_URL}/storage/${userData.profile_photo}`;
+                } else {
+                    this.previewPhoto = "/images/avatar.png";
+                }
+
+                // Set user info
+                this.name = userData.name;
+                this.professionalTitle = userData.professional_title;
+                this.user_id = userData.id;
+                this.total_jobs = response.data.total_jobs_booked;
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
+        },
 
         /** 🔴 Fetch unseen notification count */
         async fetchUnseenCount() {
             try {
-                const userId = 3; // Replace with dynamic user ID if needed
+                const userId = this.user_id; // Replace with dynamic user ID if needed
+                console.log(`user_id ${userId}`)
                 const response = await axios.get(`/api/notify/get/${userId}/unseen`);
 
                 if (response.data && response.data.count !== undefined) {
