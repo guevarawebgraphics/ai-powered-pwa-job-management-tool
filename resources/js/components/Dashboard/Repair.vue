@@ -7,7 +7,7 @@
             <h2 class="text-lg text-center text-[#232850]">
                 Electric Dryer Tumbling , Not Heating
             </h2>
-            <a href="#" class="block text-center text-blue-500 underline">WDW9500SS/AA-001</a>
+            <a href="#" class="block text-center text-blue-500 underline">{{ this.gigData.model_number }}</a>
 
             <div class="flex items-center mt-4">
                 <i class="fas fa-wrench text-2xl text-gray-700"></i>
@@ -149,7 +149,7 @@ export default {
                 const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
                 const token = import.meta.env.VITE_API_KEY;
 
-                const response = await axios.get(`${api_endpoint}/gigs/retrieveGigByGigID.php`, {
+                const response = await axios.get(`${api_endpoint}/gigs/retrieveGigByGigID.php?gig_id=${gigId}`, {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
                 });
 

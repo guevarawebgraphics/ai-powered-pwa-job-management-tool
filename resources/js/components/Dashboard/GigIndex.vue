@@ -10,7 +10,7 @@
                     Gig #{{ this.gigData.gig_cryptic }}
                 </h2>
                 <div class="flex items-center justify-center space-x-3 mt-2">
-                    <img src="../../../../public/images/washing-machine.png" alt="Samsung Dryer"
+                    <img :src="this.machineData.machine_photo" alt="Samsung Dryer"
                         class="w-12 h-12 rounded-md" />
                     <div class="text-sm text-gray-600 text-left">
                         <p class="font-semibold">{{ this.gigData.machine_brand }}</p>
@@ -112,7 +112,7 @@
             </div>
 
             <!-- Samsung Dryer Details -->
-            <div class="bg-white rounded-lg shadow-md border p-4 flex items-start space-x-3 cursor-pointer" @click="goToModel(1)">
+            <div class="bg-white rounded-lg shadow-md border p-4 flex items-start space-x-3 cursor-pointer" @click="goToModel(this.gigData.machine_id)">
                 <!-- Appliance Icon -->
                 <i class="fas fa-tshirt text-gray-500 text-3xl"></i>
                 <div>
@@ -196,7 +196,8 @@ export default {
             count: 1,
             gigData: [],
             machineData: [],
-            gigID: null
+            gigID: null,
+            machineID: null,
         };
     },
     created() {
@@ -204,15 +205,13 @@ export default {
 
         if (this.gigID) {
             this.gigDetail(this.gigID);
-            this.machineDetail(1, this.gigID);
         }
     },
     watch: {
         // Watch for changes in route (if navigating to another customer)
         '$route.params.id'(gigID) {
             this.gigID = gigID;
-            this.gigDetail(gigID);
-            this.machineDetail(1, gigID);
+            this.gigDetail(this.gigID);
         }
     },
     computed: {
@@ -258,6 +257,8 @@ export default {
                 });
 
                 this.gigData = response.data.data[0]; 
+                this.machineID = this.gigData.machine_id;
+                this. machineDetail(this.machineID);
 
                 console.log(this.gigData);
 
@@ -265,17 +266,18 @@ export default {
                 console.error("Error fetching gig history data:", error);
             }
         },
-        async machineDetail(machineID, gigID) {
+        async machineDetail(machine_id) {
             try {
                 const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
                 const token = import.meta.env.VITE_API_KEY;
 
-                const response = await axios.get(`${api_endpoint}/machines/retrieveMachineByID.php`, {
+                const response = await axios.get(`${api_endpoint}/machines/retrieveMachineByID.php?machine_id=${machine_id}`, {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
                 });
 
                 this.machineData = response.data.data;
                 
+                console.log(`Machine Data:`, this.machineData);
                 if (this.machineData.common_repairs) {
                     console.log("Raw common_repairs data:", this.machineData.common_repairs); // Log before parsing
 
