@@ -70,7 +70,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white shadow-md rounded-lg p-4 flex items-center">
+                <!-- <div class="bg-white shadow-md rounded-lg p-4 flex items-center">
                     <i class="fas fa-file-alt text-xl text-gray-700"></i>
                     <div class="ml-3">
                         <p class="text-sm font-medium text-[#232850FF]">Internal Notes</p>
@@ -78,6 +78,29 @@
                         <p class="text-xs text-gray-600">Most common repair is Heating Element</p>
                     </div>
                 </div>
+
+ -->
+
+
+                <div class="bg-white shadow-md rounded-lg p-4">
+                    <div class="flex items-center">
+                        <i class="fas fa-file-alt text-xl text-gray-700"></i>
+                        <p class="ml-3 text-sm font-medium text-[#232850FF]">Internal Notes</p>
+                    </div>
+
+                    <div v-if="machineData.machine_notes && machineData.machine_notes.records.length" class="mt-2">
+                        <div v-for="(note, index) in machineData.machine_notes.records" :key="index"
+                            class="mt-2 p-2 border-l-4 border-blue-500 bg-gray-100 rounded">
+                            <p class="text-xs text-gray-800"><strong>Note:</strong> {{ note.notes }}</p>
+                            <p class="text-xs text-gray-600"><strong>Technician:</strong> {{ note.technician }}</p>
+                            <p class="text-xs text-gray-600"><strong>Date:</strong> {{ formatDate(note.date) }}</p>
+                        </div>
+                    </div>
+
+                    <p v-else class="text-xs text-gray-500 mt-2">No internal notes available.</p>
+                </div>
+
+
             </div>
 
             <!-- Common Repair Videos -->
@@ -145,11 +168,27 @@ export default {
                     }
                 );
 
+                // Store machine data
                 this.machineData = response.data.data;
-                console.log(this.machineData);
+
+                // Parse machine_notes if it's a string
+                if (typeof this.machineData.machine_notes === "string") {
+                    try {
+                        this.machineData.machine_notes = JSON.parse(this.machineData.machine_notes);
+                    } catch (error) {
+                        console.error("Error parsing machine_notes JSON:", error);
+                        this.machineData.machine_notes = { records: [] }; // Fallback to empty array
+                    }
+                }
+
             } catch (error) {
-                console.error("Error fetching gig history data:", error);
+                console.error("Error fetching machine data:", error);
             }
+        },
+        formatDate(dateString) {
+            if (!dateString) return "Unknown date";
+            const options = { year: "numeric", month: "long", day: "numeric" };
+            return new Date(dateString).toLocaleDateString("en-US", options);
         },
         toggleSection(section) {
             this.isOpen[section] = !this.isOpen[section];
