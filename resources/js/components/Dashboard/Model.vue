@@ -12,9 +12,12 @@
                 <div class="flex items-center space-x-3">
                     <i class="fas fa-washer text-2xl text-gray-700"></i>
                     <div>
-                        <p class="text-sm text-gray-800 font-medium text-[#222222FF]">{{ this.machineData.brand_name }}
+                        <p class="text-sm text-gray-800 font-medium text-[#222222FF]">
+                            {{ this.machineData.brand_name }}
                         </p>
-                        <p class="text-xs text-[#666666FF]">{{ this.machineData.machine_type }}</p>
+                        <p class="text-xs text-[#666666FF]">
+                            {{ this.machineData.machine_type }}
+                        </p>
                     </div>
                 </div>
                 <img :src="machineData.machine_photo" alt="Dryer" class="w-24 rounded-md" />
@@ -26,30 +29,53 @@
                 <p class="text-sm font-medium ml-2">DAX</p>
             </div>
 
-            <!-- Useful Links -->
+            <!-- Useful Links (Accordion) -->
             <div class="space-y-4 mt-6">
-                <div class="bg-white shadow-md rounded-lg p-4 flex items-center">
-                    <i class="fas fa-book text-xl text-gray-700"></i>
-                    <p class="ml-3 text-sm font-medium text-[#232850FF]">Service Manual</p>
+                <div class="bg-white shadow-md rounded-lg p-4 cursor-pointer" @click="toggleSection('serviceManual')">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fas fa-book text-xl text-gray-700"></i>
+                            <p class="ml-3 text-sm font-medium text-[#232850FF]">Service Manual</p>
+                        </div>
+                        <i :class="['fas', isOpen.serviceManual ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
+                    </div>
+                    <div v-if="isOpen.serviceManual" class="mt-2 text-sm text-gray-700">
+                        <p>{{ this.machineData.service_manual }}</p>
+                    </div>
                 </div>
-                <div class="bg-white shadow-md rounded-lg p-4 flex items-center">
-                    <i class="fas fa-diagram-project text-xl text-gray-700"></i>
-                    <p class="ml-3 text-sm font-medium text-[#232850FF]">Parts Diagram</p>
+
+                <div class="bg-white shadow-md rounded-lg p-4 cursor-pointer" @click="toggleSection('partsDiagram')">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fas fa-diagram-project text-xl text-gray-700"></i>
+                            <p class="ml-3 text-sm font-medium text-[#232850FF]">Parts Diagram</p>
+                        </div>
+                        <i :class="['fas', isOpen.partsDiagram ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
+                    </div>
+                    <div v-if="isOpen.partsDiagram" class="mt-2 text-sm text-gray-700">
+                        <p>{{ this.machineData.parts_diagram }}</p>
+                    </div>
                 </div>
-                <div class="bg-white shadow-md rounded-lg p-4 flex items-center">
-                    <i class="fas fa-hand-point-up text-xl text-gray-700"></i>
-                    <p class="ml-3 text-sm font-medium text-[#232850FF]">Service Pointers</p>
+
+                <div class="bg-white shadow-md rounded-lg p-4 cursor-pointer" @click="toggleSection('servicePointers')">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <i class="fas fa-hand-point-up text-xl text-gray-700"></i>
+                            <p class="ml-3 text-sm font-medium text-[#232850FF]">Service Pointers</p>
+                        </div>
+                        <i :class="['fas', isOpen.servicePointers ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
+                    </div>
+                    <div v-if="isOpen.servicePointers" class="mt-2 text-sm text-gray-700">
+                        <p>{{ this.machineData.service_pointers }}</p>
+                    </div>
                 </div>
+
                 <div class="bg-white shadow-md rounded-lg p-4 flex items-center">
                     <i class="fas fa-file-alt text-xl text-gray-700"></i>
                     <div class="ml-3">
                         <p class="text-sm font-medium text-[#232850FF]">Internal Notes</p>
-                        <p class="text-xs text-gray-600">
-                            Difficult UI removal on this model
-                        </p>
-                        <p class="text-xs text-gray-600">
-                            Most common repair is Heating Element
-                        </p>
+                        <p class="text-xs text-gray-600">Difficult UI removal on this model</p>
+                        <p class="text-xs text-gray-600">Most common repair is Heating Element</p>
                     </div>
                 </div>
             </div>
@@ -78,7 +104,7 @@
 <script>
 import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
-import axios from "axios"; // Ensure ax
+import axios from "axios";
 
 export default {
     components: { NavBar, BottomNav },
@@ -86,7 +112,12 @@ export default {
     data() {
         return {
             modelID: null,
-            machineData: []
+            machineData: [],
+            isOpen: {
+                serviceManual: false,
+                partsDiagram: false,
+                servicePointers: false
+            }
         };
     },
     created() {
@@ -97,9 +128,8 @@ export default {
         }
     },
     watch: {
-        // Watch for changes in route (if navigating to another customer)
         '$route.params.id'(modelID) {
-            modelDetail(modelID);
+            this.modelDetail(modelID);
         }
     },
     methods: {
@@ -108,17 +138,21 @@ export default {
                 const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
                 const token = import.meta.env.VITE_API_KEY;
 
-                const response = await axios.get(`${api_endpoint}/machines/retrieveMachineByID.php`, {
-                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
-                });
+                const response = await axios.get(
+                    `${api_endpoint}/machines/retrieveMachineByID.php?machine_id=${modelID}`,
+                    {
+                        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+                    }
+                );
 
                 this.machineData = response.data.data;
-
                 console.log(this.machineData);
-
             } catch (error) {
                 console.error("Error fetching gig history data:", error);
             }
+        },
+        toggleSection(section) {
+            this.isOpen[section] = !this.isOpen[section];
         }
     }
 };

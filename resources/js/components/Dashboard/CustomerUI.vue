@@ -58,7 +58,8 @@
                             35 Minutes from Your Location
                         </p>
                         <p class="text-xs text-[#666666FF]">
-                            {{ customerData.street_address }} {{ customerData.state }} {{ customerData.zip_code }} {{ customerData.country }}
+                            {{ customerData.street_address }} {{ customerData.state }} {{ customerData.zip_code }} {{
+                            customerData.country }}
                         </p>
                     </div>
                 </div>
@@ -71,52 +72,51 @@
             </div>
         </div>
 
+
         <!-- Gig History -->
         <div class="max-w-lg mx-auto p-6">
             <h3 class="text-lg text-[#666666FF] text-center font-medium">Gig History</h3>
             <div class="space-y-4 mt-3">
-                <div class="bg-white shadow-md rounded-lg p-4">
-                    <p class="text-sm font-medium text-[#666666FF]">Gig# R-LDNH307</p>
-                    <p class="text-xs text-[#666666FF]">Date: 11/23/23</p>
-                    <p class="text-xs text-[#666666FF]">
-                        Repaired Samsung Dryer no Heat
-                    </p>
+                <div v-if="customerData.gigs && customerData.gigs.length" class="space-y-4">
+                    <div v-for="gig in customerData.gigs" :key="gig.gig_id"
+                        class="bg-white shadow-md rounded-lg p-4 cursor-pointer" @click="goToGig(gig.gig_id)">
+                        <p class="text-sm font-medium text-[#666666FF]">Gig# {{ gig.gig_cryptic || `ID-${gig.gig_id}` }}
+                        </p>
+                        <p class="text-xs text-[#666666FF]">Date: {{ formatDate(gig.created_at) }}</p>
+                        <p v-if="gig.serial_number" class="text-xs text-[#666666FF]">Serial: {{ gig.serial_number }}</p>
+                        <p class="text-xs text-[#666666FF]">{{ gig.repair_notes || "No repair notes available" }}</p>
+                    </div>
                 </div>
-                <div class="bg-white shadow-md rounded-lg p-4">
-                    <p class="text-sm font-medium text-[#666666FF]">Gig# R-LWNS345</p>
-                    <p class="text-xs text-[#666666FF]">Date: 07/20/23</p>
-                    <p class="text-xs text-[#666666FF]">Serial: SN1600005756923</p>
+                <div v-else>
+                    <p class="text-center text-gray-500">No gig history available.</p>
                 </div>
             </div>
         </div>
+
 
         <!-- Appliance Models -->
         <div class="max-w-lg mx-auto p-6">
             <h3 class="text-lg text-[#666666FF] text-center font-medium">Appliance Models</h3>
             <div class="space-y-4 mt-3">
-                <div class="bg-white shadow-md rounded-lg p-4">
-                    <p class="text-sm font-medium text-[#666666FF]">Samsung Dryer</p>
-                    <p class="text-xs text-gray-500">
-                        Model #: WDW9500SS/AA-001
-                    </p>
-                    <p class="text-xs text-gray-500">Serial: SN1600005756923</p>
+                <div v-if="customerData.machines && customerData.machines.length" class="space-y-4">
+                    <div v-for="machine in customerData.machines" :key="machine.machine_id"
+                        class="bg-white shadow-md rounded-lg p-4 cursor-pointer" @click="goToModel(machine.machine_id)">
+                        <p class="text-sm font-medium text-[#666666FF]">{{ machine.brand_name }} {{ machine.machine_type
+                            }}</p>
+                        <p class="text-xs text-gray-500">Model #: {{ machine.model_number }}</p>
+                        <p class="text-xs text-gray-500">Serial: {{ machine.serial_number }}</p>
+                        <!-- <p class="text-xs text-gray-500">
+                            <a :href="machine.machine_photo" target="_blank" class="text-blue-500 underline">View
+                                Photo</a>
+                        </p> -->
+                    </div>
                 </div>
-                <div class="bg-white shadow-md rounded-lg p-4">
-                    <p class="text-sm font-medium text-[#666666FF]">LG Refrigerator</p>
-                    <p class="text-xs text-gray-500">
-                        Model #: WDW9500SS/AA-001
-                    </p>
-                    <p class="text-xs text-gray-500">Serial: SN1600005756923</p>
-                </div>
-                <div class="bg-white shadow-md rounded-lg p-4">
-                    <p class="text-sm font-medium text-[#666666FF]">Samsung Washer</p>
-                    <p class="text-xs text-gray-500">
-                        Model #: WDW9500SS/AA-001
-                    </p>
-                    <p class="text-xs text-gray-500">Serial: SN1600005756923</p>
+                <div v-else>
+                    <p class="text-center text-gray-500">No appliances available.</p>
                 </div>
             </div>
         </div>
+
 
         <BottomNav />
     </div>
@@ -154,6 +154,16 @@ export default {
         }
     },
     methods: {
+        formatDate(dateStr) {
+            if (!dateStr) return "N/A";
+            return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
+        },
+        goToModel(id) {
+            this.$router.push(`/model/${id}`);
+        },
+        goToGig(id) {
+            this.$router.push(`/gig/${id}`);
+        },
         async clientData(id) {
             try {
                 const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
