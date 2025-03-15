@@ -10,8 +10,7 @@
                     Gig #{{ this.gigData.gig_cryptic }}
                 </h2>
                 <div class="flex items-center justify-center space-x-3 mt-2">
-                    <img :src="this.machineData.machine_photo" alt="Samsung Dryer"
-                        class="w-12 h-12 rounded-md" />
+                    <img :src="this.machineData.machine_photo" alt="Samsung Dryer" class="w-12 h-12 rounded-md" />
                     <div class="text-sm text-gray-600 text-left">
                         <p class="font-semibold">{{ this.gigData.machine_brand }}</p>
                         <p class="text-gray-500">
@@ -46,15 +45,17 @@
                 </div>
             </div>
 
-            <!-- Start Button -->
-            <button class="w-full bg-green-600 text-white py-2 rounded-lg font-semibold hover:bg-green-700">
-                Start
+            <!-- Start/End/Submit Report Button -->
+            <button :class="buttonClass" class="w-full text-white py-2 rounded-lg font-semibold"
+                @click="actionGig(this.gigData.gig_id)">
+                {{ buttonText }}
             </button>
 
             <!-- Customer Information -->
             <div class="bg-white rounded-lg shadow-md border p-4 space-y-3">
                 <!-- Top Section -->
-                <div class="flex justify-between items-center cursor-pointer" @click="goToCustomer(this.gigData.client_id)">
+                <div class="flex justify-between items-center cursor-pointer"
+                    @click="goToCustomer(this.gigData.client_id)">
                     <div class="flex items-center space-x-3">
                         <!-- Profile Icon -->
                         <i class="fas fa-id-card text-gray-500 text-3xl"></i>
@@ -112,7 +113,8 @@
             </div>
 
             <!-- Samsung Dryer Details -->
-            <div class="bg-white rounded-lg shadow-md border p-4 flex items-start space-x-3 cursor-pointer" @click="goToModel(this.gigData.model_number)">
+            <div class="bg-white rounded-lg shadow-md border p-4 flex items-start space-x-3 cursor-pointer"
+                @click="goToModel(this.gigData.model_number)">
                 <!-- Appliance Icon -->
                 <i class="fas fa-tshirt text-gray-500 text-3xl"></i>
                 <div>
@@ -129,7 +131,7 @@
                     Customer Input
                 </h3>
                 <p class="text-sm text-gray-600 mt-2">
-                    {{  this.gigData.customer_input }}
+                    {{ this.gigData.customer_input }}
                 </p>
             </div>
 
@@ -145,7 +147,8 @@
 
                 <div class="space-y-3 mt-4">
                     <div v-for="repair in numberedRepairs" :key="repair.title"
-                        class="bg-white rounded-lg shadow-md border p-4 cursor-pointer" @click="goToRepair(repair.id, this.gigID)">
+                        class="bg-white rounded-lg shadow-md border p-4 cursor-pointer"
+                        @click="goToRepair(repair.id, this.gigID)">
                         <p class="text-lg font-bold text-gray-700">
                             #{{ repair.number }} {{ repair.title }}
                         </p>
@@ -185,6 +188,8 @@
 import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
 import axios from "axios"; // Ensure ax
+
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
 export default {
     components: { NavBar, BottomNav },
@@ -234,6 +239,22 @@ export default {
 
             const date = new Date(this.gigData.start_datetime);
             return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+        },
+        buttonText() {
+            if (!this.gigData.time_started) {
+                return "Start";
+            } else if (this.gigData.time_started && !this.gigData.time_ended) {
+                return "End";
+            } else {
+                return "Submit Report";
+            }
+        },
+        buttonClass() {
+            if (!this.gigData.time_started) {
+                return "bg-green-600 hover:bg-green-700"; // Green for Start
+            } else {
+                return "bg-red-600 hover:bg-red-700"; // Red for End and Submit Report
+            }
         }
     },
     methods: {
@@ -245,6 +266,34 @@ export default {
         },
         goToCustomer(id) {
             this.$router.push(`/customer/${id}`);
+        },
+        async actionGig(gigID) {
+            try {
+                const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
+                const token = import.meta.env.VITE_API_KEY;
+
+                const response = await axios.get(`${api_endpoint}/gigs/startEndGigByID.php?gig_id=${gigID}`, {
+                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+                });
+
+                Swal.fire({
+                    icon: 'success',
+                    title: response.data.message,
+                    text: 'Success',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+
+                // Update gigData based on the action taken
+                if (response.data.message.includes("started")) {
+                    this.gigData.time_started = new Date().toISOString(); // Simulate timestamp
+                } else if (response.data.message.includes("ended")) {
+                    this.gigData.time_ended = new Date().toISOString(); // Simulate timestamp
+                }
+
+            } catch (error) {
+                console.error("Error updating gig status:", error);
+            }
         },
         async gigDetail(gigID) {
             try {
