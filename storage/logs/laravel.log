@@ -12729,3 +12729,5 @@ Did you mean this?
 #19 C:\\xampp\\htdocs\\american-repair-appliance\\public\\index.php(17): Illuminate\\Foundation\\Application->handleRequest(Object(Illuminate\\Http\\Request))
 #20 {main}
 "} 
+[2025-03-15 11:19:01] local.INFO: Current IP: 49.144.199.98  
+[2025-03-15 11:19:01] local.INFO: New IP: 127.0.0.1  

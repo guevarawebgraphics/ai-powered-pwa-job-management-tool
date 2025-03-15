@@ -224,15 +224,15 @@ export default {
             }));
         },
         formattedCreatedAt() {
-            if (!this.gigData || !this.gigData.created_at) return "N/A"; // Handle missing data
+            if (!this.gigData || !this.gigData.start_datetime) return "N/A"; // Handle missing data
 
-            const date = new Date(this.gigData.created_at);
+            const date = new Date(this.gigData.start_datetime);
             return date.toLocaleDateString("en-US", { month: "long", day: "numeric" });
         },
         formattedCreatedTime() {
-            if (!this.gigData || !this.gigData.created_at) return "N/A"; // Handle missing data
+            if (!this.gigData || !this.gigData.start_datetime) return "N/A"; // Handle missing data
 
-            const date = new Date(this.gigData.created_at);
+            const date = new Date(this.gigData.start_datetime);
             return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
         }
     },
