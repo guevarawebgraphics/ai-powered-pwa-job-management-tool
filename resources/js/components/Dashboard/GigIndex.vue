@@ -12,7 +12,7 @@
                 <div class="flex items-center justify-center space-x-3 mt-2">
                     <img :src="this.machineData.machine_photo" alt="Samsung Dryer" class="w-12 h-12 rounded-md" />
                     <div class="text-sm text-gray-600 text-left">
-                        <p class="font-semibold">{{ this.gigData.machine_brand }}</p>
+                        <p class="font-semibold">{{ this.machineData.brand_name }} - {{ this.machineData.machine_type }}</p>
                         <p class="text-gray-500">
                             **{{ this.gigData.initial_issue }}**
                         </p>
