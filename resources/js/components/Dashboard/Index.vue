@@ -292,8 +292,8 @@ export default {
                 // Transform data for latestUpdates
                 this.latestUpdates = this.gigHistoryData.map(gig => ({
                     gig_id: gig.gig_id,
-                    image: "../../../../images/washing-machine.png", // Keeping static image
-                    title: `Gig #${gig.gig_cryptic} - ${gig.machine_brand} ${gig.appliance_type}`,
+                    image: gig.machine.machine_photo ? gig.machine.machine_photo : "../../../../images/washing-machine.png", // Keeping static image
+                    title: `Gig #${gig.gig_cryptic} - ${gig.machine.brand_name} ${gig.machine.machine_type}`,
                     description: gig.initial_issue || "No issue description available.",
                     amount: `$${gig.gig_price}`, // Format price
                     repair_notes: `${gig.repair_notes}`

@@ -162,7 +162,7 @@ export default {
                 const token = import.meta.env.VITE_API_KEY;
 
                 const response = await axios.get(
-                    `${api_endpoint}/machines/retrieveMachineByID.php?machine_id=${modelID}`,
+                    `${api_endpoint}/machines/retrieveMachineByID.php?modelNumber=${modelID}`,
                     {
                         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
                     }

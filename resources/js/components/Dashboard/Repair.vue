@@ -8,7 +8,7 @@
                 {{ this.selectedRepair.title }}
             </h2>
             <a href="#" class="block text-center text-blue-500 underline"
-                @click.prevent="goToModel(machineData.machine_id)">{{ this.gigData.model_number }}</a>
+                @click.prevent="goToModel(machineData.model_number)">{{ this.gigData.model_number }}</a>
 
             <div class="flex items-start mt-4 relative">
                 <p class="text-sm font-semibold  flex flex-col space-y-1">
@@ -184,7 +184,7 @@ export default {
 
                 this.gigData = response.data.data[0];
 
-                this.repairDetail(this.gigData.machine_id, this.repairId);
+                this.repairDetail(this.gigData.model_number, this.repairId);
 
                 console.log(this.gigData);
 
@@ -197,7 +197,7 @@ export default {
                 const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
                 const token = import.meta.env.VITE_API_KEY;
 
-                const response = await axios.get(`${api_endpoint}/machines/retrieveMachineByID.php?machine_id=${machineID}`, {
+                const response = await axios.get(`${api_endpoint}/machines/retrieveMachineByID.php?modelNumber=${machineID}`, {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
                 });
 

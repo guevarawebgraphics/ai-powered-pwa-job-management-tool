@@ -112,7 +112,7 @@
             </div>
 
             <!-- Samsung Dryer Details -->
-            <div class="bg-white rounded-lg shadow-md border p-4 flex items-start space-x-3 cursor-pointer" @click="goToModel(this.gigData.machine_id)">
+            <div class="bg-white rounded-lg shadow-md border p-4 flex items-start space-x-3 cursor-pointer" @click="goToModel(this.gigData.model_number)">
                 <!-- Appliance Icon -->
                 <i class="fas fa-tshirt text-gray-500 text-3xl"></i>
                 <div>
@@ -129,8 +129,7 @@
                     Customer Input
                 </h3>
                 <p class="text-sm text-gray-600 mt-2">
-                    The dryer is turning on but not drying the clothes. It
-                    Tumbles but it does not seem to get hot.
+                    {{  this.gigData.customer_input }}
                 </p>
             </div>
 
@@ -197,7 +196,7 @@ export default {
             gigData: [],
             machineData: [],
             gigID: null,
-            machineID: null,
+            modelNumber: null,
         };
     },
     created() {
@@ -257,8 +256,8 @@ export default {
                 });
 
                 this.gigData = response.data.data[0]; 
-                this.machineID = this.gigData.machine_id;
-                this. machineDetail(this.machineID);
+                this.modelNumber = this.gigData.model_number;
+                this. machineDetail(this.modelNumber);
 
                 console.log(this.gigData);
 
@@ -266,12 +265,12 @@ export default {
                 console.error("Error fetching gig history data:", error);
             }
         },
-        async machineDetail(machine_id) {
+        async machineDetail(modelNumber) {
             try {
                 const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
                 const token = import.meta.env.VITE_API_KEY;
 
-                const response = await axios.get(`${api_endpoint}/machines/retrieveMachineByID.php?machine_id=${machine_id}`, {
+                const response = await axios.get(`${api_endpoint}/machines/retrieveMachineByID.php?modelNumber=${modelNumber}`, {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
                 });
 

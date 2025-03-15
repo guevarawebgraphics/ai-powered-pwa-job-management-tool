@@ -104,7 +104,8 @@
                         <p class="text-sm font-medium text-[#666666FF]">{{ machine.brand_name }} {{ machine.machine_type
                             }}</p>
                         <p class="text-xs text-gray-500">Model #: {{ machine.model_number }}</p>
-                        <p class="text-xs text-gray-500">Serial: {{ machine.serial_number }}</p>
+                        <p v-if="machine.extra_field1" class="text-xs text-gray-500">{{ machine.extra_field1 }}</p>
+                        <p v-if="machine.extra_field2" class="text-xs text-gray-500">{{ machine.extra_field2 }}</p>
                         <!-- <p class="text-xs text-gray-500">
                             <a :href="machine.machine_photo" target="_blank" class="text-blue-500 underline">View
                                 Photo</a>
