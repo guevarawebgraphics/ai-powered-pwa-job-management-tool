@@ -6,38 +6,41 @@
         <div class="max-w-lg mx-auto p-6">
             <!-- Gig Title -->
             <h2 class="text-xl text-center text-[#232850]">
-                Gig #R-LDNH307
+
+                Gig #{{ this.gigData.gig_cryptic }}
             </h2>
             <div class="flex items-center mt-2">
-                <img src="../../../../public/images/washing-machine.png" alt="Samsung Dryer"
-                    class="w-16 h-16 rounded-md" />
+                <img :src="this.machineData.machine_photo" alt="Samsung Dryer" class="w-16 h-16 rounded-md" />
                 <div class="ml-3">
                     <p class="text-sm font-semibold text-gray-800">
-                        Samsung Dryer No Heat
+                        {{ this.gigData.machine.machine_type }} - {{ this.gigData.machine.brand_name }}
                     </p>
                     <p class="text-xs text-gray-500">
-                        **Check Power at Terminal Block for 240V**
+                        **{{ this.gigData.initial_issue }}**
                     </p>
                     <p class="text-xs text-gray-500">
-                        *Verify Symptoms, Diagnose Entire Heating Circuit*
+                        *{{ this.gigData.repair_notes }}*
                     </p>
                 </div>
             </div>
 
-            <!-- Date & Time -->
-            <div class="flex justify-between items-center mt-4">
-                <h3 class="text-lg text-gray-700">June, 12</h3>
-                <h3 class="text-lg text-gray-700">11:00 AM</h3>
-            </div>
 
+            <!-- Date & Time -->
+            <div class="flex justify-between items-center">
+                <h3 class="text-lg text-[#232850FF]">{{ formattedCreatedAt }}</h3>
+                <span class="text-lg text-[#232850FF]">{{ formattedCreatedTime }}</span>
+            </div>
+            
             <!-- Gig Stats -->
             <div class="grid grid-cols-2 gap-4 mt-4">
-                <div class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
+                <div
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <i class="fas fa-headset text-2xl text-gray-700"></i>
                     <p class="text-sm font-medium mt-2">DAX</p>
                 </div>
-                <div class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
+                <div
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <p class="text-green-600 text-lg font-bold">$125</p>
                     <p class="text-sm text-gray-500">Gig Potential</p>
@@ -119,12 +122,20 @@
 <script>
 import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
+import axios from "axios"; // Ensure ax
+import Swal from 'sweetalert2'; // Import SweetAlert2
 
 export default {
     components: { NavBar, BottomNav },
     name: "GigReportPage",
     data() {
         return {
+            repairHelp: [],
+            count: 1,
+            gigData: [],
+            machineData: [],
+            gigID: null,
+            modelNumber: null,
             repairs: [
                 {
                     title: "35 Minutes from Your Current Location - Contact Andrea NOW",
@@ -145,5 +156,123 @@ export default {
             ],
         };
     },
+    created() {
+        this.gigID = this.$route.params.id;
+
+        if (this.gigID) {
+            this.gigDetail(this.gigID);
+        }
+    },
+    watch: {
+        // Watch for changes in route (if navigating to another customer)
+        '$route.params.id'(gigID) {
+            this.gigID = gigID;
+            this.gigDetail(this.gigID);
+        }
+    },
+    computed: {
+        numberedRepairs() {
+            if (!Array.isArray(this.repairHelp)) {
+                return []; // Return empty array if it's not an array
+            }
+            return this.repairHelp.map((repair, index) => ({
+                ...repair,
+                number: index + 1 // Assigns a sequential number to each item
+            }));
+        },
+        formattedCreatedAt() {
+            if (!this.gigData || !this.gigData.start_datetime) return "N/A"; // Handle missing data
+
+            const date = new Date(this.gigData.start_datetime);
+            return date.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+        },
+        formattedCreatedTime() {
+            if (!this.gigData || !this.gigData.start_datetime) return "N/A"; // Handle missing data
+
+            const date = new Date(this.gigData.start_datetime);
+            return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+        },
+        buttonText() {
+            if (!this.gigData.time_started) {
+                return "Start";
+            } else if (this.gigData.time_started && !this.gigData.time_ended) {
+                return "End";
+            } else {
+                return "View Post Gig Report";
+            }
+        },
+        buttonClass() {
+            if (!this.gigData.time_started) {
+                return "bg-green-600 hover:bg-green-700"; // Green for Start
+            } else {
+                return "bg-red-600 hover:bg-red-700"; // Red for End and Submit Report
+            }
+        }
+    },
+    methods: {
+        goToModel(modelID) {
+            this.$router.push(`/model/${modelID}`);
+        },
+        goToRepair(repairId, gigId) {
+            this.$router.push(`/gig/${gigId}/repair/${repairId}`);
+        },
+        goToCustomer(id) {
+            this.$router.push(`/customer/${id}`);
+        },
+        async gigDetail(gigID) {
+            try {
+                const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
+                const token = import.meta.env.VITE_API_KEY;
+
+                const response = await axios.get(`${api_endpoint}/gigs/retrieveGigByGigID.php?gig_id=${gigID}`, {
+                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+                });
+
+                this.gigData = response.data.data[0];
+                this.modelNumber = this.gigData.model_number;
+                this.machineDetail(this.modelNumber);
+
+                console.log(this.gigData);
+
+            } catch (error) {
+                console.error("Error fetching gig history data:", error);
+            }
+        },
+        async machineDetail(modelNumber) {
+            try {
+                const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
+                const token = import.meta.env.VITE_API_KEY;
+
+                const response = await axios.get(`${api_endpoint}/machines/retrieveMachineByID.php?modelNumber=${modelNumber}`, {
+                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+                });
+
+                this.machineData = response.data.data;
+
+                if (this.machineData.common_repairs) {
+                    console.log("Raw common_repairs data:", this.machineData.common_repairs); // Log before parsing
+
+                    try {
+                        const parsedData = JSON.parse(this.machineData.common_repairs);
+
+                        this.repairHelp = parsedData;
+
+                        console.log("Parsed repairHelp (Array format):", this.repairHelp);
+                    } catch (error) {
+                        console.error("Error parsing common_repairs JSON:", error);
+                        this.repairHelp = [];
+                    }
+                }
+
+
+
+                console.log('Machine Repairs:', this.repairHelp);
+            } catch (error) {
+                console.error("Error fetching repair history data:", error);
+            }
+        }
+
+
+    }
 };
 </script>

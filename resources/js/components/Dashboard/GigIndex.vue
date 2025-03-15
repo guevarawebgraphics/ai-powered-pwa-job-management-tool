@@ -46,6 +46,7 @@
             </div>
 
             <!-- Start/End/Submit Report Button -->
+             <!-- v-if="!(gigData.time_started && gigData.time_ended)" -->
             <button :class="buttonClass" class="w-full text-white py-2 rounded-lg font-semibold"
                 @click="actionGig(this.gigData.gig_id)">
                 {{ buttonText }}
@@ -246,7 +247,7 @@ export default {
             } else if (this.gigData.time_started && !this.gigData.time_ended) {
                 return "End";
             } else {
-                return "Submit Report";
+                return "View Post Gig Report";
             }
         },
         buttonClass() {
@@ -268,6 +269,12 @@ export default {
             this.$router.push(`/customer/${id}`);
         },
         async actionGig(gigID) {
+
+            if (this.gigData.time_started && this.gigData.time_ended) {
+                this.$router.push(`/gig-report/${gigID}`);
+                return;
+            }
+
             try {
                 const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
                 const token = import.meta.env.VITE_API_KEY;
