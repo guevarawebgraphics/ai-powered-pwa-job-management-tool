@@ -132,7 +132,7 @@
                     Customer Input
                 </h3>
                 <p class="text-sm text-gray-600 mt-2">
-                    {{ this.gigData.customer_input }}
+                    {{ this.gigData.initial_issue }}
                 </p>
             </div>
 
