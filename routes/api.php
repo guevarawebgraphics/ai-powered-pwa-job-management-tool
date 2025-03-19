@@ -11,6 +11,8 @@ Route::post('/register', [App\Http\Controllers\AuthController::class, 'register'
 
 Route::post('/login', [App\Http\Controllers\AuthController::class, 'login'])->withoutMiddleware(['auth:sanctum']);
 
+Route::get('/machine-files/{machineType?}/{modelNumber?}/{folderType?}', [App\Http\Controllers\AuthController::class, 'getFiles'])->withoutMiddleware(['auth:sanctum']);
+
 Route::get('/login', function () {
     return response()->json(['error' => 'Unauthenticated.'], 401);
 })->name('login');

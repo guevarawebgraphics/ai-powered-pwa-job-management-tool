@@ -31,6 +31,7 @@
 
             <!-- Useful Links (Accordion) -->
             <div class="space-y-4 mt-6">
+
                 <div class="bg-white shadow-md rounded-lg p-4 cursor-pointer">
                     <div class="flex items-center justify-between">
                         <div class="flex items-center">
@@ -38,10 +39,24 @@
                             <p class="ml-3 text-sm font-medium text-[#232850FF]">Service Manual</p>
                         </div>
                         <i :class="['fas', isOpen.serviceManual ? 'fa-chevron-up' : 'fa-chevron-down']"
-                            @click="toggleSection('serviceManual')"></i>
+                            @click="isOpen.serviceManual = !isOpen.serviceManual"></i>
                     </div>
                     <div v-if="isOpen.serviceManual" class="mt-5 text-sm text-gray-700">
-                        <div v-html="machineData.service_manual"></div>
+                        <ul v-if="serviceManual.length">
+                            <li v-for="file in serviceManual" :key="file.file_name">
+                                <div class="flex items-center bg-white shadow-md rounded-lg p-4 mb-4">
+                                    <i class="fas fa-clipboard-list text-2xl text-gray-500"></i>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-gray-800">{{ file.file_name }}</p>
+                                        <a :href="file.url" target="_blank"
+                                            class="text-blue-600 hover:underline font-medium">
+                                            View Here
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <p v-else class="text-gray-500 italic text-center">No files found for Service Manual.</p>
                     </div>
                 </div>
 
@@ -52,10 +67,24 @@
                             <p class="ml-3 text-sm font-medium text-[#232850FF]">Parts Diagram</p>
                         </div>
                         <i :class="['fas', isOpen.partsDiagram ? 'fa-chevron-up' : 'fa-chevron-down']"
-                            @click="toggleSection('partsDiagram')"></i>
+                            @click="isOpen.partsDiagram = !isOpen.partsDiagram"></i>
                     </div>
                     <div v-if="isOpen.partsDiagram" class="mt-5 text-sm text-gray-700">
-                        <div v-html="machineData.parts_diagram"></div>
+                        <ul v-if="partsDiagram.length">
+                            <li v-for="file in partsDiagram" :key="file.file_name">
+                                <div class="flex items-center bg-white shadow-md rounded-lg p-4 mb-4">
+                                    <i class="fas fa-clipboard-list text-2xl text-gray-500"></i>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-gray-800">{{ file.file_name }}</p>
+                                        <a :href="file.url" target="_blank"
+                                            class="text-blue-600 hover:underline font-medium">
+                                            View Here
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <p v-else class="text-gray-500 italic text-center">No files found for Parts Diagram.</p>
                     </div>
                 </div>
 
@@ -66,12 +95,30 @@
                             <p class="ml-3 text-sm font-medium text-[#232850FF]">Service Pointers</p>
                         </div>
                         <i :class="['fas', isOpen.servicePointers ? 'fa-chevron-up' : 'fa-chevron-down']"
-                            @click="toggleSection('servicePointers')"></i>
+                            @click="isOpen.servicePointers = !isOpen.servicePointers"></i>
                     </div>
                     <div v-if="isOpen.servicePointers" class="mt-5 text-sm text-gray-700">
-                        <div v-html="machineData.service_pointers"></div>
+                        <ul v-if="servicePointers.length">
+                            <li v-for="file in servicePointers" :key="file.file_name">
+                                <div class="flex items-center bg-white shadow-md rounded-lg p-4 mb-4">
+                                    <i class="fas fa-clipboard-list text-2xl text-gray-500"></i>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-gray-800">{{ file.file_name }}</p>
+                                        <a :href="file.url" target="_blank"
+                                            class="text-blue-600 hover:underline font-medium">
+                                            View Here
+                                        </a>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <p v-else class="text-gray-500 italic text-center">No files found for Service Pointers.</p>
                     </div>
                 </div>
+
+
+
+
 
                 <!-- <div class="bg-white shadow-md rounded-lg p-4 flex items-center">
                     <i class="fas fa-file-alt text-xl text-gray-700"></i>
@@ -143,7 +190,13 @@ export default {
                 serviceManual: false,
                 partsDiagram: false,
                 servicePointers: false
-            }
+            },
+            serviceManual: [],
+            partsDiagram: [],
+            servicePointers: [],
+            noServiceManualMessage: null,
+            noPartsDiagramMessage: null,
+            noServicePointersMessage: null
         };
     },
     created() {
@@ -162,6 +215,7 @@ export default {
         async modelDetail(modelID) {
             try {
                 const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
+                const main_api_endpoint = import.meta.env.VITE_API_ENDPOINT_MAIN;
                 const token = import.meta.env.VITE_API_KEY;
 
                 const response = await axios.get(
@@ -183,6 +237,65 @@ export default {
                         this.machineData.machine_notes = { records: [] }; // Fallback to empty array
                     }
                 }
+
+                try {
+                    const service_manual = await axios.get(
+                        `${main_api_endpoint}/api/machine-files/${this.machineData.machine_type}/${this.machineData.model_number}/PartsList`,
+                        { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
+                    );
+
+                    if (service_manual.data.error || service_manual.data.files.length === 0) {
+                        this.serviceManual = [];
+                        this.noServiceManualMessage = "No files found for Service Manual.";
+                    } else {
+                        this.serviceManual = service_manual.data.files;
+                        this.noServiceManualMessage = ""; // Clear message if files exist
+                    }
+                } catch (error) {
+                    console.error("Error fetching Service Manual:", error);
+                    this.serviceManual = [];
+                    this.noServiceManualMessage = "No files found for Service Manual.";
+                }
+
+                try {
+                    const parts_diagram = await axios.get(
+                        `${main_api_endpoint}/api/machine-files/${this.machineData.machine_type}/${this.machineData.model_number}/ServicePointers`,
+                        { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
+                    );
+
+                    if (parts_diagram.data.error || parts_diagram.data.files.length === 0) {
+                        this.partsDiagram = [];
+                        this.noPartsDiagramMessage = "No files found for Parts Diagram.";
+                    } else {
+                        this.partsDiagram = parts_diagram.data.files;
+                        this.noPartsDiagramMessage = "";
+                    }
+                } catch (error) {
+                    console.error("Error fetching Parts Diagram:", error);
+                    this.partsDiagram = [];
+                    this.noPartsDiagramMessage = "No files found for Parts Diagram.";
+                }
+
+                try {
+                    const service_pointers = await axios.get(
+                        `${main_api_endpoint}/api/machine-files/${this.machineData.machine_type}/${this.machineData.model_number}/TechSheet`,
+                        { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
+                    );
+
+                    if (service_pointers.data.error || service_pointers.data.files.length === 0) {
+                        this.servicePointers = [];
+                        this.noServicePointersMessage = "No files found for Service Pointers.";
+                    } else {
+                        this.servicePointers = service_pointers.data.files;
+                        this.noServicePointersMessage = "";
+                    }
+                } catch (error) {
+                    console.error("Error fetching Service Pointers:", error);
+                    this.servicePointers = [];
+                    this.noServicePointersMessage = "No files found for Service Pointers.";
+                }
+
+
 
             } catch (error) {
                 console.error("Error fetching machine data:", error);

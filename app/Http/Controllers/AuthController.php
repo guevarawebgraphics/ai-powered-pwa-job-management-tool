@@ -12,6 +12,7 @@ use App\Notifications\SendOtpNotification;
 use Auth;
 use \Carbon\Carbon;
 use App\Models\User;
+use File;
 
 class AuthController extends Controller
 {
@@ -157,6 +158,26 @@ class AuthController extends Controller
         ];
         return $data;
     }
-    
+
+    public function getFiles($machineType, $modelNumber, $folderType)
+    {
+        $directory = public_path('cdn/pdfs/'. $machineType . '/'. $modelNumber . '/'. $folderType . '/');
+
+        \Log::info($directory);
+
+        if (!File::exists($directory)) {
+            return response()->json(['error' => 'Directory does not exist'], 404);
+        }
+
+        $files = File::files($directory);
+
+        return response()->json([
+            'files' => array_map(fn($file) => [
+                'file_name' => $file->getFilename(),
+                'url' => asset('cdn/pdfs/'. $machineType . '/'. $modelNumber . '/'. $folderType . '/' . $file->getFilename())
+            ], $files)
+        ]);
+    }
+
     
 }
