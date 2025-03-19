@@ -20,4 +20,4 @@ yarn-error.log
 /.nova
 /.vscode
 /.zed
-/public/PDFs
+/public/cdn/pdfs
