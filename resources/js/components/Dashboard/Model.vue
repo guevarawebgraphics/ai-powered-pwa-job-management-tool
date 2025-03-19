@@ -40,7 +40,7 @@
                         <i :class="['fas', isOpen.serviceManual ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
                     </div>
                     <div v-if="isOpen.serviceManual" class="mt-2 text-sm text-gray-700">
-                        <p>{{ this.machineData.service_manual }}</p>
+                        {{ this.machineData.service_manual }}
                     </div>
                 </div>
 
@@ -53,7 +53,7 @@
                         <i :class="['fas', isOpen.partsDiagram ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
                     </div>
                     <div v-if="isOpen.partsDiagram" class="mt-2 text-sm text-gray-700">
-                        <p>{{ this.machineData.parts_diagram }}</p>
+                        {{ this.machineData.parts_diagram }}
                     </div>
                 </div>
 
@@ -66,7 +66,7 @@
                         <i :class="['fas', isOpen.servicePointers ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
                     </div>
                     <div v-if="isOpen.servicePointers" class="mt-2 text-sm text-gray-700">
-                        <p>{{ this.machineData.service_pointers }}</p>
+                        {{ this.machineData.service_pointers }}
                     </div>
                 </div>
 
