@@ -10,7 +10,7 @@
                     Gig #{{ this.gigData.gig_cryptic }}
                 </h2>
                 <div class="flex items-center justify-center space-x-3 mt-2">
-                    <img :src="this.machineData.machine_photo" alt="Samsung Dryer" class="w-12 h-12 rounded-md" />
+                    <img :src="this.machineData.machine_photo" alt="Samsung Dryer" class="w-12 rounded-md" />
                     <div class="text-sm text-gray-600 text-left">
                         <p class="font-semibold">{{ this.machineData.brand_name }} - {{ this.machineData.machine_type }}</p>
                         <p class="text-gray-500">
@@ -313,6 +313,7 @@ export default {
 
                 this.gigData = response.data.data[0]; 
                 this.modelNumber = this.gigData.model_number;
+                console.log(`gig -> ${this.gigData.model_number}`);
                 this. machineDetail(this.modelNumber);
 
                 console.log(this.gigData);
@@ -325,7 +326,7 @@ export default {
             try {
                 const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
                 const token = import.meta.env.VITE_API_KEY;
-
+                console.log(modelNumber);
                 const response = await axios.get(`${api_endpoint}/machines/retrieveMachineByID.php?modelNumber=${modelNumber}`, {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
                 });
@@ -348,14 +349,12 @@ export default {
                 }
                 
 
-                
+                console.log(`response machine data: `, response);
                 console.log('Machine Repairs:', this.repairHelp);
             } catch (error) {
                 console.error("Error fetching repair history data:", error);
             }
         }
-
-
     }
 };
 </script>
