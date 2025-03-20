@@ -3,7 +3,7 @@
         <NavBar />
 
         <!-- Model Information -->
-        <div class="max-w-lg mx-auto p-6">
+        <div class="w-[350px] mx-auto p-6">
             <h2 class="text-lg font-medium text-center text-[#232850FF]">
                 {{ this.machineData.model_number }}
             </h2>
