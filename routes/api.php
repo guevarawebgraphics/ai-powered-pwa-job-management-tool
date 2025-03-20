@@ -63,4 +63,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/store', [App\Http\Controllers\AuthController::class, 'otpStore']);
     });
 
+
+
+    
+    Route::prefix('chat')->group(function () {
+        Route::get('/listings', [App\Http\Controllers\ChatController::class, 'index']);
+        Route::post('/store', [App\Http\Controllers\ChatController::class, 'store']);
+    });
+
+
 });
