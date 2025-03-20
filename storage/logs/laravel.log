@@ -344,3 +344,23 @@
 #55 C:\\xampp\\htdocs\\american-repair-appliance\\public\\index.php(17): Illuminate\\Foundation\\Application->handleRequest(Object(Illuminate\\Http\\Request))
 #56 {main}
 "} 
+[2025-03-20 05:27:37] local.INFO: Current IP: 49.144.199.98  
+[2025-03-20 05:27:37] local.INFO: New IP: 127.0.0.1  
+[2025-03-20 05:29:08] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/PartsList/  
+[2025-03-20 05:29:09] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/TechSheet/  
+[2025-03-20 05:29:09] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/ServicePointers/  
+[2025-03-20 05:32:05] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/PartsList/  
+[2025-03-20 05:32:05] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/TechSheet/  
+[2025-03-20 05:32:05] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/ServicePointers/  
+[2025-03-20 05:32:37] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/PartsList/  
+[2025-03-20 05:32:38] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/TechSheet/  
+[2025-03-20 05:32:38] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/ServicePointers/  
+[2025-03-20 05:33:02] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/PartsList/  
+[2025-03-20 05:33:02] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/TechSheet/  
+[2025-03-20 05:33:02] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/ServicePointers/  
+[2025-03-20 05:35:39] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/PartsList/  
+[2025-03-20 05:35:39] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/TechSheet/  
+[2025-03-20 05:35:40] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/ServicePointers/  
+[2025-03-20 05:35:51] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/PartsList/  
+[2025-03-20 05:35:51] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/TechSheet/  
+[2025-03-20 05:35:52] local.INFO: C:\xampp\htdocs\american-repair-appliance\public\cdn/pdfs/dryers/NED4800VQ1/ServicePointers/  

@@ -33,13 +33,13 @@
             <div class="space-y-4 mt-6">
 
                 <div class="bg-white shadow-md rounded-lg p-4 cursor-pointer">
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between"
+                        @click="isOpen.serviceManual = !isOpen.serviceManual">
                         <div class="flex items-center">
                             <i class="fas fa-book text-xl text-gray-700"></i>
                             <p class="ml-3 text-sm font-medium text-[#232850FF]">Service Manual</p>
                         </div>
-                        <i :class="['fas', isOpen.serviceManual ? 'fa-chevron-up' : 'fa-chevron-down']"
-                            @click="isOpen.serviceManual = !isOpen.serviceManual"></i>
+                        <i :class="['fas', isOpen.serviceManual ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
                     </div>
                     <div v-if="isOpen.serviceManual" class="mt-5 text-sm text-gray-700">
                         <ul v-if="serviceManual.length">
@@ -61,13 +61,12 @@
                 </div>
 
                 <div class="bg-white shadow-md rounded-lg p-4 cursor-pointer">
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between" @click="isOpen.partsDiagram = !isOpen.partsDiagram">
                         <div class="flex items-center">
                             <i class="fas fa-diagram-project text-xl text-gray-700"></i>
                             <p class="ml-3 text-sm font-medium text-[#232850FF]">Parts Diagram</p>
                         </div>
-                        <i :class="['fas', isOpen.partsDiagram ? 'fa-chevron-up' : 'fa-chevron-down']"
-                            @click="isOpen.partsDiagram = !isOpen.partsDiagram"></i>
+                        <i :class="['fas', isOpen.partsDiagram ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
                     </div>
                     <div v-if="isOpen.partsDiagram" class="mt-5 text-sm text-gray-700">
                         <ul v-if="partsDiagram.length">
@@ -89,13 +88,13 @@
                 </div>
 
                 <div class="bg-white shadow-md rounded-lg p-4 cursor-pointer">
-                    <div class="flex items-center justify-between">
+                    <div class="flex items-center justify-between"
+                        @click="isOpen.servicePointers = !isOpen.servicePointers">
                         <div class="flex items-center">
                             <i class="fas fa-hand-point-up text-xl text-gray-700"></i>
                             <p class="ml-3 text-sm font-medium text-[#232850FF]">Service Pointers</p>
                         </div>
-                        <i :class="['fas', isOpen.servicePointers ? 'fa-chevron-up' : 'fa-chevron-down']"
-                            @click="isOpen.servicePointers = !isOpen.servicePointers"></i>
+                        <i :class="['fas', isOpen.servicePointers ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
                     </div>
                     <div v-if="isOpen.servicePointers" class="mt-5 text-sm text-gray-700">
                         <ul v-if="servicePointers.length">
