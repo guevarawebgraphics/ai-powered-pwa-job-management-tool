@@ -2629,3 +2629,5 @@
 #36 C:\\xampp\\htdocs\\american-repair-appliance\\public\\index.php(17): Illuminate\\Foundation\\Application->handleRequest(Object(Illuminate\\Http\\Request))
 #37 {main}
 "} 
+[2025-03-21 21:15:55] local.INFO: Current IP: 49.144.199.98  
+[2025-03-21 21:15:55] local.INFO: New IP: 127.0.0.1  
