@@ -21,7 +21,8 @@ class chat extends Authenticatable
     protected $fillable = [
         'from_user_id',
         'to_user_id',
-        'message'
+        'message',
+        'is_seen'
     ];
 
     protected $dates = ['deleted_at'];

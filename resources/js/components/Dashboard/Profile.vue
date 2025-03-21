@@ -308,10 +308,7 @@ export default {
             advancedSchedule: false,
             isChatOpen: false,
             newMessage: "",
-            messages: [
-                { type: "receiver" , sender: "bot", name: "Support Agent", text: "Hello! How can I help you?", avatar: "https://randomuser.me/api/portraits/men/10.jpg" },
-                { type: "sender", sender: "user", name: "You", text: "Hi! I need some assistance.", avatar: "https://randomuser.me/api/portraits/men/20.jpg" }
-            ],
+            messages: [],
             accountProfile: []
         };
     },
@@ -620,12 +617,17 @@ export default {
             const tokenx = localStorage.getItem("token");
             const loggedInUserId = this.accountProfile.id; // Get the logged-in user ID
 
-            axios.get('/api/chat/listings', {
-                headers: {
-                    'Authorization': `Bearer ${tokenx}`,
-                    'Content-Type': 'application/json'
+            axios.post('/api/chat/listings',
+                {
+                    from_user_id: loggedInUserId
+                },
+                {
+                    headers: {
+                        // 'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
                 }
-            })
+            )
                 .then(response => {
                     console.log("successfully:", response);
                     this.messages = response.data.data.map(msg => {
@@ -658,23 +660,28 @@ export default {
         sendMessage() {
             const token = localStorage.getItem("token");
             const loggedInUserId = this.accountProfile.id;
-
-            axios.post('/api/chat/store',
-                { message: this.newMessage },
+            const admin_api_endpoint = import.meta.env.VITE_API_ENDPOINT_ADMIN;
+            // axios.post('/api/chat/store',
+            axios.post(`${admin_api_endpoint}/api/store/chat`,
+                {
+                    from_user_id: loggedInUserId,
+                    message: this.newMessage,
+                    role_id: this.accountProfile.role_id
+                },
                 {
                     headers: {
-                        'Authorization': `Bearer ${token}`,
+                        // 'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     }
                 }
             )
-                .then(response => {
-                    this.getMessage();  // Refresh chat after sending
-                    console.log("success:", response);
-                })
-                .catch(error => {
-                    console.error("failed:", error);
-                });
+            .then(response => {
+                this.getMessage();  // Refresh chat after sending
+                console.log("success:", response);
+            })
+            .catch(error => {
+                console.error("failed:", error);
+            });
 
             if (this.newMessage.trim() !== "") {
                 this.messages.push({
@@ -694,6 +701,12 @@ export default {
         this.fetchSchedule();
         this.fetchUserData();
         document.addEventListener("click", this.closeDropdown);
+
+
+        window.Echo.channel('notifications') // Public Channel (No Auth)
+            .listen('NewNotificationEvent', (event) => {
+                this.getMessage();
+            });
     },
     beforeUnmount() {
         document.removeEventListener("click", this.closeDropdown);

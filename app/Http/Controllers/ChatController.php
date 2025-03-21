@@ -21,9 +21,25 @@ class ChatController extends Controller
         $this->notificationService = $notificationService;
     }
 
+    public function index(Request $request){
+        $input = $request->all();
+        $fromUserId = $input['from_user_id'];
 
-    public function index(){
-        $query = Chat::with(['sender','receiver'])->where('from_user_id', auth()->user()->id )->orWhere('to_user_id', auth()->user()->id)->whereNull('deleted_at')->orderBy('created_at','asc')->get();
+        $query = Chat::with(['sender', 'receiver'])
+        ->whereIn('id', function ($subquery) use ($fromUserId) {
+            $subquery->selectRaw('MAX(id)')
+                ->from('chats')
+                ->where(function ($q) use ($fromUserId) {
+                    $q->where('from_user_id', $fromUserId)
+                    ->orWhere('to_user_id', $fromUserId);
+                })
+                ->whereNull('deleted_at')
+                ->groupBy('from_user_id','created_at');
+        })
+        ->orderBy('created_at', 'asc') // Ordering the latest messages
+        ->get();
+
+
         return response()->json([
             'message' => 'Successfully retrieved chats!',
             'data' => $query,
@@ -35,6 +51,7 @@ class ChatController extends Controller
     {
         
         $query = $this->chatService->store( $request->all() );
+
         return response()->json([
             'message' => 'Successfully stored!',
             'user' => $query,

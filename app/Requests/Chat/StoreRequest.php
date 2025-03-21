@@ -14,7 +14,8 @@ class StoreRequest extends FormRequest
     public function rules()
     {
         return [
-            // 'from_user_id' => 'required',
+            'from_user_id' => 'required',
+            // 'to_user_id' => 'required',
             'message' => 'required',
         ];
     }
