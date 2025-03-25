@@ -69,4 +69,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/send', [App\Http\Controllers\AuthController::class, 'otpSend']);
         Route::post('/store', [App\Http\Controllers\AuthController::class, 'otpStore']);
     });
+
+    Route::prefix('gig')->group(function () {
+        Route::post('/report', [App\Http\Controllers\GigController::class, 'update']);
+    });
+
 });

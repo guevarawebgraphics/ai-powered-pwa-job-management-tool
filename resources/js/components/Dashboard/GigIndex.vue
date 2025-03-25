@@ -9,10 +9,12 @@
                     <!-- Gig #R-LDNH307 -->
                     Gig #{{ this.gigData.gig_cryptic }}
                 </h2>
-                <div class="flex items-center justify-center space-x-3 mt-2">
+                <div class="flex items-center space-x-3 mt-2">
                     <img :src="this.machineData.machine_photo" alt="Samsung Dryer" class="w-12 rounded-md" />
                     <div class="text-sm text-gray-600 text-left">
-                        <p class="font-semibold">{{ this.machineData.brand_name }} - {{ this.machineData.machine_type }}</p>
+                        <p class="font-semibold">{{ this.capitalizeWords(this.machineData.brand_name) }} - {{
+                            this.capitalizeWords(this.machineData.machine_type) }}
+                        </p>
                         <p class="text-gray-500">
                             **{{ this.gigData.initial_issue }}**
                         </p>
@@ -46,10 +48,13 @@
             </div>
 
             <!-- Start/End/Submit Report Button -->
-             <!-- v-if="!(gigData.time_started && gigData.time_ended)" -->
+            <!-- v-if="!(gigData.time_started && gigData.time_ended)" -->
             <button :class="buttonClass" class="w-full text-white py-2 rounded-lg font-semibold"
-                @click="actionGig(this.gigData.gig_id)">
+                v-if="this.gigData.gig_complete != 3" @click="actionGig(this.gigData.gig_id)">
                 {{ buttonText }}
+            </button>
+            <button v-else :class="buttonClass" class="w-full text-white py-2 rounded-lg font-semibold" type="button" disabled>
+                Gig Completed & Submitted Report
             </button>
 
             <!-- Customer Information -->
@@ -95,7 +100,10 @@
                 <div>
                     <p class="text-gray-700 text-sm font-semibold">35 Minutes from Your Current Location</p>
                     <p class="text-gray-600 text-md">Contact {{this.gigData.client_name}} NOW</p>
-                    <p class="text-gray-500">{{ this.gigData.client_phone_number }}</p>
+                    <a :href="`tel:${gigData.client_phone_number}`" class="text-gray-500">
+                        {{ gigData.client_phone_number }}
+                    </a>
+
                 </div>
             </div>
 
@@ -105,25 +113,29 @@
                 <i class="fas fa-map-marker-alt text-gray-500 text-3xl"></i>
                 <div>
                     <p class="text-gray-700 text-sm font-semibold">35 Minutes from Your Current Location</p>
-                    <p class="text-gray-600">
-                        {{ this.gigData.street_address }} <br />
-                        {{ this.gigData.city }}, {{ this.gigData.state }} {{ this.gigData.country }} {{
-                        this.gigData.zip_code }}
-                    </p>
+                    <a :href="`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(gigData.street_address + ', ' + gigData.city + ', ' + gigData.state + ', ' + gigData.country + ' ' + gigData.zip_code)}`"
+                        class="text-gray-600" target="_blank">
+                        {{ gigData.street_address }} {{ gigData.city }}, {{ gigData.state }} {{ gigData.country }} {{
+                        gigData.zip_code }}
+                    </a>
+
                 </div>
             </div>
 
             <!-- Samsung Dryer Details -->
-            <div class="bg-white rounded-lg shadow-md border p-4 flex items-start space-x-3 cursor-pointer"
+            <div class="bg-white rounded-lg shadow-md border p-4 flex items-center space-x-3 cursor-pointer"
                 @click="goToModel(this.gigData.model_number)">
-                <!-- Appliance Icon -->
-                <i class="fas fa-tshirt text-gray-500 text-3xl"></i>
+                <!-- Appliance Image -->
+                <img :src="`/images/machine/${this.machineData.machine_type}.png`"
+                    :alt="`${this.machineData.machine_type} Image`" class="w-12 h-12 object-contain self-center">
+
                 <div>
-                    <p class="text-gray-700 text-sm font-semibold">{{ this.gigData.machine_brand }}</p>
-                    <p class="text-gray-600">Model #: {{ this.gigData.model_number }}</p>
+                    <p class="text-gray-700 text-sm font-semibold">{{ this.machineData.brand_name }}</p>
+                    <p class="text-gray-600">Model #: {{ this.machineData.model_number }}</p>
                     <p class="text-gray-500">Serial: {{ this.gigData.serial_number }}</p>
                 </div>
             </div>
+
 
 
             <!-- Customer Input -->
@@ -259,6 +271,10 @@ export default {
         }
     },
     methods: {
+        capitalizeWords(str) {
+            if (!str) return ''; // Return an empty string if str is undefined/null
+            return str.replace(/\b\w/g, char => char.toUpperCase());
+        },
         goToModel(modelID) {
             this.$router.push(`/model/${modelID}`);
         },
@@ -296,6 +312,10 @@ export default {
                     this.gigData.time_started = new Date().toISOString(); // Simulate timestamp
                 } else if (response.data.message.includes("ended")) {
                     this.gigData.time_ended = new Date().toISOString(); // Simulate timestamp
+                    if (this.gigData.time_started && this.gigData.time_ended) {
+                        this.$router.push(`/gig/${gigID}`);
+                        return;
+                    }
                 }
 
             } catch (error) {

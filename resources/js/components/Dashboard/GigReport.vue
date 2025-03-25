@@ -10,7 +10,7 @@
                 Gig #{{ this.gigData.gig_cryptic }}
             </h2>
             <div class="flex items-center mt-2">
-                <img :src="this.machineData.machine_photo" alt="Samsung Dryer" class="w-16 h-16 rounded-md" />
+                <img :src="this.machineData.machine_photo" alt="Samsung Dryer" class="w-16 rounded-md" />
                 <div class="ml-3">
                     <p class="text-sm font-semibold text-gray-800">
                         {{ this.gigData.machine.machine_type }} - {{ this.gigData.machine.brand_name }}
@@ -26,11 +26,11 @@
 
 
             <!-- Date & Time -->
-            <div class="flex justify-between items-center">
+            <div class="flex justify-between items-center mt-5">
                 <h3 class="text-lg text-[#232850FF]">{{ formattedCreatedAt }}</h3>
                 <span class="text-lg text-[#232850FF]">{{ formattedCreatedTime }}</span>
             </div>
-            
+
             <!-- Gig Stats -->
             <div class="grid grid-cols-2 gap-4 mt-4">
                 <div
@@ -55,68 +55,177 @@
                 </p>
             </div>
 
-            <!-- Diagnostic / Full Repair Selection -->
             <div class="grid grid-cols-2 gap-4 mt-4">
-                <button class="bg-white shadow-md rounded-lg p-4 flex flex-col items-center">
-                    <i class="fas fa-tools text-2xl text-[#666666FF]"></i>
-                    <p class="text-sm font-medium text-[#666666FF]">Diagnostic</p>
+
+                <!-- Diagnostic Button -->
+                <button @click="selectDiagnostic" :class="[
+                    'bg-white shadow-md rounded-lg p-4 flex flex-col items-center transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300 relative overflow-hidden',
+                    selectedOptionType === 'diagnostic' ? 'bg-gray-200 ring-2 ring-gray-400' : ''
+                ]">
+                    <i class="fas fa-tools text-2xl"
+                        :class="selectedOptionType === 'diagnostic' ? 'text-black' : 'text-[#666666FF]'"></i>
+                    <p class="text-sm font-medium"
+                        :class="selectedOptionType === 'diagnostic' ? 'text-black' : 'text-[#666666FF]'">
+                        Diagnostic
+                    </p>
+
+                    <!-- Animated Check Mark -->
+                    <transition name="fade">
+                        <div v-if="selectedOptionType === 'diagnostic'" class="absolute top-2 right-2">
+                            <i class="fas fa-check-circle text-green-500 text-lg animate-ping"></i>
+                            <i class="fas fa-check-circle text-green-500 text-lg absolute top-0 left-0"></i>
+                        </div>
+                    </transition>
                 </button>
-                <button class="bg-white shadow-md rounded-lg p-4 flex flex-col items-center">
-                    <i class="fas fa-wrench text-2xl text-[#666666FF]"></i>
-                    <p class="text-sm font-medium text-[#666666FF]">Full Repair</p>
+
+                <!-- Full Repair Button -->
+                <button @click="selectFullRepair" type="button" :class="[
+                    'bg-white shadow-md rounded-lg p-4 flex flex-col items-center transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300',
+                    selectedOptionType === 'full-repair' ? 'bg-gray-200 ring-2 ring-gray-400' : ''
+                ]">
+                    <i class="fas fa-wrench text-2xl"
+                        :class="selectedOptionType === 'full-repair' ? 'text-black' : 'text-[#666666FF]'"></i>
+                    <p class="text-sm font-medium"
+                        :class="selectedOptionType === 'full-repair' ? 'text-black' : 'text-[#666666FF]'">
+                        Full Repair
+                    </p>
                 </button>
+
             </div>
-            <p class="text-sm text-center text-[#666666FF] mt-2">
+
+            <p v-if="this.gigData.gig_complete != 3" class="text-sm text-center text-[#666666FF] mt-5">
                 Select Diagnostic or Full Repair
             </p>
 
-            <!-- Submit Check Image -->
             <div class="text-center mt-4">
-                <p class="text-green-600 text-sm font-semibold">
+                <p v-if="this.gigData.gig_complete != 3" class="text-green-600 text-sm font-semibold">
                     Paid by Check? Submit Photo of Check Now
                 </p>
-                <div class="flex justify-center space-x-6 mt-2">
-                    <button class="flex flex-col items-center text-blue-500">
+                <div v-if="this.gigData.gig_complete != 3" class="flex justify-center space-x-6 mt-2">
+                    <input type="file" ref="fileInput" multiple accept="image/*" class="hidden"
+                        @change="handleFileUpload" />
+
+                    <button @click="openCamera" class="flex flex-col items-center text-blue-500">
                         <i class="fas fa-camera text-2xl"></i>
                         <p class="text-xs">Take Photo</p>
                     </button>
-                    <button class="flex flex-col items-center text-blue-500">
+
+                    <button @click="triggerFileInput" class="flex flex-col items-center text-blue-500">
                         <i class="fas fa-image text-2xl"></i>
                         <p class="text-xs">Select Image</p>
                     </button>
                 </div>
+
+                <!-- Image Previews (Click to View) -->
+                <div v-if="previewImages.length" class="mt-5 flex justify-center">
+                    <div class="flex flex-wrap gap-2 justify-center">
+                        <div v-for="(image, index) in previewImages" :key="index" class="relative">
+                            <img :src="image" class="w-16 h-16 object-cover rounded cursor-pointer"
+                                @click="openImageViewer(image)" />
+                            <button @click="removeImage(index)"
+                                class="absolute top-0 right-0 bg-red-500 text-white rounded-full text-xs p-1">✕</button>
+                        </div>
+                    </div>
+                </div>
+
             </div>
+
+
 
             <!-- Repair Selection -->
             <div class="text-center mt-6">
-                <h3 class="text-lg">Select All That Apply Below</h3>
+                <h3 v-if="this.gigData.gig_complete != 3" class="text-lg">Select All That Apply Below</h3>
+                <h3 v-else class="text-lg">Selected all applicable options below</h3>
                 <p class="text-sm text-gray-500">
                     Top 5 Most Common Repairs & Diagnostics
                 </p>
             </div>
 
-            <!-- Repair Checklist -->
-            <div class="mt-4 space-y-4">
-                <div v-for="(repair, index) in repairs" :key="index"
-                    class="bg-white shadow-md rounded-lg p-4 flex justify-between items-center">
-                    <div>
-                        <p class="text-lg font-bold text-gray-700">
-                            {{ index + 1 }}
-                        </p>
-                        <p class="text-sm text-gray-600">{{ repair.title }}</p>
-                    </div>
-                    <input type="checkbox" class="w-5 h-5 border-gray-400 rounded-md" />
+
+            <div class="space-y-4 mt-4">
+                <div v-if="numberedRepairs.length > 0" v-for="repair in numberedRepairs" :key="repair.title">
+                    <label
+                        class="relative bg-white rounded-lg shadow-md border p-4 cursor-pointer flex items-start space-x-4">
+                        <!-- Checkbox positioned in the top-right corner -->
+                        <input type="checkbox" name="repair_solution[]"
+                            class="absolute top-4 right-4 w-5 h-5 border-gray-400 rounded-md" :value="repair.id"
+                            v-model="selectedRepairs" />
+
+                        <div style="margin-left: unset;">
+                            <p class="text-lg font-bold text-gray-700">
+                                #{{ repair.number }} {{ repair.title }}
+                            </p>
+                            <p class="text-gray-700 text-sm"><strong>Symptoms:</strong> {{ repair.symptoms }}</p>
+                            <p class="text-gray-500 text-xs"><strong>Solution:</strong> {{ repair.solution }}</p>
+                            <p class="text-gray-500 text-xs"><strong>Parts Needed:</strong> {{ repair.parts.join(", ")
+                                }}</p>
+                        </div>
+                    </label>
                 </div>
+                <!-- Show this message when no repairs are found -->
+                <p v-else class="text-gray-600 text-center mt-4">No Common Repairs and Diagnostics Found</p>
             </div>
 
+
+
+
             <!-- Submit Button -->
-            <button class="w-full bg-red-600 text-white py-3 rounded-lg mt-6 text-lg font-semibold">
+            <button class="w-full bg-red-600 text-white py-3 rounded-lg mt-6 text-lg font-semibold"
+                @click="submitGigReport" v-if="this.gigData.gig_complete != 3">
                 Submit Report
+            </button>
+            <button class="w-full bg-green-600 text-white py-3 rounded-lg mt-6 text-lg font-semibold" disabled v-else>
+                Gig Completed & Report Submitted
             </button>
         </div>
 
         <BottomNav />
     </div>
+    <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white rounded-lg shadow-lg p-6 w-80">
+            <h2 class="text-lg font-bold mb-4">Select Part Installed</h2>
+
+            <div class="space-y-3">
+                <label v-for="(part, index) in parts" :key="index" class="flex items-center justify-between">
+                    <span class="text-gray-700">{{ part.name }}</span>
+                    <input type="checkbox" v-model="part.selected" class="w-5 h-5 rounded border-gray-300">
+                </label>
+            </div>
+
+            <div class="flex justify-between items-center mt-6">
+                <button @click="closeModal" class="text-gray-500 text-sm font-medium">Cancel</button>
+
+
+                <button @click="confirmSelection" class="bg-[#232850FF] text-white px-4 py-2 rounded-lg text-sm">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Camera Modal -->
+    <div v-if="cameraOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white p-4 rounded-lg shadow-lg text-center">
+            <video ref="video" autoplay class="w-64 h-48 border rounded"></video>
+            <canvas ref="canvas" class="hidden"></canvas>
+
+            <div class="mt-4 space-x-2">
+                <button @click="capturePhoto" class="bg-green-500 text-white px-4 py-2 rounded">Capture</button>
+                <button @click="closeCamera" class="bg-red-500 text-white px-4 py-2 rounded">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Full-Screen Image Viewer -->
+    <div v-if="viewingImage" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center">
+        <div class="relative">
+            <img :src="viewingImage" class="max-w-full max-h-screen rounded-lg shadow-lg" />
+            <button @click="closeImageViewer"
+                class="absolute top-4 right-4 bg-white text-black rounded-full text-xl px-3 py-1 font-bold">✕</button>
+        </div>
+    </div>
+
 </template>
 
 <script>
@@ -126,10 +235,21 @@ import axios from "axios"; // Ensure ax
 import Swal from 'sweetalert2'; // Import SweetAlert2
 
 export default {
+    props: {
+        isOpen: Boolean,
+    },
     components: { NavBar, BottomNav },
     name: "GigReportPage",
     data() {
         return {
+            parts: [
+                { name: "Heating Element", selected: false },
+                { name: "PCB Board", selected: true }, // Default checked
+                { name: "Terminal block", selected: false },
+                { name: "Motor", selected: false },
+                { name: "Fuse", selected: false },
+            ],
+            selectedParts: [],
             repairHelp: [],
             count: 1,
             gigData: [],
@@ -154,6 +274,15 @@ export default {
                 },
                 { title: "Other" },
             ],
+            isOpen: false,
+            images: [],
+            previewImages: [],
+            cameraOpen: false,
+            viewingImage: null, // Stores the image to be viewed
+            selectedOptionType: null, // Track which button is selected
+            selectedRepairs: [],
+            gig_report_images: [],
+            gig_resolution: []
         };
     },
     created() {
@@ -169,6 +298,8 @@ export default {
             this.gigID = gigID;
             this.gigDetail(this.gigID);
         }
+
+
     },
     computed: {
         numberedRepairs() {
@@ -222,6 +353,7 @@ export default {
         async gigDetail(gigID) {
             try {
                 const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
+                const api_endpoint_main = import.meta.env.VITE_API_ENDPOINT_MAIN;
                 const token = import.meta.env.VITE_API_KEY;
 
                 const response = await axios.get(`${api_endpoint}/gigs/retrieveGigByGigID.php?gig_id=${gigID}`, {
@@ -229,10 +361,29 @@ export default {
                 });
 
                 this.gigData = response.data.data[0];
+                // this.gig_report_images = JSON.parse(this.gigData.gig_report_images || []);;
+                // console.log(`gig_report_images: `, this.gig_report_images);
+                // if (this.gigData.resolution) {
+                //     // Check if resolution is an object (Proxy Object)
+                //     if (typeof this.gigData.resolution === 'object') {
+                //         this.gig_resolution = {
+                //             jobCompletion: this.gigData.resolution.jobCompletion || '',
+                //             solution: JSON.parse(this.gigData.resolution.solution || '[]'), // Convert string to array
+                //             partsUsed: JSON.parse(this.gigData.resolution.partsUsed || '[]') // Convert string to array
+                //         };
+                //     } else {
+                //         // If resolution is already a JSON string
+                //         this.gig_resolution = JSON.parse(this.gigData.resolution);
+                //     }
+                // } else {
+                //     this.gig_resolution = {}; // Default empty object if resolution is null
+                // }
+                // this.previewImages = this.gig_report_images.map(image => `${api_endpoint_main}${image}`);
+                // console.log(`Resolution: `, this.gig_resolution[0]);
                 this.modelNumber = this.gigData.model_number;
                 this.machineDetail(this.modelNumber);
 
-                console.log(this.gigData);
+
 
             } catch (error) {
                 console.error("Error fetching gig history data:", error);
@@ -250,27 +401,185 @@ export default {
                 this.machineData = response.data.data;
 
                 if (this.machineData.common_repairs) {
-                    console.log("Raw common_repairs data:", this.machineData.common_repairs); // Log before parsing
-
                     try {
                         const parsedData = JSON.parse(this.machineData.common_repairs);
 
                         this.repairHelp = parsedData;
-
-                        console.log("Parsed repairHelp (Array format):", this.repairHelp);
                     } catch (error) {
                         console.error("Error parsing common_repairs JSON:", error);
                         this.repairHelp = [];
                     }
                 }
-
-
-
-                console.log('Machine Repairs:', this.repairHelp);
             } catch (error) {
                 console.error("Error fetching repair history data:", error);
             }
+        },
+        openModal() {
+            this.isOpen = true;
+        },
+        closeModal() {
+            this.isOpen = false;
+        },
+        confirmSelection() {
+            const selectedParts = this.parts.filter(part => part.selected).map(part => part.name);
+            console.log("Selected Parts:", selectedParts);
+            this.selectedParts = selectedParts;
+            this.closeModal();
+        },
+        triggerFileInput() {
+            this.$refs.fileInput.click();
+        },
+        handleFileUpload(event) {
+            const files = event.target.files;
+            if (files.length) {
+                this.images = [...files];
+
+                // Preview images
+                this.previewImages = [];
+                Array.from(files).forEach((file) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.previewImages.push(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            // Reset file input to allow re-adding the same image
+            this.$refs.fileInput.value = "";
+        },
+        removeImage(index) {
+            this.previewImages.splice(index, 1);
+            this.images.splice(index, 1);
+        },
+        async openCamera() {
+            this.cameraOpen = true;
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                this.$refs.video.srcObject = stream;
+            } catch (error) {
+                console.error("Error accessing camera:", error);
+                this.cameraOpen = false;
+            }
+        },
+        capturePhoto() {
+            const video = this.$refs.video;
+            const canvas = this.$refs.canvas;
+            const context = canvas.getContext("2d");
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert to data URL and save to previewImages
+            const imageData = canvas.toDataURL("image/png");
+            this.previewImages.push(imageData);
+
+            // Close camera after capture
+            this.closeCamera();
+        },
+        closeCamera() {
+            this.cameraOpen = false;
+            const video = this.$refs.video;
+            const stream = video.srcObject;
+            if (stream) {
+                const tracks = stream.getTracks();
+                tracks.forEach((track) => track.stop());
+            }
+            video.srcObject = null;
+        },
+        openImageViewer(image) {
+            this.viewingImage = image;
+        },
+        closeImageViewer() {
+            this.viewingImage = null;
+        },
+        selectFullRepair() {
+            this.selectedOptionType = "full-repair";
+            this.isOpen = true; // Open modal
+        },
+        selectDiagnostic() {
+            this.selectedOptionType = "diagnostic";
+        },
+        async submitGigReport() {
+            try {
+                // ✅ Show a confirmation prompt before submission
+                const result = await Swal.fire({
+                    title: "Are you sure?",
+                    text: "Do you want to submit the report as finalized?",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonText: "Yes, submit it!",
+                    cancelButtonText: "No, cancel",
+                });
+
+                // If the user cancels, stop execution
+                if (!result.isConfirmed) {
+                    return;
+                }
+
+                const api_endpoint = import.meta.env.VITE_API_ENDPOINT_MAIN;
+                const token = localStorage.getItem("token");
+
+                const formData = new FormData();
+                formData.append("type", this.selectedOptionType);
+                formData.append("selectedRepairs", JSON.stringify(this.selectedRepairs));
+                formData.append("selectedParts", JSON.stringify(this.selectedParts));
+                formData.append("gig_id", this.gigID);
+
+                this.images.forEach((image, index) => {
+                    formData.append(`images[${index}]`, image);
+                });
+
+                const response = await axios.post(`${api_endpoint}/api/gig/report`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
+
+                console.log("Response:", response);
+
+                // ✅ Show success message if API call succeeds
+                Swal.fire({
+                    icon: "success",
+                    title: "Success!",
+                    text: "Gig report submitted successfully.",
+                });
+
+            } catch (error) {
+                console.error("Error:", error);
+
+                // ❌ Handle validation errors (422 Unprocessable Entity)
+                if (error.response && error.response.status === 422) {
+                    const errors = error.response.data.errors;
+
+                    // Convert errors into an HTML unordered list
+                    let errorList = "<ul style='text-align: center;'>";
+                    Object.values(errors).forEach(errorArray => {
+                        errorArray.forEach(errorMessage => {
+                            errorList += `<li>❌${errorMessage}</li>`;
+                        });
+                    });
+                    errorList += "</ul>";
+
+                    // Show error messages in SweetAlert
+                    Swal.fire({
+                        icon: "error",
+                        title: "Validation Error!",
+                        html: errorList, // Use "html" instead of "text" for formatting
+                    });
+                } else {
+                    // ❌ Handle other API errors
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops!",
+                        text: "Something went wrong. Please try again later.",
+                    });
+                }
+            }
         }
+
 
 
     }

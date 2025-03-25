@@ -90,11 +90,18 @@
             <h2 class="text-xl text-[#171A1FFF]">Latest Updates</h2>
 
             <div class="space-y-4 mt-3">
-                <div v-for="(update, index) in latestUpdates" :key="index"
+
+
+                <!-- Display message when there are no updates -->
+                <div v-if="latestUpdates.length === 0" class="text-center text-gray-500">
+                    No gig found.
+                </div>
+
+                <div v-else v-for="(update, index) in latestUpdates" :key="index"
                     class="bg-white rounded-[12px] shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col space-y-2">
                     <div class="flex items-start space-x-3 cursor-pointer" @click="goToGig(update.gig_id)">
                         <!-- Image/Icon -->
-                        <img v-if="update.image" :src="update.image" class="w-12 h-12 rounded-md" />
+                        <img v-if="update.image" :src="update.image" class="w-10 rounded-md" />
                         <i v-else :class="update.icon" class="text-3xl text-gray-700"></i>
 
                         <!-- Content -->
@@ -135,12 +142,12 @@
             </div>
         </div>
 
-        <div class="max-w-lg mx-auto p-6 text-center">
+        <!-- <div class="max-w-lg mx-auto p-6 text-center">
             <a>
                 <i
                     class="fas fa-chevron-down text-xl text-gray-500 cursor-pointer transition-transform duration-300"></i>
             </a>
-        </div>
+        </div> -->
 
         <!-- Latest Updates Section -->
         <div class="max-w-lg mx-auto p-6">
@@ -283,21 +290,26 @@ export default {
                     }
                 );
 
-                this.gigHistoryData = response.data.data; // Store fetched data
+                this.gigHistoryData = response.data.data || []; // Store fetched data
 
                 console.log(`Gig History`, response );
 
                 this.loadingGigHistory = false; // Stop loading
 
-                // Transform data for latestUpdates
-                this.latestUpdates = this.gigHistoryData.map(gig => ({
-                    gig_id: gig.gig_id,
-                    image: gig.machine.machine_photo ? gig.machine.machine_photo : "../../../../images/washing-machine.png", // Keeping static image
-                    title: `Gig #${gig.gig_cryptic} - ${gig.machine.brand_name} ${gig.machine.machine_type}`,
-                    description: gig.initial_issue || "No issue description available.",
-                    amount: `$${gig.gig_price}`, // Format price
-                    repair_notes: `${gig.repair_notes}`
-                }));
+                if (this.gigHistoryData.length > 0) {
+                    // Transform data for latestUpdates
+                    this.latestUpdates = this.gigHistoryData.map(gig => ({
+                        gig_id: gig.gig_id,
+                        image: gig.machine.machine_photo ? gig.machine.machine_photo : "../../../../images/washing-machine.png", // Keeping static image
+                        title: `Gig #${gig.gig_cryptic} - ${gig.machine.brand_name} ${gig.machine.machine_type}`,
+                        description: gig.initial_issue || "No issue description available.",
+                        amount: `$${gig.gig_price}`, // Format price
+                        repair_notes: `${gig.repair_notes}`
+                    }));
+                } else {
+
+                    this.latestUpdates = []; // Set to empty array if no data
+                }
 
                 console.log("Transformed latestUpdates:", this.latestUpdates);
 
