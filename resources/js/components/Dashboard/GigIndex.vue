@@ -92,7 +92,6 @@
                 </div>
             </div>
 
-
             <!-- Customer Location & Contact -->
             <div class="bg-white rounded-lg shadow-md border p-4 flex items-start space-x-3">
                 <!-- Phone Icon -->
@@ -103,7 +102,6 @@
                     <a :href="`tel:${gigData.client_phone_number}`" class="text-gray-500">
                         {{ gigData.client_phone_number }}
                     </a>
-
                 </div>
             </div>
 
@@ -135,8 +133,6 @@
                     <p class="text-gray-500">Serial: {{ this.gigData.serial_number }}</p>
                 </div>
             </div>
-
-
 
             <!-- Customer Input -->
             <div class="text-center mt-6 border-b pb-5">
