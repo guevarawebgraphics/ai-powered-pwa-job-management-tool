@@ -35,7 +35,10 @@
                     <i class="fas fa-phone text-xl text-[#666666FF]"></i>
                     <div>
                         <p class="text-sm font-medium text-[#666666FF]">Contact {{ customerData.client_name }} NOW</p>
-                        <p class="text-xs text-gray-500">{{ customerData.phone_number }}</p>
+                        <a :href="'tel:' + customerData.phone_number" class="text-xs text-gray-500">
+                            {{ customerData.phone_number }}
+                        </a>
+
                     </div>
                 </div>
                 <!-- <i class="fas fa-edit text-gray-400"></i> -->
@@ -45,7 +48,10 @@
                     <i class="fas fa-id-card text-xl text-[#666666FF]"></i>
                     <div>
                         <p class="text-sm font-medium text-[#666666FF]">EMAIL</p>
-                        <p class="text-xs text-gray-500">{{ customerData.email }}</p>
+                        <a :href="'mailto:' + customerData.email" class="text-xs text-gray-500">
+                            {{ customerData.email }}
+                        </a>
+
                     </div>
                 </div>
                 <!-- <i class="fas fa-edit text-gray-400"></i> -->
@@ -57,10 +63,13 @@
                         <p class="text-sm font-medium text-[#666666FF]">
                             35 Minutes from Your Location
                         </p>
-                        <p class="text-xs text-[#666666FF]">
-                            {{ customerData.street_address }} {{ customerData.state }} {{ customerData.zip_code }} {{
+                        <a :href="`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(customerData.street_address + ', ' + customerData.city + ', ' + customerData.state + ', ' + customerData.country + ' ' + customerData.zip_code)}`"
+                            class="text-xs text-[#666666FF]" target="_blank">
+                            {{ customerData.street_address }} {{ customerData.city }} {{ customerData.state }} {{
+                            customerData.zip_code }} {{
                             customerData.country }}
-                        </p>
+                        </a>
+
                     </div>
                 </div>
                 <!-- <i class="fas fa-edit text-gray-400"></i> -->
