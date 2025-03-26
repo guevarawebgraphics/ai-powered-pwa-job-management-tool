@@ -31,7 +31,7 @@
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <div class="flex items-center space-x-2">
-                        <span class="text-xl font-bold text-green-500">$100</span>
+                        <span class="text-xl font-bold text-green-500">${{ this.totalGigPrice }}</span>
                     </div>
                     <p class="text-sm text-[#666666FF]">
                         Today's Potential Earnings
@@ -169,7 +169,8 @@ export default {
             ],
             gigHistoryData: [],
             latestUpdates: [],
-            formattedDate: ''
+            formattedDate: '',
+            totalGigPrice: 0.00
         };
     },
     computed: {
@@ -243,6 +244,9 @@ export default {
                 console.log(`${response}`);
 
                 if (this.gigHistoryData.length > 0) {
+
+                    this.totalGigPrice = this.gigHistoryData.reduce((sum, gig) => sum + parseFloat(gig.gig_price || 0.00), 0.00);
+
 
                     // Transform data for latestUpdates
                     this.latestUpdates = this.gigHistoryData.map(gig => {

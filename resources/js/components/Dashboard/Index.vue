@@ -38,7 +38,7 @@
         <div class="max-w-lg mx-auto p-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl text-[#171A1FFF]">{{ formattedDate }}</h2>
-                <span class="text-gray-500 text-sm">Last 28 days</span>
+                <span class="text-gray-500 text-sm">Last {{ getLastDaysRange }} days</span>
             </div>
 
             <!-- Stats Grid -->
@@ -58,7 +58,9 @@
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <div class="flex items-center space-x-2">
                         <i class="fas fa-calendar-alt text-lg text-[#232850FF]"></i>
-                        <span class="text-xl font-bold text-[#171A1FFF]">{{ this.total_jobs }}</span>
+                        <!-- <span class="text-xl font-bold text-[#171A1FFF]">{{ this.total_jobs }}</span> -->
+                        
+                        <span class="text-xl font-bold text-[#171A1FFF]">{{ this.totalJobBookedToday }}</span>
                     </div>
                     <p class="text-sm text-[#666666FF]">Jobs Booked Today</p>
                 </button>
@@ -78,7 +80,7 @@
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <p class="text-sm text-[#666666FF]">Earnings</p>
                     <div class="flex items-center space-x-2">
-                        <span class="text-xl font-bold text-[#171A1FFF]">$2150</span>
+                        <span class="text-xl font-bold text-[#171A1FFF]">${{ this.totalGigPrice }}</span>
                         <i class="fas fa-arrow-up text-green-500 text-sm"></i>
                     </div>
                 </button>
@@ -131,12 +133,28 @@
                     </div>
 
                     <!-- Expanded Content -->
-                    <div v-if="expandedIndex === index" class="mt-2 p-2 bg-gray-100 rounded-md">
-                        <p class="text-sm text-gray-700">
-                            <!-- This is additional information about "{{ update.title }}". You can add more details here. -->
-                            {{ update.repair_notes ?? `This is additional information about "${update.title}". You can
-                            add more details here.` }}
-                        </p>
+                    <div v-if="expandedIndex === index" class="mt-2 p-2 rounded-md">
+                        <ul>
+                            <li v-if="update.machine && update.machine.common_repairs">
+                                <span class="text-[#66B2ECFF] cursor-pointer">
+                                    <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>&nbsp;{{
+                                    firstRepair(update.machine.common_repairs)
+                                    }}</span>
+                            </li>
+
+                            <li v-if="update.youtube_link != null" class="mt-2">
+                                <a :href="update.youtube_link" target="_blank"
+                                    class="cursor-pointer text-[#66B2ECFF]"><i
+                                        class="fas fa-play-circle text-xl text-[#171A1FFF]"></i> {{
+                                    update.youtube_link }}</a>
+                            </li class="mt-2">
+                            <li class="mt-2">
+                                <button type="button" @click="goToModel(update.machine.model_number)"
+                                    class="text-[#66B2ECFF]">
+                                    <i class="fas fa-book text-xl text-[#171A1FFF]"></i> Service Manual
+                                </button>
+                            </li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -219,6 +237,9 @@ export default {
     name: "DashboardIndex",
     data() {
         return {
+
+            serviceManual: [],
+            noServiceManualMessage: null,
             expandedIndex: null,
             expandedIndexV2: null,
             previewPhoto: '/images/avatar.png',
@@ -244,6 +265,8 @@ export default {
             ],
             gigHistoryData: [], // Store the fetched gig history
             loadingGigHistory: true, // Loading state
+            totalGigPrice: 0.00,
+            totalJobBookedToday: 0,
         };
     },
     computed: {
@@ -251,6 +274,10 @@ export default {
             const today = new Date();
             const options = { month: "long", day: "numeric" };
             return today.toLocaleDateString("en-US", options);
+        },
+        getLastDaysRange() {
+            const today = new Date();
+            return today.getDate() - 1; // Subtracting 1 because we don't count today itself
         }
     },
     created() {
@@ -273,6 +300,10 @@ export default {
         },
         goToSchedule() {
             this.$router.push(`/schedules`);
+        },
+        goToModel(modelNumber) {
+
+            this.$router.push(`/model/${modelNumber}`);
         },
         async gigHistory() {
             try {
@@ -297,6 +328,10 @@ export default {
                 this.loadingGigHistory = false; // Stop loading
 
                 if (this.gigHistoryData.length > 0) {
+
+                    this.totalGigPrice = this.gigHistoryData.reduce((sum, gig) => sum + parseFloat(gig.gig_price || 0.00), 0.00);
+                    this.totalJobBookedToday = this.gigHistoryData.length;
+
                     // Transform data for latestUpdates
                     this.latestUpdates = this.gigHistoryData.map(gig => ({
                         gig_id: gig.gig_id,
@@ -304,7 +339,8 @@ export default {
                         title: `Gig #${gig.gig_cryptic} - ${gig.machine.brand_name} ${gig.machine.machine_type}`,
                         description: gig.initial_issue || "No issue description available.",
                         amount: `$${gig.gig_price}`, // Format price
-                        repair_notes: `${gig.repair_notes}`
+                        repair_notes: `${gig.repair_notes}`,
+                        machine: gig.machine
                     }));
                 } else {
 
@@ -350,6 +386,14 @@ export default {
                 this.total_jobs = response.data.total_jobs_booked;
             } catch (error) {
                 console.error("Error fetching user data:", error);
+            }
+        },
+        firstRepair(data) {
+            try {
+                const repairs = JSON.parse(data);
+                return Array.isArray(repairs) && repairs.length > 0 ? `${repairs[0].title} - ${repairs[0].solution}` : null;
+            } catch (e) {
+                return null;
             }
         },
     }

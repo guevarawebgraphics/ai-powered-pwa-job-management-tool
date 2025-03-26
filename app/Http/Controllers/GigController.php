@@ -21,7 +21,8 @@ class GigController extends Controller
             [
                 "jobCompletion" => $request->type, // "diagnostic" or "full-repair"
                 "solution" => $request->selectedRepairs, // Selected repairs array
-                "partsUsed" => $request->selectedParts // Selected parts array
+                "partsUsed" => $request->selectedParts, // Selected parts array,
+                "added_common_repair"   =>  []
             ]
         ];
 

@@ -166,7 +166,41 @@
                 <p v-else class="text-gray-600 text-center mt-4">No Common Repairs and Diagnostics Found</p>
             </div>
 
+<!-- 
+            <div class="space-y-4 mt-4">
+                <div class="relative bg-white rounded-lg shadow-md border p-4 cursor-pointer flex flex-col space-y-4">
 
+                    
+                    <textarea class="w-full border rounded p-2 focus:ring focus:ring-blue-300"
+                        placeholder="Type your message..." v-model="textarea_content"></textarea>
+
+                    
+                    <button @click="showEmojiPicker = !showEmojiPicker" class="text-gray-500 hover:text-gray-700">
+                        😊 Add Emoji
+                    </button>
+
+                    
+                    <emoji-picker v-if="showEmojiPicker" @emoji="addEmoji" />
+
+                    
+                    <div class="flex flex-wrap gap-2">
+                        <div v-for="(image, index) in textarea_images" :key="index" class="relative">
+                            <img :src="image" alt="Preview" class="w-20 h-20 object-cover rounded-md" />
+                            <button type="button" class="absolute top-0 right-0 bg-white rounded-full p-1 shadow"
+                                @click="removeOpenTextImage(index)">
+                                ❌
+                            </button>
+                        </div>
+                    </div>
+
+                    
+                    <label class="flex items-center space-x-2 cursor-pointer text-blue-500 hover:underline">
+                        📷 Attach Images
+                        <input type="file" multiple class="hidden" @change="openTextUploadImage" />
+                    </label>
+
+                </div>
+            </div> -->
 
 
             <!-- Submit Button -->
@@ -233,11 +267,11 @@ import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
 import axios from "axios"; // Ensure ax
 import Swal from 'sweetalert2'; // Import SweetAlert2
+// import EmojiPicker from "vue3-emoji-picker";
+// import "vue3-emoji-picker/css";
 
 export default {
-    props: {
-        isOpen: Boolean,
-    },
+    // components: { NavBar, BottomNav, EmojiPicker },
     components: { NavBar, BottomNav },
     name: "GigReportPage",
     data() {
@@ -282,7 +316,10 @@ export default {
             selectedOptionType: null, // Track which button is selected
             selectedRepairs: [],
             gig_report_images: [],
-            gig_resolution: []
+            gig_resolution: [],
+            textarea_content: "",
+            textarea_images: [],
+            showEmojiPicker: false,
         };
     },
     created() {
@@ -547,6 +584,9 @@ export default {
                     text: "Gig report submitted successfully.",
                 });
 
+                this.$router.push(`/gig/${this.gigID}`);
+                return;
+
             } catch (error) {
                 console.error("Error:", error);
 
@@ -578,7 +618,19 @@ export default {
                     });
                 }
             }
-        }
+        },
+        // openTextUploadImage(event) {
+        //     const files = event.target.files;
+        //     for (let file of files) {
+        //         this.textarea_images.push(URL.createObjectURL(file));
+        //     }
+        // },
+        // removeOpenTextImage(index) {
+        //     this.textarea_images.splice(index, 1);
+        // },
+        // addEmoji(emoji) {
+        //     this.textarea_content += emoji.i;
+        // },
 
 
 
