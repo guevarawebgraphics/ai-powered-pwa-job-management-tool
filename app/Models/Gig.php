@@ -65,7 +65,9 @@ class Gig extends Model
         'extra_field1', 
         'extra_field2',
         'is_active',
-        'customer_input'
+        'customer_input',
+        'youtube_link',
+        'gig_report_images'
     ];
 
     public function machine()

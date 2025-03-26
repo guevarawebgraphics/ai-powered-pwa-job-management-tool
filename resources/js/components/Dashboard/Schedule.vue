@@ -97,20 +97,20 @@
                             </div>
 
                             <!-- Expanded Content -->
-                            <div v-if="expandedIndex === `${time}-${index}`" class="mt-2 p-2 bg-gray-100 rounded-md">
+                            <div v-if="expandedIndex === `${time}-${index}`" class="mt-2 p-2 rounded-md">
                                 <ul>
                                     <li v-if="update.machine && update.machine.common_repairs">
                                         <span class="text-[#66B2ECFF] cursor-pointer">
                                             <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>&nbsp;{{
-                                                firstRepair(update.machine.common_repairs)
+                                            firstRepair(update.machine.common_repairs)
                                             }}</span>
                                     </li>
 
-                                    <li v-if="update.youtube_link != null" class="mt-2">
+                                    <li v-if="update.youtube_link" class="mt-2">
                                         <a :href="update.youtube_link" target="_blank"
                                             class="cursor-pointer text-[#66B2ECFF]"><i
                                                 class="fas fa-play-circle text-xl text-[#171A1FFF]"></i> {{
-                                                    update.youtube_link }}</a>
+                                            update.youtube_link }}</a>
                                     </li class="mt-2">
                                     <li class="mt-2">
                                         <button type="button" @click="goToModel(update.machine.model_number)"
@@ -293,7 +293,8 @@ export default {
                             amount: `$${gig.gig_price}`, // Format price
                             repair_notes: gig.repair_notes || "No repair notes available.",
                             recommended_repairs: recommendedRepairs.join(", ") || "No recommended repairs.",
-                            machine: gig.machine
+                            machine: gig.machine,
+                            youtube_link: gig.youtube_link
                         };
                     });
 
