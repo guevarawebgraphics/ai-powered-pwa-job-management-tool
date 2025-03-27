@@ -268,13 +268,14 @@ export default {
             loadingGigHistory: true, // Loading state
             totalGigPrice: 0.00,
             totalJobBookedToday: 0,
+            selectedDate: new Date().toISOString().substr(0, 10), 
         };
     },
     computed: {
         formattedDate() {
             const today = new Date();
-            const options = { month: "long", day: "numeric" };
-            return today.toLocaleDateString("en-US", options);
+            const options = { month: "long", day: "numeric", timeZone: "UTC" };
+            return new Intl.DateTimeFormat("en-US", options).format(today);
         },
         getLastDaysRange() {
             const today = new Date();
@@ -313,10 +314,19 @@ export default {
 
                 console.log("Fetching Gig History...");
 
-                console.log("User ID: " + this.user_id );
+                console.log("User ID: " + this.user_id);
+                
+
+                const payload = {
+                    techID: this.user_id   // Replace with dynamic techID if needed
+                };
+                // alert(this.selectedDate);
+                if (this.selectedDate) {
+                    payload.date = this.selectedDate; // Add selected date to request if available
+                }
 
                 const response = await axios.post(`${api_endpoint}/gigs/retrieveGigByTechID.php`,
-                    { techID: this.user_id }, // Passing techID in the request body
+                    payload, // Passing techID in the request body
                     {
                         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
                     }

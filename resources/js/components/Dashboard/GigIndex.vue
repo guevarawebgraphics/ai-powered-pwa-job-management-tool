@@ -319,14 +319,21 @@ export default {
             if (!this.gigData || !this.gigData.start_datetime) return "N/A"; // Handle missing data
 
             const date = new Date(this.gigData.start_datetime);
-            return date.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+            return new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", timeZone: "UTC" }).format(date);
         },
+
         formattedCreatedTime() {
             if (!this.gigData || !this.gigData.start_datetime) return "N/A"; // Handle missing data
 
             const date = new Date(this.gigData.start_datetime);
-            return date.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", hour12: true });
+            return new Intl.DateTimeFormat("en-US", {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+                timeZone: "UTC"
+            }).format(date);
         },
+
         buttonText() {
             if (!this.gigData.time_started) {
                 return "Start";

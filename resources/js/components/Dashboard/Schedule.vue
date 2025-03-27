@@ -142,7 +142,6 @@ export default {
     data() {
         return {
             previewPhoto: '/images/avatar.png',
-            selectedDate: "",
             user_id: null,
             total_jobs: 0,
             name: "--",
@@ -199,10 +198,15 @@ export default {
         },
 
         formattedDate() {
-            const date = new Date();
-            const options = { month: 'long', day: 'numeric' };
-            return date.toLocaleDateString('en-US', options);
-        }
+            const today = new Date();
+            const options = { month: "long", day: "numeric", timeZone: "UTC" };
+            return new Intl.DateTimeFormat("en-US", options).format(today);
+        },
+        // formattedDate() {
+        //     const date = new Date();
+        //     const options = { month: 'long', day: 'numeric', timeZone: "UTC" };
+        //     return date.toLocaleDateString('en-US', options);
+        // }
     },
     mounted() {
         const date = new Date();
@@ -300,7 +304,7 @@ export default {
 
                     
                 } else {
-
+                    this.totalGigPrice = 0.00;
                     this.latestUpdates = []; // Set to empty array if no data
                 }
 
