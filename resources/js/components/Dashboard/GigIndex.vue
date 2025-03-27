@@ -53,7 +53,8 @@
                 v-if="this.gigData.gig_complete != 3" @click="actionGig(this.gigData.gig_id)">
                 {{ buttonText }}
             </button>
-            <button v-else :class="buttonClass" class="w-full text-white py-2 rounded-lg font-semibold" type="button" disabled>
+            <button v-else :class="buttonClass" class="w-full text-white py-2 rounded-lg font-semibold" type="button"
+                disabled>
                 Gig Completed & Submitted Report
             </button>
 
@@ -79,34 +80,50 @@
 
                 <!-- Divider -->
                 <hr class="border-gray-300" />
-
-                <!-- Bottom Section -->
                 <div class="flex justify-between items-center">
                     <div class="flex items-center space-x-2">
-                        <!-- Dollar Icon -->
-                        <i class="fas fa-dollar-sign text-green-500 text-2xl"></i>
-                        <p class="text-green-500 font-bold text-lg">750</p>
+                        <!-- Dollar Amount -->
+                        <p class="text-green-500 font-bold text-lg">${{ this.gigData.client_total_gig_price }}</p>
                     </div>
-                    <!-- Dropdown Arrow -->
-                    <i class="fas fa-chevron-down text-gray-500"></i>
+                    <!-- Lifetime Spend Label -->
+                    <label class="text-gray-500 text-left w-full">&nbsp;Lifetime Spend</label>
+                    <!-- Toggle Arrow -->
+                    <i @click="toggleExpand(index)"
+                        class="fas fa-chevron-down text-xl text-gray-500 cursor-pointer transition-transform duration-300"
+                        :class="{ 'rotate-180': expandedIndex === index }"></i>
                 </div>
+
+
+                <!-- Expanded Content -->
+                <div v-if="expandedIndex === index" class="mt-2 p-2 rounded-md">
+                    <ul v-for="quick in gigQuickHistory" :key="quick.gig_cryptic">
+                        <li>
+                            <button type="button" @click="goToGig(quick.gig_id)" class="text-gray-500 mt-1">Gig #{{
+                                quick.gig_cryptic }} = <span class="text-green-500">${{
+                                    quick.gig_price }}</span>
+                            </button>
+                        </li>
+                    </ul>
+                </div>
+
             </div>
 
             <!-- Customer Location & Contact -->
-            <div class="bg-white rounded-lg shadow-md border p-4 flex items-start space-x-3">
+            <div @click="openModal()"
+                class="bg-white rounded-lg shadow-md border p-4 flex items-start space-x-3 flex items-center cursor-pointer">
                 <!-- Phone Icon -->
                 <i class="fas fa-phone-alt text-gray-500 text-3xl"></i>
                 <div>
-                    <p class="text-gray-700 text-sm font-semibold">35 Minutes from Your Current Location</p>
-                    <p class="text-gray-600 text-md">Contact {{this.gigData.client_name}} NOW</p>
-                    <a :href="`tel:${gigData.client_phone_number}`" class="text-gray-500">
+                    <p class="text-gray-600 text-md">Contact {{this.gigData.client_name}}</p>
+                    <p class="text-gray-500">Message or Call {{ this.gigData.client_name }}</p>
+                    <a href="javascript:void(0);" class="text-gray-500">
                         {{ gigData.client_phone_number }}
                     </a>
                 </div>
             </div>
 
             <!-- Customer Address -->
-            <div class="bg-white rounded-lg shadow-md border p-4 flex items-start space-x-3">
+            <div class="bg-white rounded-lg shadow-md border p-4 flex items-start space-x-3 flex items-center">
                 <!-- Location Icon -->
                 <i class="fas fa-map-marker-alt text-gray-500 text-3xl"></i>
                 <div>
@@ -168,6 +185,7 @@
                     </div>
                 </div>
 
+
             </div>
 
             <!-- Easy Repair Video -->
@@ -191,6 +209,61 @@
 
         <BottomNav />
     </div>
+
+
+
+    <!-- Modal -->
+    <div v-if="isOpen" class="modal-overlay">
+        <div class="modal" @click.stop>
+            <!-- Image & Buttons -->
+            <div class="bg-white p-4 w-96">
+                <h2 class="text-lg font-bold text-center mb-4">Select an Action</h2>
+
+                <!-- Buttons as Containers -->
+                <div class="card mt-3">
+
+                    <i class="fas fa-phone text-gray-500 text-3xl"></i>
+                    <div>
+                        <p class="font-medium">Call Now</p>
+                        <a :href="`tel:${ gigData.client_phone_number }`" class="text-gray-500"> {{
+                            gigData.client_phone_number }}</a>
+                    </div>
+                </div>
+
+                <div class="card mt-3" @click="sendMessage('arriving-early')"
+                    :class="{ 'opacity-50 pointer-events-none': isSending }">
+                    <i class="fa-regular fa-message text-gray-500 text-3xl"></i>
+                    <div>
+                        <p class="font-medium">Message</p>
+                        <p class="text-blue-500">Arriving Early</p>
+                    </div>
+                </div>
+
+                <div class="card mt-3" @click="sendMessage('on-time')"
+                    :class="{ 'opacity-50 pointer-events-none': isSending }">
+                    <i class="fa-regular fa-message text-gray-500 text-3xl"></i>
+                    <div>
+                        <p class="font-medium">Message</p>
+                        <p class="text-green-500">On Time</p>
+                    </div>
+                </div>
+
+                <div class="card mt-3" @click="sendMessage('behind-schedule')"
+                    :class="{ 'opacity-50 pointer-events-none': isSending }">
+                    <i class="fa-regular fa-message text-gray-500 text-3xl"></i>
+                    <div>
+                        <p class="font-medium">Message</p>
+                        <p class="text-red-500">Behind Schedule</p>
+                    </div>
+                </div>
+
+                <!-- Close Button -->
+                <button @click="closeModal()" class="mt-4 px-4 py-2 bg-gray-700 text-white rounded-lg w-full">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
 </template>
 
 <script>
@@ -211,6 +284,11 @@ export default {
             machineData: [],
             gigID: null,
             modelNumber: null,
+
+            expandedIndex: null,
+            gigQuickHistory: [],
+            isOpen: false,
+            isSending: false, 
         };
     },
     created() {
@@ -267,6 +345,9 @@ export default {
         }
     },
     methods: {
+        toggleExpand(index) {
+            this.expandedIndex = this.expandedIndex === index ? null : index;
+        },
         capitalizeWords(str) {
             if (!str) return ''; // Return an empty string if str is undefined/null
             return str.replace(/\b\w/g, char => char.toUpperCase());
@@ -279,6 +360,9 @@ export default {
         },
         goToCustomer(id) {
             this.$router.push(`/customer/${id}`);
+        },
+        goToGig(gigID) {
+            this.$router.push(`/gig/${gigID}`);
         },
         async actionGig(gigID) {
 
@@ -330,9 +414,20 @@ export default {
                 this.gigData = response.data.data[0]; 
                 this.modelNumber = this.gigData.model_number;
                 console.log(`gig -> ${this.gigData.model_number}`);
-                this. machineDetail(this.modelNumber);
+                this.machineDetail(this.modelNumber);
+                this.getQuickGigHistory(this.gigData.client_id);
 
-                console.log(this.gigData);
+                if (this.gigData.top_recommended_repairs) {
+                    try {
+                        const parsedData = JSON.parse(this.gigData.top_recommended_repairs);
+
+                        this.repairHelp = parsedData;
+                    } catch (error) {
+                        this.repairHelp = [];
+                    }
+                }
+
+                console.log(`Total Client Price`, response);
 
             } catch (error) {
                 console.error("Error fetching gig history data:", error);
@@ -349,20 +444,20 @@ export default {
 
                 this.machineData = response.data.data;
                 
-                if (this.machineData.common_repairs) {
-                    console.log("Raw common_repairs data:", this.machineData.common_repairs); // Log before parsing
+                // if (this.machineData.common_repairs) {
+                //     console.log("Raw common_repairs data:", this.machineData.common_repairs); // Log before parsing
 
-                    try {
-                        const parsedData = JSON.parse(this.machineData.common_repairs);
+                //     try {
+                //         const parsedData = JSON.parse(this.machineData.common_repairs);
 
-                        this.repairHelp = parsedData;
+                //         this.repairHelp = parsedData;
 
-                        console.log("Parsed repairHelp (Array format):", this.repairHelp);
-                    } catch (error) {
-                        console.error("Error parsing common_repairs JSON:", error);
-                        this.repairHelp = [];
-                    }
-                }
+                //         console.log("Parsed repairHelp (Array format):", this.repairHelp);
+                //     } catch (error) {
+                //         console.error("Error parsing common_repairs JSON:", error);
+                //         this.repairHelp = [];
+                //     }
+                // }
                 
 
                 console.log(`response machine data: `, response);
@@ -370,7 +465,93 @@ export default {
             } catch (error) {
                 console.error("Error fetching repair history data:", error);
             }
+        },
+        async getQuickGigHistory(clientId) {
+            const api_endpoint = import.meta.env.VITE_API_ENDPOINT_MAIN;
+            const token = localStorage.getItem("token");
+            const response = await axios.get(`${api_endpoint}/api/gig/quick/history/${clientId}`, {
+                headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+            });
+            this.gigQuickHistory = response.data.data;
+            console.log(`quick: `, response);
+        },
+        openModal() {
+            this.isOpen = true;
+        },
+        closeModal() {
+            this.isOpen = false;
+        },
+        async sendMessage(type) {
+
+            if (this.isSending) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid duplicate click',
+                    text: 'You cannot send SMS Twice at the same time',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            }
+
+            this.isSending = true; // Set loading state to true
+
+            try {
+                const api_endpoint = import.meta.env.VITE_API_ENDPOINT_MAIN;
+                const token = localStorage.getItem("token");
+
+
+                const formData = new FormData();
+                formData.append("type", type);
+                formData.append("gig_id", this.gigData.gig_id);
+
+                const response = await axios.post(`${api_endpoint}/api/gig/send_sms/contact`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
+
+                console.log(response);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'SMS Sent!',
+                    text: 'SMS message successfully sent!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: error,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } finally {
+                this.isSending = false; // Reset flag after request is done
+            }
+
         }
     }
 };
 </script>
+
+
+<style scoped>
+.modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center;
+}
+
+.modal {
+    @apply bg-white p-6 rounded-lg shadow-lg;
+}
+
+.card {
+    @apply flex items-center gap-4 p-4 bg-white rounded-lg shadow-md cursor-pointer hover:bg-gray-100;
+}
+
+.icon {
+    @apply w-6 h-6 text-gray-500;
+}
+</style>

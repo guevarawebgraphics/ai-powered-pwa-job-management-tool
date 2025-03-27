@@ -72,6 +72,8 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('gig')->group(function () {
         Route::post('/report', [App\Http\Controllers\GigController::class, 'update']);
+        Route::get('/quick/history/{client_id}', [App\Http\Controllers\GigController::class, 'indexQuickHistory']);
+        Route::post('/send_sms/contact', [App\Http\Controllers\GigController::class, 'sendGigSMS']);
     });
 
 });

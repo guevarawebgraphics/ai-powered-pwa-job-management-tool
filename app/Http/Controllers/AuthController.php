@@ -152,9 +152,12 @@ class AuthController extends Controller
     {
         $user = $request->user();
         $total_jobs_booked = \DB::table('gigs')->where('assigned_tech_id', 6)->count();
+        // $gig_spending = \DB::table('gigs')->where('')->select('gig_cryptic', 'gig_price')->get();
+
         $data = [
             'user'  =>  $user,
-            'total_jobs_booked' =>  $total_jobs_booked
+            'total_jobs_booked' =>  $total_jobs_booked,
+            
         ];
         return $data;
     }

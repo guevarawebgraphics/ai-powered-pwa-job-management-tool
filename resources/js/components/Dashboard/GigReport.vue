@@ -398,27 +398,20 @@ export default {
                 });
 
                 this.gigData = response.data.data[0];
-                // this.gig_report_images = JSON.parse(this.gigData.gig_report_images || []);;
-                // console.log(`gig_report_images: `, this.gig_report_images);
-                // if (this.gigData.resolution) {
-                //     // Check if resolution is an object (Proxy Object)
-                //     if (typeof this.gigData.resolution === 'object') {
-                //         this.gig_resolution = {
-                //             jobCompletion: this.gigData.resolution.jobCompletion || '',
-                //             solution: JSON.parse(this.gigData.resolution.solution || '[]'), // Convert string to array
-                //             partsUsed: JSON.parse(this.gigData.resolution.partsUsed || '[]') // Convert string to array
-                //         };
-                //     } else {
-                //         // If resolution is already a JSON string
-                //         this.gig_resolution = JSON.parse(this.gigData.resolution);
-                //     }
-                // } else {
-                //     this.gig_resolution = {}; // Default empty object if resolution is null
-                // }
-                // this.previewImages = this.gig_report_images.map(image => `${api_endpoint_main}${image}`);
-                // console.log(`Resolution: `, this.gig_resolution[0]);
                 this.modelNumber = this.gigData.model_number;
                 this.machineDetail(this.modelNumber);
+
+
+                if (this.gigData.top_recommended_repairs) {
+                    try {
+                        const parsedData = JSON.parse(this.gigData.top_recommended_repairs);
+
+                        this.repairHelp = parsedData;
+                    } catch (error) {
+                        console.error("Error parsing common_repairs JSON:", error);
+                        this.repairHelp = [];
+                    }
+                }
 
 
 
@@ -437,16 +430,16 @@ export default {
 
                 this.machineData = response.data.data;
 
-                if (this.machineData.common_repairs) {
-                    try {
-                        const parsedData = JSON.parse(this.machineData.common_repairs);
+                // if (this.machineData.common_repairs) {
+                //     try {
+                //         const parsedData = JSON.parse(this.machineData.common_repairs);
 
-                        this.repairHelp = parsedData;
-                    } catch (error) {
-                        console.error("Error parsing common_repairs JSON:", error);
-                        this.repairHelp = [];
-                    }
-                }
+                //         this.repairHelp = parsedData;
+                //     } catch (error) {
+                //         console.error("Error parsing common_repairs JSON:", error);
+                //         this.repairHelp = [];
+                //     }
+                // }
             } catch (error) {
                 console.error("Error fetching repair history data:", error);
             }
