@@ -11,6 +11,7 @@ use App\Services\NotificationService;
 use Illuminate\Support\Facades\Event;
 use App\Events\NewNotificationEvent;
 use App\Events\SeenNotificationEvent;
+use Twilio\Rest\Client;
 
 class NotificationController extends Controller
 {
@@ -30,12 +31,42 @@ class NotificationController extends Controller
 
     public function store(StoreRequest $request)
     {
+
+        // This request expects
+
+        // {
+        //     "name":  "This is a test",
+        //     "content":  "A new job has been added: [Job Title] at [Company Name]. Apply now before the deadline! 🚀",
+        //     "user_id" :  3,
+        //     "type":  1,
+        //     "icon_type": "fas fa-tshirt"
+        // }
         
         $query = $this->notificationService->store( $request->all() );
 
+        // Push Notifications
         if (config('app.env') == "local") {
             event(new NewNotificationEvent($request->all()));
         }
+
+        // SMS Notifications
+        $sid = config('services.twilio.sid');
+        $token = config('services.twilio.token');
+        $twilio = new Client($sid, $token);
+
+        $response = $twilio->messages->create(
+            "+17729132268", // To
+            [
+                "body" => $request->content,
+                "from" => "+17726778837",
+            ]
+        );
+
+        \Log::info('Start Twilio API Response');
+        \Log::info($response);
+        \Log::info('End Twilio API Response');
+
+
 
         return response()->json([
             'message' => 'Successfully stored!',

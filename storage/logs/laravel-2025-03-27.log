@@ -1,0 +1,6 @@
+[2025-03-27 20:52:59] local.INFO: Start Twilio API Response  
+[2025-03-27 20:52:59] local.INFO: [Twilio.Api.V2010.MessageInstance accountSid=AC37e6766eedc1ec4afe9ca38cd4d482e8 sid=SM72926071d002f563741f8c4aa02a2fff]  
+[2025-03-27 20:52:59] local.INFO: End Twilio API Response  
+[2025-03-27 20:57:46] local.INFO: Start Twilio API Response  
+[2025-03-27 20:57:46] local.INFO: [Twilio.Api.V2010.MessageInstance accountSid=AC37e6766eedc1ec4afe9ca38cd4d482e8 sid=SMfd6d9029ea4482874dd3f070be1c87da]  
+[2025-03-27 20:57:46] local.INFO: End Twilio API Response  
