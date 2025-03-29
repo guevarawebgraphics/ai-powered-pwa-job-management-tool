@@ -594,22 +594,70 @@ export default {
                 this.cameraOpenV2 = false;
             }
         },
-        capturePhotoV2() {
+        // capturePhotoV2() {
+        //     const video = this.$refs.videoV2;
+        //     const canvas = this.$refs.canvasV2;
+        //     const context = canvas.getContext("2d");
+
+        //     canvas.width = video.videoWidth;
+        //     canvas.height = video.videoHeight;
+        //     context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        //     // Convert to data URL and save to previewImages
+        //     const imageData = canvas.toDataURL("image/png");
+        //     this.textarea_images.push(imageData);
+
+        //     // Close camera after capture
+        //     this.closeCameraV2();
+        // },
+
+        async capturePhotoV2() {
             const video = this.$refs.videoV2;
             const canvas = this.$refs.canvasV2;
             const context = canvas.getContext("2d");
 
+            // Set canvas dimensions
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-            // Convert to data URL and save to previewImages
-            const imageData = canvas.toDataURL("image/png");
-            this.textarea_images.push(imageData);
+            // Convert canvas to Blob (image file)
+            canvas.toBlob(async (blob) => {
+                if (!blob) return;
+
+                const file = new File([blob], `captured_${Date.now()}.png`, { type: "image/png" });
+
+                // Call API to upload image
+                const formData = new FormData();
+                formData.append('image', file);
+
+                const token = localStorage.getItem("token");
+
+                try {
+                    const response = await axios.post('/api/temporary/image/upload', formData, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'multipart/form-data'
+                        },
+                    });
+
+                    if (response.data.url) {
+                        this.textarea_images.push({
+                            url: response.data.url,
+                            filename: response.data.filename // Store filename for deletion
+                        });
+
+                        console.log(`textarea_images: `, this.textarea_images);
+                    }
+                } catch (error) {
+                    console.error('Upload failed:', error);
+                }
+            }, "image/png");
 
             // Close camera after capture
             this.closeCameraV2();
         },
+
         closeCameraV2() {
             this.cameraOpenV2 = false;
             const video = this.$refs.videoV2;
@@ -667,15 +715,6 @@ export default {
                 // Convert textarea_content_array to JSON and append
                 formData.append("addtl_recommended_repairs", JSON.stringify(this.textarea_content_array));
 
-                // Append images separately
-                this.textarea_content_array.forEach((item, index) => {
-                    item.images.forEach((image, imgIndex) => {
-                        console.log(`wow: `, image);
-                        formData.append(`addtl_recommended_repairs_images[${index}][${imgIndex}]`, image);
-                    });
-                });
-
-
                 // Append general images separately
                 this.images.forEach((image, index) => {
                     console.log(`wow2: `, image);
@@ -687,23 +726,23 @@ export default {
                     console.log(pair[0], pair[1]);
                 }
 
-                // const response = await axios.post(`${api_endpoint}/api/gig/report`, formData, {
-                //     headers: {
-                //         Authorization: `Bearer ${token}`,
-                //         "Content-Type": "multipart/form-data",
-                //     },
-                // });
+                const response = await axios.post(`${api_endpoint}/api/gig/report`, formData, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
 
-                // console.log("Response:", response);
+                console.log("Response:", response);
 
-                // // ✅ Show success message if API call succeeds
-                // Swal.fire({
-                //     icon: "success",
-                //     title: "Success!",
-                //     text: "Gig report submitted successfully.",
-                // });
+                // ✅ Show success message if API call succeeds
+                Swal.fire({
+                    icon: "success",
+                    title: "Success!",
+                    text: "Gig report submitted successfully.",
+                });
 
-                // this.$router.push(`/gig/${this.gigID}`);
+                this.$router.push(`/gig/${this.gigID}`);
                 return;
 
             } catch (error) {

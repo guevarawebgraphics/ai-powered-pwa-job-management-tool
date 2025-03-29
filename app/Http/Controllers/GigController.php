@@ -9,6 +9,8 @@ use Twilio\Rest\Client;
 use App\Models\Gig;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\File;
 
 class GigController extends Controller
 {    
@@ -32,34 +34,40 @@ class GigController extends Controller
         // Store formatted JSON in the input array
         $input['resolution'] = json_encode($json);
 
-        $recommendedRepairs = json_decode($request->addtl_recommended_repairs, true) ?? [];
-        
+        // ✅ Process Additional Recommended Repairs Images
+        if (!empty($request->addtl_recommended_repairs)) {
+            $addtlRepairs = json_decode($request->addtl_recommended_repairs, true);
 
-        foreach ($recommendedRepairs as $repairIndex => &$repairItem) { // Use reference '&' to modify directly
-            $updatedImages = []; // Store the correct image paths
-            
-            
-            // Check if images exist in the request
-            if ($request->hasFile("addtl_recommended_repairs_images.$repairIndex")) {
-                foreach ($request->file("addtl_recommended_repairs_images.$repairIndex") as $repairImage) {
-                    $xfileName = time() . '-' . uniqid() . '.' . $repairImage->getClientOriginalExtension();
-                    $xfilePath = "/images/gigs/" . $xfileName;
-                    
-                    // Move file to the desired location
-                    $repairImage->move(public_path('images/gigs'), $xfileName);
-                    // Store the path
-                    $updatedImages[] = $xfilePath;
+            foreach ($addtlRepairs as &$repair) {
+                if (!empty($repair['images'])) {
+                    foreach ($repair['images'] as &$image) {
+                        $imageUrl = $image['url'];
+
+                        // ✅ Fetch the image using Laravel's HTTP client
+                        $response = Http::get($imageUrl);
+
+                        if ($response->successful()) {
+                            // Generate new filename
+                            $fileName = time() . '-' . uniqid() . '.' . pathinfo($imageUrl, PATHINFO_EXTENSION);
+                            $filePath = public_path("images/gigs/" . $fileName);
+
+                            // ✅ Ensure the directory exists
+                            File::ensureDirectoryExists(public_path('images/gigs'));
+
+                            // ✅ Save the image in /public/images/gigs/
+                            File::put($filePath, $response->body());
+
+                            // Update image URL
+                            $image['url'] = "/images/gigs/" . $fileName;
+                            $image['filename'] = $fileName;
+                        }
+                    }
                 }
             }
-
-            \Log::info($updatedImages);
-
-            // Update the images field
-            $repairItem['images'] = $updatedImages;
+            $input['addtl_recommended_repairs'] = json_encode($addtlRepairs);
+        } else {
+            $input['addtl_recommended_repairs'] = NULL;
         }
-
-        // Store back as JSON
-        $input['addtl_recommended_repairs'] = json_encode($recommendedRepairs);
 
 
 
