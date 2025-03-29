@@ -32,7 +32,10 @@
         <div class="max-w-lg mx-auto space-y-4 p-6">
             <div class="bg-white shadow-md rounded-lg p-4 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <i class="fas fa-phone text-xl text-[#666666FF]"></i>
+                    <!-- <i class="fas fa-phone text-xl text-[#666666FF]"></i> -->
+                    <div class="w-12 h-12 flex justify-center items-center">
+                        <i class="fas fa-phone text-gray-500 text-[32px] flex-shrink-0 leading-none"></i>
+                    </div>
                     <div>
                         <p class="text-sm font-medium text-[#666666FF]">Contact {{ customerData.client_name }} NOW</p>
                         <a :href="'tel:' + customerData.phone_number" class="text-xs text-gray-500">
@@ -45,7 +48,10 @@
             </div>
             <div class="bg-white shadow-md rounded-lg p-4 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <i class="fas fa-id-card text-xl text-[#666666FF]"></i>
+                    <!-- <i class="fas fa-id-card text-xl text-[#666666FF]"></i> -->
+                    <div class="w-12 h-12 flex justify-center items-center">
+                        <i class="fas fa-id-card text-gray-500 text-[32px] flex-shrink-0 leading-none"></i>
+                    </div>
                     <div>
                         <p class="text-sm font-medium text-[#666666FF]">EMAIL</p>
                         <a :href="'mailto:' + customerData.email" class="text-xs text-gray-500">
@@ -58,7 +64,10 @@
             </div>
             <div class="bg-white shadow-md rounded-lg p-4 flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <i class="fas fa-map-marker-alt text-xl text-[#666666FF]"></i>
+                    <!-- <i class="fas fa-map-marker-alt text-xl text-[#666666FF]"></i> -->
+                    <div class="w-12 h-12 flex justify-center items-center">
+                        <i class="fas fa-map-marker-alt text-gray-500 text-[32px] flex-shrink-0 leading-none"></i>
+                    </div>
                     <div>
                         <p class="text-sm font-medium text-[#666666FF]">
                             35 Minutes from Your Location

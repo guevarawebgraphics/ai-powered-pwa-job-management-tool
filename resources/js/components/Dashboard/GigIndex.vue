@@ -65,7 +65,9 @@
                     @click="goToCustomer(this.gigData.client_id)">
                     <div class="flex items-center space-x-3">
                         <!-- Profile Icon -->
-                        <i class="fas fa-id-card text-gray-500 text-3xl"></i>
+                        <div class="w-12 h-12 flex justify-center items-center">
+                            <i class="fas fa-id-card text-gray-500 text-[32px] flex-shrink-0 leading-none"></i>
+                        </div>
                         <div>
                             <p class="font-bold text-lg text-gray-900">
                                 {{ this.gigData.client_name }}
@@ -107,14 +109,15 @@
                 </div>
 
             </div>
-
             <!-- Customer Location & Contact -->
             <div @click="openModal()"
-                class="bg-white rounded-lg shadow-md border p-4 flex items-start space-x-3 flex items-center cursor-pointer">
+                class="bg-white rounded-lg shadow-md border p-4 flex items-center space-x-3 cursor-pointer">
                 <!-- Phone Icon -->
-                <i class="fas fa-phone-alt text-gray-500 text-3xl"></i>
+                <div class="w-12 h-12 flex justify-center items-center">
+                    <i class="fas fa-phone-alt text-gray-500 text-[32px] flex-shrink-0 leading-none"></i>
+                </div>
                 <div>
-                    <p class="text-gray-600 text-md">Contact {{this.gigData.client_name}}</p>
+                    <p class="text-gray-600 text-md">Contact {{ this.gigData.client_name }}</p>
                     <p class="text-gray-500">Message or Call {{ this.gigData.client_name }}</p>
                     <a href="javascript:void(0);" class="text-gray-500">
                         {{ gigData.client_phone_number }}
@@ -123,17 +126,17 @@
             </div>
 
             <!-- Customer Address -->
-            <div class="bg-white rounded-lg shadow-md border p-4 flex items-start space-x-3 flex items-center">
+            <div @click="openGoogleMaps" class="bg-white rounded-lg shadow-md border p-4 flex items-center space-x-3 cursor-pointer">
                 <!-- Location Icon -->
-                <i class="fas fa-map-marker-alt text-gray-500 text-3xl"></i>
+                <div class="w-12 h-12 flex justify-center items-center">
+                    <i class="fas fa-map-marker-alt text-gray-500 text-[32px] flex-shrink-0 leading-none"></i>
+                </div>
                 <div>
                     <p class="text-gray-700 text-sm font-semibold">35 Minutes from Your Current Location</p>
-                    <a :href="`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(gigData.street_address + ', ' + gigData.city + ', ' + gigData.state + ', ' + gigData.country + ' ' + gigData.zip_code)}`"
-                        class="text-gray-600" target="_blank">
+                    <p class="text-gray-600">
                         {{ gigData.street_address }} {{ gigData.city }}, {{ gigData.state }} {{ gigData.country }} {{
                         gigData.zip_code }}
-                    </a>
-
+                    </p>
                 </div>
             </div>
 
@@ -143,9 +146,9 @@
                 <!-- Appliance Image -->
                 <img :src="`/images/machine/${this.machineData.machine_type}.png`"
                     :alt="`${this.machineData.machine_type} Image`" class="w-12 h-12 object-contain self-center">
-
                 <div>
-                    <p class="text-gray-700 text-sm font-semibold">{{ this.capitalizeWords(this.machineData.brand_name) }}</p>
+                    <p class="text-gray-700 text-sm font-semibold">{{ this.capitalizeWords(this.machineData.brand_name)
+                        }}</p>
                     <p class="text-gray-600">Model #: {{ this.machineData.model_number }}</p>
                     <p class="text-gray-500">Serial: {{ this.gigData.serial_number }}</p>
                 </div>
@@ -536,14 +539,14 @@ export default {
                 ],
             };
 
-                const selectedMessage =
-                    messages[type][Math.floor(Math.random() * messages[type].length)];
+            const selectedMessage =
+                messages[type][Math.floor(Math.random() * messages[type].length)];
 
-                const smsLink = `sms:${this.gigData.client_phone_number}?&body=${encodeURIComponent(
-                    selectedMessage
-                )}`;
+            const smsLink = `sms:${this.gigData.client_phone_number}?&body=${encodeURIComponent(
+                selectedMessage
+            )}`;
 
-                window.location.href = smsLink;
+            window.location.href = smsLink;
 
 
             this.isSending = false;
@@ -599,6 +602,11 @@ export default {
             //     this.isSending = false; // Reset flag after request is done
             // }
 
+        },
+        openGoogleMaps() {
+            const address = `${this.gigData.street_address}, ${this.gigData.city}, ${this.gigData.state}, ${this.gigData.country} ${this.gigData.zip_code}`;
+            const encodedAddress = encodeURIComponent(address);
+            window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, "_blank");
         }
     }
 };

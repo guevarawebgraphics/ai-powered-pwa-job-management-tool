@@ -20,12 +20,13 @@
                         </p>
                     </div>
                 </div>
-                <img :src="machineData.machine_photo" alt="Dryer" class="w-24 rounded-md" />
+                <img :src="machineData.machine_photo" :alt="this.machineData.machine_type"
+                    class="w-24 rounded-md" />
             </div>
 
             <!-- DAX Section -->
             <div class="bg-white shadow-md rounded-lg p-4 flex items-center justify-center mt-6">
-                <i class="fas fa-headset text-2xl text-gray-700"></i>
+                <i class="fas fa-headset text-3xl text-gray-700"></i>
                 <p class="text-sm font-medium ml-2">DAX</p>
             </div>
 
@@ -36,7 +37,7 @@
                     <div class="flex items-center justify-between"
                         @click="isOpen.serviceManual = !isOpen.serviceManual">
                         <div class="flex items-center">
-                            <i class="fas fa-book text-xl text-gray-700"></i>
+                            <i class="fas fa-book text-3xl text-gray-700"></i>
                             <p class="ml-3 text-sm font-medium text-[#232850FF]">Service Manual</p>
                         </div>
                         <i :class="['fas', isOpen.serviceManual ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
@@ -63,7 +64,7 @@
                 <div class="bg-white shadow-md rounded-lg p-4 cursor-pointer">
                     <div class="flex items-center justify-between" @click="isOpen.partsDiagram = !isOpen.partsDiagram">
                         <div class="flex items-center">
-                            <i class="fas fa-diagram-project text-xl text-gray-700"></i>
+                            <i class="fas fa-diagram-project text-3xl text-gray-700"></i>
                             <p class="ml-3 text-sm font-medium text-[#232850FF]">Parts Diagram</p>
                         </div>
                         <i :class="['fas', isOpen.partsDiagram ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
@@ -91,7 +92,7 @@
                     <div class="flex items-center justify-between"
                         @click="isOpen.servicePointers = !isOpen.servicePointers">
                         <div class="flex items-center">
-                            <i class="fas fa-hand-point-up text-xl text-gray-700"></i>
+                            <i class="fas fa-hand-point-up text-3xl text-gray-700"></i>
                             <p class="ml-3 text-sm font-medium text-[#232850FF]">Service Pointers</p>
                         </div>
                         <i :class="['fas', isOpen.servicePointers ? 'fa-chevron-up' : 'fa-chevron-down']"></i>
@@ -133,11 +134,11 @@
 
                 <div class="bg-white shadow-md rounded-lg p-4">
                     <div class="flex items-center">
-                        <i class="fas fa-file-alt text-xl text-gray-700"></i>
+                        <i class="fas fa-file-alt text-3xl text-gray-700"></i>
                         <p class="ml-3 text-sm font-medium text-[#232850FF]">Internal Notes</p>
                     </div>
 
-                    <div v-if="machineData.machine_notes && machineData.machine_notes.records.length" class="mt-2">
+                    <div v-if="machineData.machine_notes && machineData.machine_notes.records.length" class="mt-5">
                         <div v-for="(note, index) in machineData.machine_notes.records" :key="index"
                             class="mt-2 p-2 border-l-4 border-blue-500 bg-gray-100 rounded">
                             <p class="text-xs text-gray-800"><strong>Note:</strong> {{ note.notes }}</p>
