@@ -7,7 +7,7 @@
             <p class="text-sm text-gray-600">Gold Star Customer</p>
             <p class="text-xs text-gray-500">**Maintenance Plan Member**</p>
             <p class="text-xs text-gray-500">*ARA Insured*</p>
-            <i class="fas fa-star text-yellow-500 text-2xl mt-2"></i>
+            <i class="fas fa-star text-yellow-500 text-2xl mt-2" v-if="this.customerData.client_total_gig_price > 500"></i>
         </div>
 
         <!-- DAX & Lifetime Spend -->
@@ -98,7 +98,7 @@
                 <div v-if="customerData.gigs && customerData.gigs.length" class="space-y-4">
                     <div v-for="gig in customerData.gigs" :key="gig.gig_id"
                         class="bg-white shadow-md rounded-lg p-4 cursor-pointer" @click="goToGig(gig.gig_id)">
-                        <p class="text-sm font-medium text-[#666666FF]">Gig# {{ gig.gig_cryptic || `ID-${gig.gig_id}` }}
+                        <p class="text-sm font-medium text-[#666666FF]">Gig# {{ this.capitalizeWords(gig.gig_cryptic) || `ID-${gig.gig_id}` }}
                         </p>
                         <p class="text-xs text-[#666666FF]">Date: {{ formatDate(gig.created_at) }}</p>
                         <p v-if="gig.serial_number" class="text-xs text-[#666666FF]">Serial: {{ gig.serial_number }}</p>
@@ -119,7 +119,7 @@
                 <div v-if="customerData.machines && customerData.machines.length" class="space-y-4">
                     <div v-for="machine in customerData.machines" :key="machine.machine_id"
                         class="bg-white shadow-md rounded-lg p-4 cursor-pointer" @click="goToModel(machine.machine_id)">
-                        <p class="text-sm font-medium text-[#666666FF]">{{ machine.brand_name }} {{ machine.machine_type
+                        <p class="text-sm font-medium text-[#666666FF]">{{ this.capitalizeWords(machine.brand_name) }} {{ this.capitalizeWords(machine.machine_type)
                             }}</p>
                         <p class="text-xs text-gray-500">Model #: {{ machine.model_number }}</p>
                         <p v-if="machine.extra_field1" class="text-xs text-gray-500">{{ machine.extra_field1 }}</p>
@@ -173,6 +173,10 @@ export default {
         }
     },
     methods: {
+        capitalizeWords(str) {
+            if (!str) return ''; // Return an empty string if str is undefined/null
+            return str.replace(/\b\w/g, char => char.toUpperCase());
+        },
         formatDate(dateStr) {
             if (!dateStr) return "N/A";
             return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
@@ -203,7 +207,7 @@ export default {
                 this.customerData = response.data.data;
                 this.loading = false; // Turn off loading
 
-                console.log(response);
+                console.log(`Customer Data: `, response);
 
             } catch (error) {
                 console.error("Error fetching customer data:", error);

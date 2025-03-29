@@ -35,6 +35,14 @@ class NotificationCronJob extends Command
         $gigs = Gig::with(['client','technician','machine'])->where('start_datetime', '<', Carbon::now()->subHour()) // Gig started at least 1 hour ago
             ->orderBy('start_datetime', 'ASC')
             ->get();
+        
+
+        // $gigs = Gig::with(['client', 'technician', 'machine'])
+        // ->whereDate('start_datetime', Carbon::today()) // Ensure it's today
+        // // ->whereBetween('start_datetime', [Carbon::now()->addHour(), Carbon::now()->addHour()->addMinutes(5)]) // Check if it's 1 hour away within a 5-min window
+        // // ->where('start_datetime', Carbon::now()->addHour())
+        // ->orderBy('start_datetime', 'ASC')
+        // ->get();
 
         foreach ($gigs as $gig) {
             $startTime = Carbon::parse($gig->start_datetime);

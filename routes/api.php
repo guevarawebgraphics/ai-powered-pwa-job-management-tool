@@ -11,7 +11,7 @@ Route::post('/register', [App\Http\Controllers\AuthController::class, 'register'
 
 Route::post('/login', [App\Http\Controllers\AuthController::class, 'login'])->withoutMiddleware(['auth:sanctum']);
 
-Route::get('/machine-files/{machineType?}/{modelNumber?}/{folderType?}', [App\Http\Controllers\AuthController::class, 'getFiles'])->withoutMiddleware(['auth:sanctum']);
+Route::get('/machine-files/{machineType?}/{brandName?}/{modelNumber?}/{folderType?}', [App\Http\Controllers\AuthController::class, 'getFiles'])->withoutMiddleware(['auth:sanctum']);
 
     
 Route::prefix('chat')->group(function () {

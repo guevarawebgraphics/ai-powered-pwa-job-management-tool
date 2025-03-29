@@ -77,7 +77,7 @@
                         </div>
                     </div>
                     <!-- Star Icon -->
-                    <i class="fas fa-star text-yellow-400 text-2xl"></i>
+                    <i class="fas fa-star text-yellow-400 text-2xl" v-if="this.gigData.client_total_gig_price > 500"></i>
                 </div>
 
                 <!-- Divider -->

@@ -163,9 +163,9 @@ class AuthController extends Controller
         return $data;
     }
 
-    public function getFiles($machineType, $modelNumber, $folderType)
+    public function getFiles($machineType, $brandName, $modelNumber, $folderType)
     {
-        $directory = public_path('cdn/pdfs/'. $machineType . '/'. $modelNumber . '/'. $folderType . '/');
+        $directory = public_path('cdn/pdfs/'. $machineType . '/' . $brandName . '/'. $modelNumber . '/'. $folderType . '/');
 
         \Log::info($directory);
 
