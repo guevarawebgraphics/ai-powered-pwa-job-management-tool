@@ -142,7 +142,8 @@ class AuthController extends Controller
             'is_verified' => true,  // ✅ Mark user as verified
             'email_verified_at' => Carbon::now(),
             'otp_code' => null, // Clear OTP after successful verification
-            'otp_expires_at' => null
+            'otp_expires_at' => null,
+            'current_ip'    =>  request()->header('X-Forwarded-For') ?? request()->ip()
         ]);
     
         return response()->json(['message' => 'Email verified successfully']);
