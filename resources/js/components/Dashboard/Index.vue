@@ -291,6 +291,10 @@ export default {
     },
 
     methods: {
+        capitalizeWords(str) {
+            if (!str) return ''; // Return an empty string if str is undefined/null
+            return str.replace(/\b\w/g, char => char.toUpperCase());
+        },
         toggleExpand(index) {
             this.expandedIndex = this.expandedIndex === index ? null : index;
         },
@@ -347,7 +351,7 @@ export default {
                     this.latestUpdates = this.gigHistoryData.map(gig => ({
                         gig_id: gig.gig_id,
                         image: gig.machine.machine_photo ? gig.machine.machine_photo : "../../../../images/washing-machine.png", // Keeping static image
-                        title: `Gig #${gig.gig_cryptic} - ${gig.machine.brand_name} ${gig.machine.machine_type}`,
+                        title: `Gig #${this.capitalizeWords(gig.gig_cryptic)} - ${this.capitalizeWords(gig.machine.brand_name)} ${this.capitalizeWords(gig.machine.machine_type)}`,
                         description: gig.initial_issue || "No issue description available.",
                         amount: `$${gig.gig_price}`, // Format price
                         repair_notes: `${gig.repair_notes}`,

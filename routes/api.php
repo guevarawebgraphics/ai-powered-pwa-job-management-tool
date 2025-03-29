@@ -76,4 +76,9 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/send_sms/contact', [App\Http\Controllers\GigController::class, 'sendGigSMS']);
     });
 
+    Route::prefix('temporary')->group(function () {
+        Route::post('/image/upload', [App\Http\Controllers\GigController::class, 'storeTemporaryImage']);
+        Route::post('/image/delete-image', [App\Http\Controllers\GigController::class, 'destroyTemporaryImage']);
+    });
+
 });

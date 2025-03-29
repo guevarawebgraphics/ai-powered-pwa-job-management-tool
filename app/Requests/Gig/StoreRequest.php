@@ -16,7 +16,7 @@ class StoreRequest extends FormRequest
         return [
             'type' => ['required', 'in:diagnostic,full-repair'],
             'images' => ['required', 'array', 'min:1'],
-            'images.*' => ['image', 'mimes:jpeg,png,jpg,gif', 'max:2048'], // Each file must be an image & max 2MB
+            'images.*' => ['image', 'mimes:jpeg,png,jpg,gif'], // Each file must be an image & max 2MB
             'selectedRepairs' => [
                 'required',
                 function ($attribute, $value, $fail) {

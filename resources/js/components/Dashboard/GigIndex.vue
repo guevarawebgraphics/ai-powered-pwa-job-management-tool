@@ -145,7 +145,7 @@
                     :alt="`${this.machineData.machine_type} Image`" class="w-12 h-12 object-contain self-center">
 
                 <div>
-                    <p class="text-gray-700 text-sm font-semibold">{{ this.machineData.brand_name }}</p>
+                    <p class="text-gray-700 text-sm font-semibold">{{ this.capitalizeWords(this.machineData.brand_name) }}</p>
                     <p class="text-gray-600">Model #: {{ this.machineData.model_number }}</p>
                     <p class="text-gray-500">Serial: {{ this.gigData.serial_number }}</p>
                 </div>
@@ -284,7 +284,6 @@ export default {
             machineData: [],
             gigID: null,
             modelNumber: null,
-
             expandedIndex: null,
             gigQuickHistory: [],
             isOpen: false,
@@ -321,7 +320,6 @@ export default {
             const date = new Date(this.gigData.start_datetime);
             return new Intl.DateTimeFormat("en-US", { month: "long", day: "numeric", timeZone: "UTC" }).format(date);
         },
-
         formattedCreatedTime() {
             if (!this.gigData || !this.gigData.start_datetime) return "N/A"; // Handle missing data
 
@@ -333,22 +331,32 @@ export default {
                 timeZone: "UTC"
             }).format(date);
         },
-
         buttonText() {
-            if (!this.gigData.time_started) {
+
+            console.log(`gig_complete = ${this.gigData.gig_complete}`);
+
+            if (this.gigData.gig_complete == 0) {
                 return "Start";
-            } else if (this.gigData.time_started && !this.gigData.time_ended) {
+            } else if (this.gigData.gig_complete == 1) {
                 return "End";
-            } else {
-                return "View Post Gig Report";
+            } else if (this.gigData.gig_complete == 2) {
+                return "Complete Post Gig Report & Get Paid";
+            } else if (this.gigData.gig_complete == 3) {
+                return "Submitted Post Gig Report";
             }
         },
         buttonClass() {
-            if (!this.gigData.time_started) {
-                return "bg-green-600 hover:bg-green-700"; // Green for Start
-            } else {
-                return "bg-red-600 hover:bg-red-700"; // Red for End and Submit Report
+            if (this.gigData.gig_complete == 0) {
+                return "bg-green-600 hover:bg-green-700";
+            } else if (this.gigData.gig_complete == 1) {
+                return "bg-red-600 hover:bg-red-700";
+            } else if (this.gigData.gig_complete == 2) {
+                return "bg-green-600 hover:bg-green-700";
+            } else if (this.gigData.gig_complete == 3) {
+                return "bg-gray-600 hover:bg-gray-700";
             }
+
+
         }
     },
     methods: {
@@ -396,9 +404,12 @@ export default {
 
                 // Update gigData based on the action taken
                 if (response.data.message.includes("started")) {
-                    this.gigData.time_started = new Date().toISOString(); // Simulate timestamp
+                    this.gigData.time_started = new Date().toISOString();
+                    this.gigData.gig_complete = 1; // Update status
                 } else if (response.data.message.includes("ended")) {
-                    this.gigData.time_ended = new Date().toISOString(); // Simulate timestamp
+                    this.gigData.time_ended = new Date().toISOString();
+                    this.gigData.gig_complete = 2; // Update status
+
                     if (this.gigData.time_started && this.gigData.time_ended) {
                         this.$router.push(`/gig/${gigID}`);
                         return;

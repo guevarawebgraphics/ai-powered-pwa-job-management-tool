@@ -7,6 +7,8 @@ use App\Services\GigService;
 use Illuminate\Http\Request;
 use Twilio\Rest\Client;
 use App\Models\Gig;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class GigController extends Controller
 {    
@@ -24,13 +26,44 @@ class GigController extends Controller
                 "jobCompletion" => $request->type, // "diagnostic" or "full-repair"
                 "solution" => $request->selectedRepairs, // Selected repairs array
                 "partsUsed" => $request->selectedParts, // Selected parts array,
-                "added_common_repair"   =>  []
             ]
         ];
 
         // Store formatted JSON in the input array
         $input['resolution'] = json_encode($json);
 
+        $recommendedRepairs = json_decode($request->addtl_recommended_repairs, true) ?? [];
+        
+
+        foreach ($recommendedRepairs as $repairIndex => &$repairItem) { // Use reference '&' to modify directly
+            $updatedImages = []; // Store the correct image paths
+            
+            
+            // Check if images exist in the request
+            if ($request->hasFile("addtl_recommended_repairs_images.$repairIndex")) {
+                foreach ($request->file("addtl_recommended_repairs_images.$repairIndex") as $repairImage) {
+                    $xfileName = time() . '-' . uniqid() . '.' . $repairImage->getClientOriginalExtension();
+                    $xfilePath = "/images/gigs/" . $xfileName;
+                    
+                    // Move file to the desired location
+                    $repairImage->move(public_path('images/gigs'), $xfileName);
+                    // Store the path
+                    $updatedImages[] = $xfilePath;
+                }
+            }
+
+            \Log::info($updatedImages);
+
+            // Update the images field
+            $repairItem['images'] = $updatedImages;
+        }
+
+        // Store back as JSON
+        $input['addtl_recommended_repairs'] = json_encode($recommendedRepairs);
+
+
+
+        
         // ✅ Store images and collect paths
         $imagePaths = [];
         if ($request->hasFile('images')) {
@@ -53,7 +86,7 @@ class GigController extends Controller
 
         return response()->json([
             'message' => 'Successfully stored report!',
-            'user' => $query,
+            'user' => $input,
         ], 201);
     }
 
@@ -109,5 +142,30 @@ class GigController extends Controller
             'message' => 'Successfully sent SMS',
             'data' => $response,
         ], 201);
+    }
+
+    public function storeTemporaryImage(Request $request) {
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+            $path = $file->storeAs('uploads', $filename, 'public'); // Store in storage/app/public/uploads
+
+            return response()->json([
+                'url' => asset('storage/uploads/' . $filename),
+                'filename' => $filename // Send back filename for future deletion
+            ]);
+        }
+        return response()->json(['error' => 'No file uploaded'], 400);
+    }
+
+    public function destroyTemporaryImage(Request $request) {
+        $filename = $request->filename;
+
+        if ($filename && Storage::disk('public')->exists("uploads/$filename")) {
+            Storage::disk('public')->delete("uploads/$filename");
+            return response()->json(['message' => 'Image deleted successfully']);
+        }
+
+        return response()->json(['error' => 'File not found'], 404);
     }
 }

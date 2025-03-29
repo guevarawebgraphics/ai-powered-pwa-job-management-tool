@@ -7,13 +7,14 @@
             <!-- Gig Title -->
             <h2 class="text-xl text-center text-[#232850]">
 
-                Gig #{{ this.gigData.gig_cryptic }}
+                Gig #{{ this.capitalizeWords(this.gigData.gig_cryptic) }}
             </h2>
             <div class="flex items-center mt-2">
                 <img :src="this.machineData.machine_photo" alt="Samsung Dryer" class="w-16 rounded-md" />
                 <div class="ml-3">
                     <p class="text-sm font-semibold text-gray-800">
-                        {{ this.gigData.machine.machine_type }} - {{ this.gigData.machine.brand_name }}
+                        {{ this.capitalizeWords(this.gigData.machine.machine_type) }} - {{
+                        this.capitalizeWords(this.gigData.machine.brand_name) }}
                     </p>
                     <p class="text-xs text-gray-500">
                         **{{ this.gigData.initial_issue }}**
@@ -51,7 +52,7 @@
             <div class="text-center mt-6">
                 <h3 class="text-lg">Post Gig Report</h3>
                 <p class="text-sm text-gray-600">
-                    **Complete Post gig report And get Paid**
+                    **Complete Post Gig Report & Get Paid**
                 </p>
             </div>
 
@@ -105,7 +106,7 @@
                     <input type="file" ref="fileInput" multiple accept="image/*" class="hidden"
                         @change="handleFileUpload" />
 
-                    <button @click="openCamera" class="flex flex-col items-center text-blue-500">
+                    <button @click="openCamera()" class="flex flex-col items-center text-blue-500">
                         <i class="fas fa-camera text-2xl"></i>
                         <p class="text-xs">Take Photo</p>
                     </button>
@@ -166,41 +167,85 @@
                 <p v-else class="text-gray-600 text-center mt-4">No Common Repairs and Diagnostics Found</p>
             </div>
 
-<!-- 
+            <div class="space-y-4 mt-4">
+
+
+                <div v-if="textarea_content_array.length > 0" v-for="(repair, index) in textarea_content_array"
+                    :key="repair.content">
+                    <label
+                        class="relative bg-white rounded-lg shadow-md border p-4 cursor-pointer flex items-start space-x-4">
+                        <i class="fas fa-trash text-red-600 text-lg font-semibold absolute top-4 right-4 w-5 h-5"
+                            @click="removeTextareaContent(index)"></i>
+
+                        <div style="margin-left: unset;">
+                            <p class="text-gray-700 text-sm"><strong>Content:</strong> {{ repair.content }}</p>
+
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <div v-for="(image, index) in repair.images" :key="index" class="relative">
+                                    <img :src="image.url" :alt="image.filename"
+                                        class="w-20 h-20 object-cover rounded-md" @click="openImageViewer(image.url)" />
+                                </div>
+                            </div>
+
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+
             <div class="space-y-4 mt-4">
                 <div class="relative bg-white rounded-lg shadow-md border p-4 cursor-pointer flex flex-col space-y-4">
-
-                    
-                    <textarea class="w-full border rounded p-2 focus:ring focus:ring-blue-300"
-                        placeholder="Type your message..." v-model="textarea_content"></textarea>
-
-                    
-                    <button @click="showEmojiPicker = !showEmojiPicker" class="text-gray-500 hover:text-gray-700">
-                        😊 Add Emoji
-                    </button>
-
-                    
-                    <emoji-picker v-if="showEmojiPicker" @emoji="addEmoji" />
-
-                    
-                    <div class="flex flex-wrap gap-2">
+                    <div style="margin-left: unset;">
+                        <p class="text-lg font-bold text-gray-700"><i class="fa-solid fa-question"></i> Other</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2" v-if="this.textarea_images.length>0">
                         <div v-for="(image, index) in textarea_images" :key="index" class="relative">
-                            <img :src="image" alt="Preview" class="w-20 h-20 object-cover rounded-md" />
-                            <button type="button" class="absolute top-0 right-0 bg-white rounded-full p-1 shadow"
+                            <img :src="image.url" :alt="image.filename" class="w-20 h-20 object-cover rounded-md"
+                                @click="openImageViewer(image.url)" />
+                            <button type="button"
+                                class="absolute top-0 right-0 bg-red-500 text-white rounded-full text-xs p-1"
                                 @click="removeOpenTextImage(index)">
-                                ❌
+                                ✕
                             </button>
                         </div>
                     </div>
 
-                    
-                    <label class="flex items-center space-x-2 cursor-pointer text-blue-500 hover:underline">
-                        📷 Attach Images
-                        <input type="file" multiple class="hidden" @change="openTextUploadImage" />
-                    </label>
+
+                    <div class="flex items-center relative">
+                        <button class="p-2 text-[#262025FF]" @click="openCameraV2()">
+                            <i class="fas fa-camera text-2xl"></i>
+                        </button>
+                        <button type="button" class="p-2 text-[#262025FF]" @click="$refs.multipleFileInput.click()">
+                            <i class="fas fa-image text-2xl"></i>
+
+                            <input type="file" multiple ref="multipleFileInput" class="hidden"
+                                @change="openTextUploadImage" />
+                        </button>
+
+                        <!-- Input field with emoji -->
+                        <div class="relative flex-1">
+                            <input type="text" placeholder="Aa"
+                                class="mx-3 bg-gray-100 outline-none text-gray-700 placeholder-[#BCC1CA] flex-1 p-2 rounded-full pr-10"
+                                v-model="textarea_content">
+                            <button @click="showEmojiPicker = !showEmojiPicker"
+                                class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
+                                😊
+                            </button>
+                        </div>
+
+
+
+                        <!-- <emoji-picker v-if="showEmojiPicker" @emoji="addEmoji" class="absolute bottom-12 right-0" /> -->
+
+                        <emoji-picker v-if="showEmojiPicker" @select="addEmoji" class="absolute bottom-12 right-0" />
+
+                        <button class="p-2 text-[#262025FF]" @click="addOtherRepair()">
+                            <i class="fa-regular fa-paper-plane text-2xl"></i>
+                        </button>
+                    </div>
 
                 </div>
-            </div> -->
+            </div>
 
 
             <!-- Submit Button -->
@@ -251,6 +296,20 @@
     </div>
 
 
+    <!-- Camera Modal -->
+    <div v-if="cameraOpenV2" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+        <div class="bg-white p-4 rounded-lg shadow-lg text-center">
+            <video ref="videoV2" autoplay class="w-64 h-48 border rounded"></video>
+            <canvas ref="canvasV2" class="hidden"></canvas>
+
+            <div class="mt-4 space-x-2">
+                <button @click="capturePhotoV2" class="bg-green-500 text-white px-4 py-2 rounded">Capture</button>
+                <button @click="closeCameraV2" class="bg-red-500 text-white px-4 py-2 rounded">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+
     <!-- Full-Screen Image Viewer -->
     <div v-if="viewingImage" class="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center">
         <div class="relative">
@@ -267,12 +326,12 @@ import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
 import axios from "axios"; // Ensure ax
 import Swal from 'sweetalert2'; // Import SweetAlert2
-// import EmojiPicker from "vue3-emoji-picker";
-// import "vue3-emoji-picker/css";
+import EmojiPicker from "vue3-emoji-picker";
+import "vue3-emoji-picker/css";
 
 export default {
     // components: { NavBar, BottomNav, EmojiPicker },
-    components: { NavBar, BottomNav },
+    components: { NavBar, BottomNav, EmojiPicker },
     name: "GigReportPage",
     data() {
         return {
@@ -312,14 +371,17 @@ export default {
             images: [],
             previewImages: [],
             cameraOpen: false,
+            cameraOpenV2: false,
             viewingImage: null, // Stores the image to be viewed
             selectedOptionType: null, // Track which button is selected
             selectedRepairs: [],
             gig_report_images: [],
             gig_resolution: [],
             textarea_content: "",
+            textarea_content_array: [],
             textarea_images: [],
             showEmojiPicker: false,
+
         };
     },
     created() {
@@ -378,6 +440,10 @@ export default {
         }
     },
     methods: {
+        capitalizeWords(str) {
+            if (!str) return ''; // Return an empty string if str is undefined/null
+            return str.replace(/\b\w/g, char => char.toUpperCase());
+        },
         goToModel(modelID) {
             this.$router.push(`/model/${modelID}`);
         },
@@ -518,19 +584,60 @@ export default {
             }
             video.srcObject = null;
         },
+        async openCameraV2() {
+            this.cameraOpenV2 = true;
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+                this.$refs.videoV2.srcObject = stream;
+            } catch (error) {
+                console.error("Error accessing camera:", error);
+                this.cameraOpenV2 = false;
+            }
+        },
+        capturePhotoV2() {
+            const video = this.$refs.videoV2;
+            const canvas = this.$refs.canvasV2;
+            const context = canvas.getContext("2d");
+
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+            // Convert to data URL and save to previewImages
+            const imageData = canvas.toDataURL("image/png");
+            this.textarea_images.push(imageData);
+
+            // Close camera after capture
+            this.closeCameraV2();
+        },
+        closeCameraV2() {
+            this.cameraOpenV2 = false;
+            const video = this.$refs.videoV2;
+            const stream = video.srcObject;
+            if (stream) {
+                const tracks = stream.getTracks();
+                tracks.forEach((track) => track.stop());
+            }
+            video.srcObject = null;
+        },
+
         openImageViewer(image) {
             this.viewingImage = image;
         },
+
         closeImageViewer() {
             this.viewingImage = null;
         },
+
         selectFullRepair() {
             this.selectedOptionType = "full-repair";
             this.isOpen = true; // Open modal
         },
+
         selectDiagnostic() {
             this.selectedOptionType = "diagnostic";
         },
+
         async submitGigReport() {
             try {
                 // ✅ Show a confirmation prompt before submission
@@ -557,27 +664,46 @@ export default {
                 formData.append("selectedParts", JSON.stringify(this.selectedParts));
                 formData.append("gig_id", this.gigID);
 
+                // Convert textarea_content_array to JSON and append
+                formData.append("addtl_recommended_repairs", JSON.stringify(this.textarea_content_array));
+
+                // Append images separately
+                this.textarea_content_array.forEach((item, index) => {
+                    item.images.forEach((image, imgIndex) => {
+                        console.log(`wow: `, image);
+                        formData.append(`addtl_recommended_repairs_images[${index}][${imgIndex}]`, image);
+                    });
+                });
+
+
+                // Append general images separately
                 this.images.forEach((image, index) => {
+                    console.log(`wow2: `, image);
                     formData.append(`images[${index}]`, image);
                 });
 
-                const response = await axios.post(`${api_endpoint}/api/gig/report`, formData, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "multipart/form-data",
-                    },
-                });
+                console.log("FormData entries:");
+                for (const pair of formData.entries()) {
+                    console.log(pair[0], pair[1]);
+                }
 
-                console.log("Response:", response);
+                // const response = await axios.post(`${api_endpoint}/api/gig/report`, formData, {
+                //     headers: {
+                //         Authorization: `Bearer ${token}`,
+                //         "Content-Type": "multipart/form-data",
+                //     },
+                // });
 
-                // ✅ Show success message if API call succeeds
-                Swal.fire({
-                    icon: "success",
-                    title: "Success!",
-                    text: "Gig report submitted successfully.",
-                });
+                // console.log("Response:", response);
 
-                this.$router.push(`/gig/${this.gigID}`);
+                // // ✅ Show success message if API call succeeds
+                // Swal.fire({
+                //     icon: "success",
+                //     title: "Success!",
+                //     text: "Gig report submitted successfully.",
+                // });
+
+                // this.$router.push(`/gig/${this.gigID}`);
                 return;
 
             } catch (error) {
@@ -612,18 +738,123 @@ export default {
                 }
             }
         },
-        // openTextUploadImage(event) {
-        //     const files = event.target.files;
-        //     for (let file of files) {
-        //         this.textarea_images.push(URL.createObjectURL(file));
-        //     }
-        // },
-        // removeOpenTextImage(index) {
-        //     this.textarea_images.splice(index, 1);
-        // },
-        // addEmoji(emoji) {
-        //     this.textarea_content += emoji.i;
-        // },
+
+        async openTextUploadImage(event) {
+            const files = event.target.files;
+            if (!files.length) return; // Exit if no file is selected
+
+            const token = localStorage.getItem("token");
+
+            for (let file of files) {
+                const formData = new FormData();
+                formData.append('image', file);
+
+                try {
+                    const response = await axios.post('/api/temporary/image/upload', formData, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'multipart/form-data'
+                        },
+                    });
+
+                    if (response.data.url) {
+                        this.textarea_images.push({
+                            url: response.data.url,
+                            filename: response.data.filename // Store filename for deletion
+                        });
+
+                        console.log(`textarea_images: `, this.textarea_images);
+                    }
+                } catch (error) {
+                    console.error('Upload failed:', error);
+                }
+            }
+
+            // Reset file input to allow re-uploading the same file
+            event.target.value = "";
+        },
+
+        async removeOpenTextImage(index) {
+            const image = this.textarea_images[index];
+
+            const token = localStorage.getItem("token");
+
+            if (image.filename) { // Ensure we have a filename to delete
+                try {
+
+                    const response = await axios.post('/api/temporary/image/delete-image', {
+                        filename: image.filename
+                    },{
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'multipart/form-data'
+                        },
+                    });
+
+                    // Remove from Vue.js state after successful backend deletion
+                    this.textarea_images.splice(index, 1);
+
+                    console.log(`textarea_images: `, this.textarea_images);
+                } catch (error) {
+                    console.error('Failed to delete image:', error);
+                }
+            }
+        },
+
+        addEmoji(emoji) {
+            console.log(`emoji: `, emoji.i);
+            this.textarea_content += emoji.i;
+            // this.textarea_content += emoji;
+        },
+
+        addOtherRepair() {
+            const payload = {
+                content: this.textarea_content || '', // Ensure content is at least an empty string
+                images: Array.isArray(this.textarea_images) ? [...this.textarea_images] : [] // Ensure it's always an array
+            };
+
+            this.textarea_content_array.push(payload);
+
+            this.textarea_content = '';
+            this.textarea_images = [];
+
+            console.log(payload);
+        },
+
+        async removeTextareaContent(index) {
+            console.log("this.textarea_content_array:", this.textarea_content_array);
+            console.log("Removing index:", index);
+
+            if (!this.textarea_content_array[index]) {
+                console.error(`Error: Index ${index} is out of bounds`);
+                return;
+            }
+
+            const images = this.textarea_content_array[index].images;
+            const token = localStorage.getItem("token");
+
+            for (const image of images) {
+                try {
+                    await axios.post('/api/temporary/image/delete-image', {
+                        filename: image.filename
+                    }, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'multipart/form-data'
+                        },
+                    });
+                    console.log(`Deleted: ${image.filename}`);
+                } catch (error) {
+                    console.error(`Failed to delete: ${image.filename}`, error);
+                }
+            }
+
+            // Ensure the index is still valid before removing
+            if (this.textarea_content_array[index]) {
+                this.textarea_content_array.splice(index, 1);
+            }
+        }
+
 
 
 
