@@ -434,6 +434,7 @@ export default {
                 console.log(`gig -> ${this.gigData.model_number}`);
                 this.machineDetail(this.modelNumber);
                 this.getQuickGigHistory(this.gigData.client_id);
+                console.log(`Gig Data: ` , this.gigData );
 
                 if (this.gigData.top_recommended_repairs) {
                     try {
@@ -501,54 +502,76 @@ export default {
         },
         async sendMessage(type) {
 
-            if (this.isSending) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Invalid duplicate click',
-                    text: 'You cannot send SMS Twice at the same time',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            }
 
-            this.isSending = true; // Set loading state to true
+            const time = new Date(this.eventStartTime).toLocaleTimeString([], {
+                hour: "2-digit",
+                minute: "2-digit"
+            });
 
-            try {
-                const api_endpoint = import.meta.env.VITE_API_ENDPOINT_MAIN;
-                const token = localStorage.getItem("token");
+            const messages = [
+                `Hello ${this.gigData.client_name}, 🌞 This is ${this.gigData.tech_name} with Appliance Repair American. I am on time to see you at ${time}. Does this still work for you?`,
+                `Hi ${this.gigData.client_name}! ${this.gigData.tech_name} from Appliance Repair American here. I’m scheduled to arrive at ${time}. Just checking if we’re still good for that time.`,
+                `Good day ${this.gigData.client_name}, this is ${this.gigData.tech_name} from Appliance Repair American. I’ll be arriving at ${time} as planned. Is that still okay with you?`
+            ];
+
+            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+            const smsLink = `sms:${this.gigData.client_phone_number}?&body=${encodeURIComponent(randomMessage)}`;
+
+            window.location.href = smsLink; 
+            // window.open(smsLink, "_self");
+
+            console.log(`${smsLink}`);
 
 
-                const formData = new FormData();
-                formData.append("type", type);
-                formData.append("gig_id", this.gigData.gig_id);
+            // Disabled TWILIO as per Jacob
+            // if (this.isSending) {
+            //     Swal.fire({
+            //         icon: 'error',
+            //         title: 'Invalid duplicate click',
+            //         text: 'You cannot send SMS Twice at the same time',
+            //         timer: 2000,
+            //         showConfirmButton: false
+            //     });
+            // }
 
-                const response = await axios.post(`${api_endpoint}/api/gig/send_sms/contact`, formData, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        "Content-Type": "multipart/form-data",
-                    },
-                });
+            // this.isSending = true; // Set loading state to true
 
-                console.log(response);
+            // try {
+            //     const api_endpoint = import.meta.env.VITE_API_ENDPOINT_MAIN;
+            //     const token = localStorage.getItem("token");
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'SMS Sent!',
-                    text: 'SMS message successfully sent!',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            } catch (error) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: error,
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            } finally {
-                this.isSending = false; // Reset flag after request is done
-            }
+
+            //     const formData = new FormData();
+            //     formData.append("type", type);
+            //     formData.append("gig_id", this.gigData.gig_id);
+
+            //     const response = await axios.post(`${api_endpoint}/api/gig/send_sms/contact`, formData, {
+            //         headers: {
+            //             Authorization: `Bearer ${token}`,
+            //             "Content-Type": "multipart/form-data",
+            //         },
+            //     });
+
+            //     console.log(response);
+
+            //     Swal.fire({
+            //         icon: 'success',
+            //         title: 'SMS Sent!',
+            //         text: 'SMS message successfully sent!',
+            //         timer: 2000,
+            //         showConfirmButton: false
+            //     });
+            // } catch (error) {
+            //     Swal.fire({
+            //         icon: 'error',
+            //         title: 'Error',
+            //         text: error,
+            //         timer: 2000,
+            //         showConfirmButton: false
+            //     });
+            // } finally {
+            //     this.isSending = false; // Reset flag after request is done
+            // }
 
         }
     }
