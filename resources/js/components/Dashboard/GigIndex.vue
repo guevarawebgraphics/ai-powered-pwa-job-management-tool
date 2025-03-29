@@ -502,25 +502,51 @@ export default {
         },
         async sendMessage(type) {
 
+            this.isSending = true;
 
-            const time = new Date(this.eventStartTime).toLocaleTimeString([], {
+            let eventTime = new Date(this.gigData.start_datetime);
+            if (isNaN(eventTime)) {
+                console.error("Invalid event start time:", this.gigData.start_datetime);
+                alert("Invalid date format. Please check the event time.");
+                this.isSending = false;
+                return;
+            }
+
+            const formattedTime = eventTime.toLocaleTimeString([], {
                 hour: "2-digit",
-                minute: "2-digit"
+                minute: "2-digit",
+                hour12: true,
             });
 
-            const messages = [
-                `Hello ${this.gigData.client_name}, 🌞 This is ${this.gigData.tech_name} with Appliance Repair American. I am on time to see you at ${time}. Does this still work for you?`,
-                `Hi ${this.gigData.client_name}! ${this.gigData.tech_name} from Appliance Repair American here. I’m scheduled to arrive at ${time}. Just checking if we’re still good for that time.`,
-                `Good day ${this.gigData.client_name}, this is ${this.gigData.tech_name} from Appliance Repair American. I’ll be arriving at ${time} as planned. Is that still okay with you?`
-            ];
+            const messages = {
+                "arriving-early": [
+                    `Hi ${this.gigData.client_name}, it’s ${this.gigData.tech_name} with Appliance Repair American. I’m running a bit ahead of schedule and could arrive earlier than ${formattedTime}. Would that be okay?`,
+                    `Hello ${this.gigData.client_name}! This is ${this.gigData.tech_name}. I’m ahead of schedule and can get to you earlier than planned. Let me know if that works for you.`,
+                    `Greetings ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American. I’m running early—would you be available before ${formattedTime}?`,
+                ],
+                "on-time": [
+                    `Hello ${this.gigData.client_name} 🌞. This is ${this.gigData.tech_name} with Appliance Repair American. I am on time to see you at ${formattedTime}. Does this still work for you?`,
+                    `Hi ${this.gigData.client_name}! ${this.gigData.tech_name} from Appliance Repair American here. I’m scheduled to arrive at ${formattedTime}. Just checking if we’re still good for that time.`,
+                    `Good day ${this.gigData.client_name}, this is ${this.gigData.tech_name} from Appliance Repair American. I’ll be arriving at ${formattedTime} as planned. Is that still okay with you?`,
+                ],
+                "behind-schedule": [
+                    `Hi ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American. I’m running behind some and will be arriving later than scheduled. Sorry for the delay.`,
+                    `Hello ${this.gigData.client_name}, just a quick update — I’m arriving later than expected. Sorry for the inconvenience, and I appreciate your patience.`,
+                    `Hey ${this.gigData.client_name}, this is ${this.gigData.tech_name}. I’m running a bit behind and will be there later than originally planned. Sorry for the change.`,
+                ],
+            };
 
-            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-            const smsLink = `sms:${this.gigData.client_phone_number}?&body=${encodeURIComponent(randomMessage)}`;
+                const selectedMessage =
+                    messages[type][Math.floor(Math.random() * messages[type].length)];
 
-            window.location.href = smsLink; 
-            // window.open(smsLink, "_self");
+                const smsLink = `sms:${this.gigData.client_phone_number}?&body=${encodeURIComponent(
+                    selectedMessage
+                )}`;
 
-            console.log(`${smsLink}`);
+                window.location.href = smsLink;
+
+
+            this.isSending = false;
 
 
             // Disabled TWILIO as per Jacob
