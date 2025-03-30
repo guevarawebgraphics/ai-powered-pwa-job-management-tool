@@ -178,7 +178,7 @@ class AuthController extends Controller
         return response()->json([
             'files' => array_map(fn($file) => [
                 'file_name' => $file->getFilename(),
-                'url' => asset('cdn/pdfs/'. $machineType . '/'. $modelNumber . '/'. $folderType . '/' . $file->getFilename())
+                'url' => asset('cdn/pdfs/'. $machineType . '/'. $brandName . '/' . $modelNumber . '/'. $folderType . '/' . $file->getFilename())
             ], $files)
         ]);
     }
