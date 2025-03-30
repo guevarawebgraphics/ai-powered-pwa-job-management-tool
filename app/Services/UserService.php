@@ -22,6 +22,7 @@ class UserService
             $data['profile_photo'] = url("images/profile_photo/{$filename}"); // Generate accessible URL
         }
 
+
         $user->update([
             'name' => $data['name'] ?? $user->name,
             'professional_title' => $data['professional_title'] ?? $user->professional_title,
@@ -34,6 +35,8 @@ class UserService
             'is_notify' => isset($data['is_notify']) ? ($data['is_notify'] == "1" ? "1" : "0") : $user->is_notify,
             'is_location' => isset($data['is_location']) ? ($data['is_location'] == "1" ? "1" : "0") : $user->is_location,
             'skills' => isset($data['skills']) ? implode(',', $data['skills']) : $user->skills,
+            'black_out_from'    => isset($data['black_out_from']) ?  $data['black_out_from'] : $user->black_out_from,
+            'black_out_to'    => isset($data['black_out_to']) ?  $data['black_out_to'] : $user->black_out_to,
 
         ]);
 

@@ -100,9 +100,9 @@
                         class="bg-white shadow-md rounded-lg p-4 cursor-pointer" @click="goToGig(gig.gig_id)">
                         <p class="text-sm font-medium text-[#666666FF]">Gig# {{ this.capitalizeWords(gig.gig_cryptic) || `ID-${gig.gig_id}` }}
                         </p>
-                        <p class="text-xs text-[#666666FF]">Date: {{ formatDate(gig.created_at) }}</p>
+                        <p class="text-xs text-[#666666FF]">Date: {{ formatDateTime(gig.start_datetime) }}</p>
                         <p v-if="gig.serial_number" class="text-xs text-[#666666FF]">Serial: {{ gig.serial_number }}</p>
-                        <p class="text-xs text-[#666666FF]">{{ gig.repair_notes || "No repair notes available" }}</p>
+                        <p class="text-xs text-[#666666FF]">{{ gig.initial_issue || "No repair notes available" }}</p>
                     </div>
                 </div>
                 <div v-else>
@@ -177,9 +177,20 @@ export default {
             if (!str) return ''; // Return an empty string if str is undefined/null
             return str.replace(/\b\w/g, char => char.toUpperCase());
         },
-        formatDate(dateStr) {
+        formatDateTime(dateStr) {
             if (!dateStr) return "N/A";
-            return new Date(dateStr).toLocaleDateString("en-US", { month: "short", day: "2-digit", year: "numeric" });
+            // Ensure the date string is in ISO format with a 'Z' to indicate UTC
+            const utcDateStr = dateStr.includes("T") ? dateStr : dateStr.replace(" ", "T") + "Z";
+            return new Date(utcDateStr).toLocaleString("en-US", {
+                timeZone: "UTC",
+                month: "short",
+                day: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit",
+                hour12: true
+            });
         },
         goToModel(id) {
             this.$router.push(`/model/${id}`);

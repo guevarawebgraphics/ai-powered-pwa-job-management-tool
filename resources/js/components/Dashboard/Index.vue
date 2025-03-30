@@ -265,6 +265,8 @@ export default {
             totalGigPrice: 0.00,
             totalJobBookedToday: 0,
             selectedDate: new Date().toISOString().substr(0, 10), 
+            selectedTime: new Date().toISOString().substr(11, 5)
+
         };
     },
     computed: {
@@ -320,10 +322,19 @@ export default {
                 const payload = {
                     techID: this.user_id   // Replace with dynamic techID if needed
                 };
+
                 // alert(this.selectedDate);
                 if (this.selectedDate) {
                     payload.date = this.selectedDate; // Add selected date to request if available
                 }
+
+                if (this.selectedTime) {
+                    payload.time = this.selectedTime;
+                }
+
+                console.log(`Selected Date: ${this.selectedDate}`);
+                console.log(`Selected Time: ${this.selectedTime}`);
+
 
                 const response = await axios.post(`${api_endpoint}/gigs/retrieveGigByTechID.php`,
                     payload, // Passing techID in the request body
