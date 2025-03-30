@@ -81,4 +81,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/image/delete-image', [App\Http\Controllers\GigController::class, 'destroyTemporaryImage']);
     });
 
+    Route::prefix('rating')->group(function () {
+        Route::get('/rules', [App\Http\Controllers\RatingController::class, 'index']);
+    });
+
 });

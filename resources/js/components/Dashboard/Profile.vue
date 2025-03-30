@@ -52,14 +52,7 @@
             </div>
 
 
-            <!-- Star Rating -->
-            <div class="flex space-x-1 mt-3">
-                <i class="fas fa-star text-4xl text-[#232850FF]"></i>
-                <i class="fas fa-star text-4xl text-[#232850FF]"></i>
-                <i class="fas fa-star text-4xl text-[#232850FF]"></i>
-                <i class="fas fa-star text-4xl text-[#232850FF]"></i>
-                <i class="fas fa-star text-4xl text-[#232850FF]"></i>
-            </div>
+            <Ratings />
 
 
             <div class="mt-6 w-full max-w-md space-y-3">
@@ -262,11 +255,12 @@
 <script>
 import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
+import Ratings from "../sections/Ratings.vue";
 import axios from 'axios';
 import Swal from 'sweetalert2'; // Import SweetAlert2
 
 export default {
-    components: { NavBar, BottomNav },
+    components: { NavBar, BottomNav, Ratings },
     name: "ProfilePage",
     data() {
         return {

@@ -23,14 +23,9 @@
                 <p class="text-[#9095A0FF]">{{ professionalTitle ?? '--' }}</p>
             </div>
 
-            <!-- Star Rating -->
-            <div class="flex space-x-1 mt-3">
-                <i class="fas fa-star text-4xl text-[#232850FF]"></i>
-                <i class="fas fa-star text-4xl text-[#232850FF]"></i>
-                <i class="fas fa-star text-4xl text-[#232850FF]"></i>
-                <i class="fas fa-star text-4xl text-[#232850FF]"></i>
-                <i class="fas fa-star text-4xl text-[#232850FF]"></i>
-            </div>
+            <Ratings />
+
+
         </div>
 
 
@@ -59,7 +54,7 @@
                     <div class="flex items-center space-x-2">
                         <i class="fas fa-calendar-alt text-lg text-[#232850FF]"></i>
                         <!-- <span class="text-xl font-bold text-[#171A1FFF]">{{ this.total_jobs }}</span> -->
-                        
+
                         <span class="text-xl font-bold text-[#171A1FFF]">{{ this.totalJobBookedToday }}</span>
                     </div>
                     <p class="text-sm text-[#666666FF]">Jobs Booked Today</p>
@@ -230,11 +225,12 @@
 
 <script>
 import NavBar from "../sections/Navbar.vue";
+import Ratings from "../sections/Ratings.vue";
 import BottomNav from "../sections/Bottombar.vue";
 import axios from "axios"; // Ensure axios is imported
 
 export default {
-    components: { NavBar, BottomNav },
+    components: { NavBar, BottomNav, Ratings },
     name: "DashboardIndex",
     data() {
         return {

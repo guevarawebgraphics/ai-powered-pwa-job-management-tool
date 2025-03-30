@@ -152,13 +152,13 @@ class AuthController extends Controller
     public function getUserData(Request $request)
     {
         $user = $request->user();
-        $total_jobs_booked = \DB::table('gigs')->where('assigned_tech_id', 6)->count();
-        // $gig_spending = \DB::table('gigs')->where('')->select('gig_cryptic', 'gig_price')->get();
+        $total_jobs_booked = \DB::table('gigs')->where('assigned_tech_id', auth()->user()->id)->count();
+        $total_gig_price = \DB::table('gigs')->whereNull('deleted_at')->where('assigned_tech_id', auth()->user()->id)->sum('gig_price');
 
         $data = [
             'user'  =>  $user,
             'total_jobs_booked' =>  $total_jobs_booked,
-            
+            'total_gig_price'   =>  $total_gig_price
         ];
         return $data;
     }
