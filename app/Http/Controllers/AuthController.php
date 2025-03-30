@@ -165,7 +165,8 @@ class AuthController extends Controller
 
     public function getFiles($machineType, $brandName, $modelNumber, $folderType)
     {
-        $directory = public_path('cdn/pdfs/'. $machineType . '/' . $brandName . '/'. $modelNumber . '/'. $folderType . '/');
+        $request_path = strtolower('cdn/pdfs/'. $machineType . '/' . $brandName . '/'. $modelNumber . '/'. $folderType . '/');
+        $directory = public_path($request_path);
 
         \Log::info($directory);
 
@@ -178,10 +179,11 @@ class AuthController extends Controller
         return response()->json([
             'files' => array_map(fn($file) => [
                 'file_name' => $file->getFilename(),
-                'url' => asset('cdn/pdfs/'. $machineType . '/'. $brandName . '/' . $modelNumber . '/'. $folderType . '/' . $file->getFilename())
+                'url' => asset($request_path . $file->getFilename())
             ], $files)
         ]);
     }
+
 
     
 }

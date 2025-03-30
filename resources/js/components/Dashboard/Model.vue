@@ -13,10 +13,10 @@
                     <i class="fas fa-washer text-2xl text-gray-700"></i>
                     <div>
                         <p class="text-sm text-gray-800 font-medium text-[#222222FF]">
-                            {{ this.machineData.brand_name }}
+                            {{ this.capitalizeWords(this.machineData.brand_name) }}
                         </p>
                         <p class="text-xs text-[#666666FF]">
-                            {{ this.machineData.machine_type }}
+                            {{ this.capitalizeWords(this.machineData.machine_type) }}
                         </p>
                     </div>
                 </div>
@@ -212,6 +212,10 @@ export default {
         }
     },
     methods: {
+        capitalizeWords(str) {
+            if (!str) return ''; // Return an empty string if str is undefined/null
+            return str.replace(/\b\w/g, char => char.toUpperCase());
+        },
         async modelDetail(modelID) {
             try {
                 const api_endpoint = import.meta.env.VITE_API_ENDPOINT;

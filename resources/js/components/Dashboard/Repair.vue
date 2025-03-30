@@ -16,12 +16,12 @@
                         <i class="fas fa-wrench text-sm text-gray-700"></i>
                         <span>Most Common Repair</span>
                     </span>
-                    <span class="flex items-center space-x-1 text-red-600">
+                    <span class="flex items-center space-x-1 text-red-600" v-if="this.selectedRepair.symptoms">
                         <i data-tooltip-target="tooltip-symptoms" data-tooltip-style="light"
                             class="fas fa-info-circle text-gray-700 text-sm"></i>
                         <span>{{ this.selectedRepair.symptoms }}</span>
                     </span>
-                    <span class="flex items-center space-x-1 text-green-600">
+                    <span class="flex items-center space-x-1 text-green-600" v-if="this.selectedRepair.solution">
                         <i data-tooltip-target="tooltip-solution" data-tooltip-style="light"
                             class="fas fa-check text-gray-700 text-sm"></i>
                         <span>{{ this.selectedRepair.solution }}</span>
