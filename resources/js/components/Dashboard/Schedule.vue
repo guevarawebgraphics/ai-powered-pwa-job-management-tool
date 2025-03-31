@@ -244,7 +244,11 @@ export default {
                 console.log("Fetching Gig History...");
 
                 const payload = {
-                    techID: this.user_id   // Replace with dynamic techID if needed
+                    techID: this.user_id,   // Replace with dynamic techID if needed
+                    current_datetime: new Date()
+                        .toISOString()
+                        .slice(0, 19)
+                        .replace("T", " ")
                 };
                 // alert(this.selectedDate);
                 if (this.selectedDate) {
