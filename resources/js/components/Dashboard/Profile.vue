@@ -227,7 +227,12 @@
                     <!-- Selected Items as Button -->
                     <div
                         class="mt-2 p-2 border border-gray-300 rounded-lg bg-white cursor-pointer flex justify-between items-center"
-                        @click="toggleDropdown"
+                        @click="
+                            () => {
+                                console.log('clicked');
+                                toggleDropdown();
+                            }
+                        "
                     >
                         <span
                             v-if="selectedSkills.length === 0"
@@ -245,8 +250,9 @@
 
                     <!-- Dropdown List -->
                     <div
-                        v-if="isDropdownOpen"
-                        class="absolute left-0 right-0 top-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-[60] max-h-48 overflow-y-auto"
+                        v-show="isDropdownOpen"
+                        class="absolute left-0 right-0 top-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-[9999] max-h-48 overflow-y-auto"
+                        style="display: block"
                     >
                         <div
                             v-for="(skill, index) in skills"
@@ -729,6 +735,7 @@ export default {
 
         toggleDropdown() {
             this.isDropdownOpen = !this.isDropdownOpen;
+            console.log(this.isDropdownOpen);
         },
 
         closeDropdown(event) {
