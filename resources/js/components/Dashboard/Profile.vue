@@ -198,6 +198,9 @@
                         <input
                             type="checkbox"
                             v-model="advancedSchedule"
+                            @change="
+                                updateSettings('is_blackout', advancedSchedule)
+                            "
                             class="sr-only"
                         />
                         <div
@@ -481,7 +484,6 @@ export default {
             isEditingName: false,
             isEditingTitle: false,
 
-            notificationsEnabled: false,
             locationEnabled: false,
 
             contactInfo: [
@@ -654,6 +656,8 @@ export default {
 
                 this.$nextTick(() => {
                     // Convert "0"/"1" to Boolean
+
+                    this.advancedSchedule = userData.is_blackout === "1";
                     this.notificationsEnabled = userData.is_notify === "1";
                     this.locationEnabled = userData.is_location === "1";
                 });

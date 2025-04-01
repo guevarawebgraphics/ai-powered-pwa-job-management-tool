@@ -37,6 +37,7 @@ class UserService
             'skills' => isset($data['skills']) ? implode(',', $data['skills']) : $user->skills,
             'black_out_from'    => isset($data['black_out_from']) ?  $data['black_out_from'] : $user->black_out_from,
             'black_out_to'    => isset($data['black_out_to']) ?  $data['black_out_to'] : $user->black_out_to,
+            'is_blackout' => isset($data['is_blackout']) ? ($data['is_blackout'] == "1" ? "1" : "0") : $user->is_blackout,
 
         ]);
 
