@@ -5,12 +5,18 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Chat;
+use App\Models\User;
 use App\Requests\Notification\StoreRequest;
 use App\Services\NotificationService;
 use App\Services\ChatService;
 use App\Requests\Chat\StoreRequest As ChatStoreRequest;
 use Illuminate\Support\Facades\Event;
 use App\Events\NewNotificationEvent;
+use App\Notifications\FirebaseNotification;
+use GuzzleHttp\Client;
+use Google\Auth\Credentials\ServiceAccountCredentials;
+use DB;
+use Illuminate\Support\Facades\Http;
 
 class ChatController extends Controller
 {

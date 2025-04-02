@@ -19,3 +19,7 @@ TWILIO_ACCOUNT_SID=
 `To install Twilio SDK -> composer require twilio/sdk`
 
 `It gives you -> {"require": {"twilio/sdk": "^5.0"}}`
+
+`composer require google/auth`
+
+`npm install vuex@next`

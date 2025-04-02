@@ -22,10 +22,12 @@
         "@tiptap/starter-kit": "^2.11.5",
         "@tiptap/vue-3": "^2.11.5",
         "@vitejs/plugin-vue": "^5.2.1",
+        "firebase": "^11.6.0",
         "pusher-js": "^8.4.0",
         "sweetalert2": "^11.16.0",
         "vue": "^3.5.13",
         "vue-router": "^4.5.0",
-        "vue3-emoji-picker": "^1.1.8"
+        "vue3-emoji-picker": "^1.1.8",
+        "vuex": "^4.0.2"
     }
 }

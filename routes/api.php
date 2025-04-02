@@ -19,7 +19,6 @@ Route::prefix('chat')->group(function () {
     Route::post('/store', [App\Http\Controllers\ChatController::class, 'store']);
 });
 
-
 Route::get('/login', function () {
     return response()->json(['error' => 'Unauthenticated.'], 401);
 })->name('login');
@@ -46,6 +45,12 @@ Route::prefix('notify')->group(function () {
     Route::post('/update/{notifyID}', [App\Http\Controllers\NotificationController::class, 'update']);
     Route::get('/get/{userId}/unseen', [App\Http\Controllers\NotificationController::class, 'getUnseen']);
 });
+
+Route::prefix('firebase')->group(function () {
+    Route::post('/store', [App\Http\Controllers\NotificationController::class, 'storeFirebaseToken']);
+    Route::post('/notification', [App\Http\Controllers\NotificationController::class, 'callFirebaseNotification']);
+});
+
 
 
 Route::middleware('auth:sanctum')->group(function () {
@@ -84,5 +89,4 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('rating')->group(function () {
         Route::get('/rules', [App\Http\Controllers\RatingController::class, 'index']);
     });
-
 });

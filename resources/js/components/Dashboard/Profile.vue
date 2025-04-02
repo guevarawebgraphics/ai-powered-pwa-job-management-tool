@@ -385,7 +385,7 @@
             <!-- Chat Body -->
             <div class="p-4 h-64 overflow-y-auto" ref="chatBox">
                 <div
-                    v-for="(message, index) in messages"
+                    v-for="(message, index) in chatMessages"
                     :key="index"
                     class="flex items-start mb-3"
                     :class="{
@@ -459,10 +459,16 @@ import Ratings from "../sections/Ratings.vue";
 import CalendarModal from "../sections/CalendarModal.vue";
 import axios from "axios";
 import Swal from "sweetalert2"; // Import SweetAlert2
+import { messaging } from "../../firebase";
+import { getToken, onMessage } from "firebase/messaging";
+import { mapState } from "vuex";
 
 export default {
     components: { NavBar, BottomNav, Ratings, CalendarModal },
     name: "ProfilePage",
+    computed: {
+        ...mapState(["chatMessages"]),
+    },
     data() {
         return {
             skills: [
@@ -476,16 +482,13 @@ export default {
             notificationsEnabled: false,
             locationEnabled: false,
             previewPhoto: "/images/avatar.png",
-
             name: "--",
             professionalTitle: "--",
             tempName: "",
             tempTitle: "",
             isEditingName: false,
             isEditingTitle: false,
-
             locationEnabled: false,
-
             contactInfo: [
                 {
                     icon: "fas fa-building",
@@ -523,15 +526,6 @@ export default {
                     editing: false,
                 },
             ],
-            // workSchedule: [
-            //     { day: "Saturday", hours: "9 AM - 5 PM" },
-            //     { day: "Sunday", hours: "8 AM - 8 PM" },
-            //     { day: "Monday", hours: "8 AM - 8 PM" },
-            //     { day: "Tuesday", hours: "8 AM - 8 PM" },
-            //     { day: "Wednesday", hours: "8 AM - 8 PM" },
-            //     { day: "Thursday", hours: "8 AM - 8 PM" },
-            //     { day: "Friday", hours: "8 AM - 8 PM" },
-            // ],
             workSchedule: [],
             advancedSchedule: false,
             isChatOpen: false,
@@ -815,7 +809,6 @@ export default {
         goToSetSchedule() {
             this.$router.push("/set-schedule"); // Redirect to Set Schedule page
         },
-
         async fetchSchedule() {
             const token = localStorage.getItem("token"); // Assuming auth token is needed
             try {
@@ -865,7 +858,6 @@ export default {
                 console.error("Error fetching schedule:", error);
             }
         },
-
         openChat() {
             this.isChatOpen = true;
             this.getMessage();
@@ -873,12 +865,11 @@ export default {
         closeChat() {
             this.isChatOpen = false;
         },
-
-        getMessage() {
+        async getMessage() {
             const tokenx = localStorage.getItem("token");
             const loggedInUserId = this.accountProfile.id; // Get the logged-in user ID
 
-            axios
+            await axios
                 .post(
                     "/api/chat/listings",
                     {
@@ -912,6 +903,8 @@ export default {
                         };
                     });
 
+                    this.$store.commit("setChatMessages", this.messages);
+
                     this.$nextTick(() => {
                         this.$refs.chatBox.scrollTop =
                             this.$refs.chatBox.scrollHeight;
@@ -921,7 +914,6 @@ export default {
                     console.error("failed:", error);
                 });
         },
-
         sendMessage() {
             const token = localStorage.getItem("token");
             const loggedInUserId = this.accountProfile.id;
@@ -943,7 +935,7 @@ export default {
                     }
                 )
                 .then((response) => {
-                    this.getMessage(); // Refresh chat after sending
+                    // this.getMessage(); // Refresh chat after sending
                     console.log("success:", response);
                 })
                 .catch((error) => {
@@ -951,17 +943,23 @@ export default {
                 });
 
             if (this.newMessage.trim() !== "") {
-                this.messages.push({
+                const newMsg = {
                     sender: "user",
                     name: "You",
                     text: this.newMessage.trim(),
                     avatar: "https://randomuser.me/api/portraits/men/20.jpg",
-                });
+                };
 
+                // Add the message locally (if needed)
+                // this.messages.push(newMsg);
+
+                // Commit the message to Vuex
+                this.$store.commit("addChatMessage", newMsg);
+
+                // Clear the input field
                 this.newMessage = "";
             }
         },
-
         showCalendarModal() {
             // Opens the modal by calling the openModal() method on the CalendarModal component
             this.$refs.calendarModal.openModal();
@@ -971,11 +969,10 @@ export default {
         this.fetchSchedule();
         this.fetchUserData();
         document.addEventListener("click", this.closeDropdown);
-
-        window.Echo.channel("notifications") // Public Channel (No Auth)
-            .listen("NewNotificationEvent", (event) => {
-                this.getMessage();
-            });
+        // window.Echo.channel("notifications") // Public Channel (No Auth)
+        //     .listen("NewNotificationEvent", (event) => {
+        //         this.getMessage();
+        //     });
     },
     beforeUnmount() {
         document.removeEventListener("click", this.closeDropdown);
