@@ -144,7 +144,7 @@
 
 
             <div class="space-y-4 mt-4">
-                <div v-if="numberedRepairs.length > 0" v-for="repair in numberedRepairs" :key="repair.title">
+                <div v-if="numberedRepairs.length > 0" v-for="repair in numberedRepairs" :key="repair.repairName">
                     <label
                         class="relative bg-white rounded-lg shadow-md border p-4 cursor-pointer flex items-start space-x-4">
                         <!-- Checkbox positioned in the top-right corner -->
@@ -153,12 +153,12 @@
                             v-model="selectedRepairs" />
 
                         <div style="margin-left: unset;">
-                            <p class="text-lg font-bold text-gray-700">
-                                #{{ repair.number }} {{ repair.title }}
+                            <p class="text-lg font-bold text-repairName-700">
+                                #{{ repair.number }} {{ repair.repairName }}
                             </p>
                             <p class="text-gray-700 text-sm"><strong>Symptoms:</strong> {{ repair.symptoms }}</p>
                             <p class="text-gray-500 text-xs"><strong>Solution:</strong> {{ repair.solution }}</p>
-                            <p class="text-gray-500 text-xs"><strong>Parts Needed:</strong> {{ repair.parts.join(", ")
+                            <p class="text-gray-500 text-xs"><strong>Parts Needed:</strong> {{ repair.partsNeeded.join(", ")
                                 }}</p>
                         </div>
                     </label>

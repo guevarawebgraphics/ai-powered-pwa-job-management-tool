@@ -77,7 +77,8 @@
                         </div>
                     </div>
                     <!-- Star Icon -->
-                    <i class="fas fa-star text-yellow-400 text-2xl" v-if="this.gigData.client_total_gig_price > 500"></i>
+                    <i class="fas fa-star text-yellow-400 text-2xl"
+                        v-if="this.gigData.client_total_gig_price > 500"></i>
                 </div>
 
                 <!-- Divider -->
@@ -126,7 +127,8 @@
             </div>
 
             <!-- Customer Address -->
-            <div @click="openGoogleMaps" class="bg-white rounded-lg shadow-md border p-4 flex items-center space-x-3 cursor-pointer">
+            <div @click="openGoogleMaps"
+                class="bg-white rounded-lg shadow-md border p-4 flex items-center space-x-3 cursor-pointer">
                 <!-- Location Icon -->
                 <div class="w-12 h-12 flex justify-center items-center">
                     <i class="fas fa-map-marker-alt text-gray-500 text-[32px] flex-shrink-0 leading-none"></i>
@@ -175,15 +177,16 @@
                 </p>
 
                 <div class="space-y-3 mt-4">
-                    <div v-for="repair in numberedRepairs" :key="repair.title"
+                    <div v-for="repair in numberedRepairs" :key="repair.repairName"
                         class="bg-white rounded-lg shadow-md border p-4 cursor-pointer"
                         @click="goToRepair(repair.id, this.gigID)">
                         <p class="text-lg font-bold text-gray-700">
-                            #{{ repair.number }} {{ repair.title }}
+                            #{{ repair.number }} {{ repair.repairName }}
                         </p>
                         <p class="text-gray-700 text-sm"><strong>Symptoms:</strong> {{ repair.symptoms }}</p>
                         <p class="text-gray-500 text-xs"><strong>Solution:</strong> {{ repair.solution }}</p>
-                        <p class="text-gray-500 text-xs"><strong>Parts Needed:</strong> {{ repair.parts.join(", ") }}
+                        <p class="text-gray-500 text-xs"><strong>Parts Needed:</strong> {{ repair.partsNeeded.join(", ")
+                            }}
                         </p>
                     </div>
                 </div>
@@ -198,16 +201,23 @@
                 </h3>
 
                 <div class="mt-4 space-y-4">
-                    <!-- Placeholder for YouTube Videos -->
-                    <div class="bg-gray-200 w-full h-32 flex items-center justify-center rounded-lg">
-                        <i class="fas fa-play-circle text-4xl text-gray-500"></i>
-                    </div>
 
-                    <div class="bg-gray-200 w-full h-32 flex items-center justify-center rounded-lg">
+                    <!-- <div class="bg-gray-200 w-full h-32 flex items-center justify-center rounded-lg">
                         <i class="fas fa-play-circle text-4xl text-gray-500"></i>
+                    </div> -->
+                    <!-- Loop through each video URL -->
+                    <div v-for="(videoLink, index) in repairVideo" :key="index"
+                        class="bg-gray-200 w-full h-32 flex items-center justify-center rounded-lg">
+                        <iframe :src="transformToEmbedUrl(videoLink)" frameborder="0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowfullscreen class="w-full h-32 rounded-lg"></iframe>
                     </div>
                 </div>
             </div>
+
+
+
+
         </div>
 
         <BottomNav />
@@ -273,14 +283,15 @@
 import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
 import axios from "axios"; // Ensure ax
-
 import Swal from 'sweetalert2'; // Import SweetAlert2
+
 
 export default {
     components: { NavBar, BottomNav },
     name: "GigPage",
     data() {
         return {
+            repairVideo: [],
             repairHelp: [],
             count: 1,
             gigData: [],
@@ -439,15 +450,39 @@ export default {
                 this.getQuickGigHistory(this.gigData.client_id);
                 console.log(`Gig Data: ` , this.gigData );
 
+                // if (this.gigData.top_recommended_repairs) {
+                //     try {
+                //         const parsedData = JSON.parse(this.gigData.top_recommended_repairs);
+
+                //         this.repairHelp = parsedData;
+                //     } catch (error) {
+                //         this.repairHelp = [];
+                //     }
+                // }
+
+
                 if (this.gigData.top_recommended_repairs) {
                     try {
                         const parsedData = JSON.parse(this.gigData.top_recommended_repairs);
-
                         this.repairHelp = parsedData;
+                        this.repairVideo = []; // Initialize the array
+
+                        // Loop through each repair object
+                        parsedData.forEach(repair => {
+                            // Check if youtubeLinks exists and is an array
+                            if (repair.youtubeLinks && Array.isArray(repair.youtubeLinks)) {
+                                // Loop through each link and add it to repairVideo
+                                repair.youtubeLinks.forEach(link => {
+                                    this.repairVideo.push(link);
+                                });
+                            }
+                        });
                     } catch (error) {
                         this.repairHelp = [];
+                        this.repairVideo = [];
                     }
                 }
+
 
                 console.log(`Total Client Price`, response);
 
@@ -607,6 +642,22 @@ export default {
             const address = `${this.gigData.street_address}, ${this.gigData.city}, ${this.gigData.state}, ${this.gigData.country} ${this.gigData.zip_code}`;
             const encodedAddress = encodeURIComponent(address);
             window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, "_blank");
+        },
+        transformToEmbedUrl(youtubeUrl) {
+            // If the URL already uses the embed format, return it directly.
+            if (youtubeUrl.includes("embed")) {
+                return youtubeUrl;
+            }
+            let videoId = "";
+            // Check if the URL contains "watch?v="
+            if (youtubeUrl.includes("watch?v=")) {
+                const parts = youtubeUrl.split("watch?v=");
+                videoId = parts[1].split("&")[0]; // Remove any extra query parameters
+            } else if (youtubeUrl.includes("youtu.be/")) {
+                const parts = youtubeUrl.split("youtu.be/");
+                videoId = parts[1].split("?")[0];
+            }
+            return videoId ? `https://www.youtube.com/embed/${videoId}` : youtubeUrl;
         }
     }
 };

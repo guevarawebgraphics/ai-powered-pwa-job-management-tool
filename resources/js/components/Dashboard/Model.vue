@@ -20,8 +20,7 @@
                         </p>
                     </div>
                 </div>
-                <img :src="machineData.machine_photo" :alt="this.machineData.machine_type"
-                    class="w-24 rounded-md" />
+                <img :src="machineData.machine_photo" :alt="this.machineData.machine_type" class="w-24 rounded-md" />
             </div>
 
             <!-- DAX Section -->
@@ -153,12 +152,13 @@
 
             </div>
 
+
             <!-- Common Repair Videos -->
             <h3 class="text-lg font-medium text-center mt-6 text-[#232850FF]">
                 Common Repair Videos
             </h3>
             <div class="space-y-4 mt-3">
-                <div class="bg-gray-200 w-full h-40 flex items-center justify-center rounded-md">
+                <!-- <div class="bg-gray-200 w-full h-40 flex items-center justify-center rounded-md">
                     <i class="fas fa-play-circle text-4xl text-gray-600"></i>
                 </div>
                 <div class="bg-gray-200 w-full h-40 flex items-center justify-center rounded-md">
@@ -166,8 +166,20 @@
                 </div>
                 <div class="bg-gray-200 w-full h-40 flex items-center justify-center rounded-md">
                     <i class="fas fa-play-circle text-4xl text-gray-600"></i>
+                </div> -->
+
+                <!-- <div class="bg-gray-200 w-full h-32 flex items-center justify-center rounded-lg">
+                        <i class="fas fa-play-circle text-4xl text-gray-500"></i>
+                    </div> -->
+                <!-- Loop through each video URL -->
+                <div v-for="(videoLink, index) in repairVideo" :key="index"
+                    class="bg-gray-200 w-full h-32 flex items-center justify-center rounded-lg">
+                    <iframe :src="transformToEmbedUrl(videoLink)" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen class="w-full h-32 rounded-lg"></iframe>
                 </div>
             </div>
+
         </div>
 
         <BottomNav />
@@ -184,6 +196,8 @@ export default {
     name: "ModelPage",
     data() {
         return {
+            repairHelp: [],
+            repairVideo: [],
             modelID: null,
             machineData: [],
             isOpen: {
@@ -231,6 +245,28 @@ export default {
 
                 // Store machine data
                 this.machineData = response.data.data;
+
+                if (this.machineData.common_repairs) {
+                    try {
+                        const parsedData = JSON.parse(this.machineData.common_repairs);
+                        this.repairHelp = parsedData;
+                        this.repairVideo = []; // Initialize the array
+
+                        // Loop through each repair object
+                        parsedData.forEach(repair => {
+                            // Check if youtubeLinks exists and is an array
+                            if (repair.youtubeLinks && Array.isArray(repair.youtubeLinks)) {
+                                // Loop through each link and add it to repairVideo
+                                repair.youtubeLinks.forEach(link => {
+                                    this.repairVideo.push(link);
+                                });
+                            }
+                        });
+                    } catch (error) {
+                        this.repairHelp = [];
+                        this.repairVideo = [];
+                    }
+                }
 
                 // Parse machine_notes if it's a string
                 if (typeof this.machineData.machine_notes === "string") {
@@ -312,6 +348,22 @@ export default {
         },
         toggleSection(section) {
             this.isOpen[section] = !this.isOpen[section];
+        },
+        transformToEmbedUrl(youtubeUrl) {
+            // If the URL already uses the embed format, return it directly.
+            if (youtubeUrl.includes("embed")) {
+                return youtubeUrl;
+            }
+            let videoId = "";
+            // Check if the URL contains "watch?v="
+            if (youtubeUrl.includes("watch?v=")) {
+                const parts = youtubeUrl.split("watch?v=");
+                videoId = parts[1].split("&")[0]; // Remove any extra query parameters
+            } else if (youtubeUrl.includes("youtu.be/")) {
+                const parts = youtubeUrl.split("youtu.be/");
+                videoId = parts[1].split("?")[0];
+            }
+            return videoId ? `https://www.youtube.com/embed/${videoId}` : youtubeUrl;
         }
     }
 };
