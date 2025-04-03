@@ -452,7 +452,7 @@ export default {
             try {
                 const repairs = JSON.parse(data);
                 return Array.isArray(repairs) && repairs.length > 0
-                    ? `${repairs[0].title} - ${repairs[0].solution}`
+                    ? `${repairs[0].repairName} - ${repairs[0].solution}`
                     : null;
             } catch (e) {
                 return null;

@@ -343,9 +343,9 @@ export default {
             this.$router.push(`/gig/${id}`);
         },
 
-        toggleExpand(time, index) {
+        toggleExpand(date, time, index) {
             // Convert time & index into a unique identifier
-            const itemKey = `${time}-${index}`;
+            const itemKey = `${date}-${time}-${index}`;
 
             // If the clicked item is already open, close it
             // Otherwise, close all and open the clicked one
@@ -581,7 +581,7 @@ export default {
             try {
                 const repairs = JSON.parse(data);
                 return Array.isArray(repairs) && repairs.length > 0
-                    ? `${repairs[0].title} - ${repairs[0].solution}`
+                    ? `${repairs[0].repairName} - ${repairs[0].solution}`
                     : null;
             } catch (e) {
                 return null;
