@@ -935,30 +935,27 @@ export default {
                     }
                 )
                 .then((response) => {
+                    if (this.newMessage.trim() !== "") {
+                        const newMsg = {
+                            sender: "sender",
+                            name: this.accountProfile.name,
+                            text: this.newMessage.trim(),
+                            avatar: this.accountProfile.profile_photo,
+                        };
+
+                        // Commit the message to Vuex
+                        this.$store.commit("addChatMessage", newMsg);
+
+                        // Clear the input field
+                        this.newMessage = "";
+                    }
+
                     // this.getMessage(); // Refresh chat after sending
                     console.log("success:", response);
                 })
                 .catch((error) => {
                     console.error("failed:", error);
                 });
-
-            if (this.newMessage.trim() !== "") {
-                const newMsg = {
-                    sender: "user",
-                    name: "You",
-                    text: this.newMessage.trim(),
-                    avatar: "https://randomuser.me/api/portraits/men/20.jpg",
-                };
-
-                // Add the message locally (if needed)
-                // this.messages.push(newMsg);
-
-                // Commit the message to Vuex
-                this.$store.commit("addChatMessage", newMsg);
-
-                // Clear the input field
-                this.newMessage = "";
-            }
         },
         showCalendarModal() {
             // Opens the modal by calling the openModal() method on the CalendarModal component

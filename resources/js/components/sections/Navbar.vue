@@ -254,6 +254,8 @@ export default {
             }
         },
         async firebaseRememberFCM() {
+            const api_endpoint_main = import.meta.env.VITE_API_ENDPOINT_MAIN;
+
             messaging
                 .getToken({ vapidKey: import.meta.env.FCM_SERVER_KEY })
                 .then((currentToken) => {
@@ -262,7 +264,7 @@ export default {
                         // Send the token to your server using an API call (e.g., via Axios)
                         axios
                             .post(
-                                `api/firebase/store`,
+                                `${api_endpoint_main}/api/firebase/store`,
                                 {
                                     token: currentToken,
                                     user_id: this.user_id,
@@ -401,6 +403,7 @@ export default {
                     id: item.id,
                     icon: item.icon_type || "fas fa-bell", // Default icon
                     title: item.name,
+                    url: item.url,
                     description: item.content,
                     time: this.formatTimeAgo(item.created_at),
                     unread: item.is_seen == 1 ? false : true,
@@ -421,7 +424,7 @@ export default {
     async mounted() {
         await this.fetchUnseenCount(); // Fetch unseen notifications count on mount
         await this.fetchNotifications();
-        this.firebaseRememberFCM();
+        await this.firebaseRememberFCM();
 
         messaging.onMessage((payload) => {
             console.log("Message received. ", payload);

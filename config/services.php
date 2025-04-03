@@ -38,5 +38,9 @@ return [
     'twilio'    =>  [
         'token' =>  env('TWILIO_AUTH_TOKEN'),
         'sid' =>  env('TWILIO_ACCOUNT_SID'),
+    ],
+
+    'firebase'  =>  [
+        'fcm_token' =>  env('FCM_SERVER_KEY')
     ]
 ];

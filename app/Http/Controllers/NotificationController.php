@@ -127,6 +127,7 @@ class NotificationController extends Controller
         $user_id = $request->user_id;
         $type = $request->type;
         $icon_type = $request->icon_type;
+        $url = $request->url ?? url('/');
 
         // The root URL from your app configuration
         $root  = config('app.url');
@@ -197,6 +198,7 @@ class NotificationController extends Controller
                     "data" => [
                         "type" => (string) $type, // Custom Field
                         "icon_type" => (string) $icon_type, // Custom Field
+                        "url"   =>  (string) $url
                     ],
                     "android" => [
                         "notification" => [

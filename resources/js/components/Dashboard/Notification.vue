@@ -160,6 +160,7 @@ export default {
                     id: item.id,
                     icon: item.icon_type || "fas fa-bell", // Default icon
                     title: item.name,
+                    url: item.url,
                     description: item.content,
                     time: this.formatTimeAgo(item.created_at),
                     unread: item.is_seen == 1 ? false : true,
@@ -205,7 +206,11 @@ export default {
         },
 
         async markAsRead(notification) {
-            if (!notification.unread) return; // If already read, do nothing
+            if (!notification.unread) {
+                console.log(notification);
+                window.location.href = notification.url;
+                return true;
+            }
 
             try {
                 const response = await axios.post(
@@ -218,9 +223,13 @@ export default {
                 // Update UI instantly
                 notification.unread = false;
 
-                this.fetchNotifications();
+                // this.fetchNotifications();
 
-                console.log(`Notification: `, response);
+                window.location.href = notification.url;
+
+                console.log(`Notification: `, notification);
+
+                return true;
             } catch (error) {
                 console.error("❌ Failed to mark notification as read:", error);
             }

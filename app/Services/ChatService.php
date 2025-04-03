@@ -38,11 +38,14 @@ class ChatService
                     "content" => "A message has been sent you by " . $user->name . " (".$user->email.")." ,
                     "user_id" => $field->id,
                     "type" => 1,
-                    "icon_type" => "fa-solid fa-comments"
+                    "icon_type" => "fa-solid fa-comments",
+                    "url"   =>  "#"
                 ];
                 
                 // if (config('app.env') !== 'local') {
-                    $this->callFirebaseNotification($notif_data);
+                    $notification_response = Http::withHeaders([
+                        'Content-Type' => 'application/json',
+                    ])->post(config('app.frontend_url').'/api/firebase/store', $notif_data);
                 // }
 
 
@@ -60,17 +63,19 @@ class ChatService
                 "content" => "A message has been sent you by " . $user->name . " (".$user->email.")." ,
                 "user_id" =>  $data['to_user_id'],
                 "type" => 1,
-                "icon_type" => "fa-solid fa-comments"
+                "icon_type" => "fa-solid fa-comments",
+                "url"   =>  url('/profile')
             ];
             
             // if (config('app.env') !== 'local') {
+               
                 $this->callFirebaseNotification($notif_data);
             // }
         }
         
 
    
-        return response()->json(['message' => 'Successfully stored!'], 201);
+        return response()->json(['message' => 'Successfully stored - Administrator'], 201);
     }
 
     public function callFirebaseNotification($request) {
@@ -89,6 +94,7 @@ class ChatService
         $user_id = $request['user_id'];
         $type = $request['type'];
         $icon_type = $request['icon_type'];
+        $url = $request['url'] ?? url('/');
 
         // The root URL from your app configuration
         $root  = config('app.url');
@@ -159,6 +165,7 @@ class ChatService
                     "data" => [
                         "type" => (string) $type, // Custom Field
                         "icon_type" => (string) $icon_type, // Custom Field
+                        "url" => (string) $url, // Custom Field
                     ],
                     "android" => [
                         "notification" => [

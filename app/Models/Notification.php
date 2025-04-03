@@ -25,7 +25,8 @@ class Notification extends Model
         'user_id',
         'type', // 0=GENERAL;1=GIGS;2=GUILD;3=LEVELUP
         'icon_type', // 1=DRESS;2=TOOLS;3=CAMERA;4=PHONE;5=JOB;6=DOLLAR;,
-        'is_seen'
+        'is_seen',
+        'url'
     ];
 
     protected $dates = ['deleted_at'];
