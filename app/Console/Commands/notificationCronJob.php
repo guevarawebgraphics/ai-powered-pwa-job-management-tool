@@ -68,7 +68,7 @@ class NotificationCronJob extends Command
                     $this->info("Sent 1-hour notification for Gig #{$gig->gig_cryptic}");
                     Log::info("Gig #{$gig->gig_cryptic} will start in {$minutesUntilGig} minutes. Sent 1-hour notification.");
                     Log::info($notif_json);
-
+ 
                     // Store cache key so that this notification is sent only once.
                     $ttl = max(60, Carbon::now()->diffInSeconds($startTime));
                     cache()->put($cacheKeyOneHour, true, $ttl);
