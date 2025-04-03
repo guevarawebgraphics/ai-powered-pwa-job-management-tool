@@ -41,11 +41,11 @@ class NotificationCronJob extends Command
             $startTime = Carbon::parse($gig->start_datetime);
 
             // Only process gigs that haven't started yet
-            // if (!$startTime->isFuture()) {
-            //     \Log::info('Only process gigs that haven\'t started yet');
-            //     $this->info('Only process gigs that haven\'t started yet');
-            //     continue;
-            // }
+            if (!$startTime->isFuture()) {
+                \Log::info('Only process gigs that haven\'t started yet');
+                $this->info('Only process gigs that haven\'t started yet');
+                continue;
+            }
 
             // Calculate minutes until the gig starts
             $minutesUntilGig = Carbon::now()->diffInMinutes($startTime);
