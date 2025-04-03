@@ -164,6 +164,7 @@ export default {
                     description: item.content,
                     time: this.formatTimeAgo(item.created_at),
                     unread: item.is_seen == 1 ? false : true,
+                    is_urgent: item.is_urgent,
                 });
             });
 

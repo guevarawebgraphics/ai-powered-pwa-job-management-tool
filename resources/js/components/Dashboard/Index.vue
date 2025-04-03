@@ -79,6 +79,7 @@
                 </button>
 
                 <button
+                    @click="goToNotification()"
                     type="button"
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300"
                 >
@@ -86,8 +87,9 @@
                         <i
                             class="fas fa-thumbs-up text-lg text-[#171A1FFF]"
                         ></i>
-                        <span class="text-sm font-medium text-[#666666FF]"
-                            >New Job Request Dryer, no Heat, Stuart</span
+                        <span
+                            class="text-sm text-left font-medium text-[#666666FF]"
+                            >{{ this.latestNotif.featured_content }}</span
                         >
                     </div>
                     <!-- <p class="text-sm text-gray-500">New Job Request Dryer, no Heat, Stuart</p> -->
@@ -380,6 +382,7 @@ export default {
             loadingGigHistory: true, // Loading state
             totalGigPrice: 0.0,
             totalJobBookedToday: 0,
+            latestNotif: [],
             selectedDate: new Date().toISOString().substr(0, 10),
             selectedTime: new Date().toISOString().substr(11, 5),
         };
@@ -422,6 +425,9 @@ export default {
         },
         goToModel(modelNumber) {
             this.$router.push(`/model/${modelNumber}`);
+        },
+        goToNotification() {
+            this.$router.push(`/notification`);
         },
         async gigHistory() {
             try {
@@ -541,6 +547,8 @@ export default {
                 this.professionalTitle = userData.professional_title;
                 this.user_id = userData.id;
                 this.total_jobs = response.data.total_jobs_booked;
+                this.latestNotif = response.data.latest_notif;
+                console.log(`latest notif: `, this.latestNotif);
             } catch (error) {
                 console.error("Error fetching user data:", error);
             }

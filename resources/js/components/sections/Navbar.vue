@@ -255,13 +255,56 @@ export default {
         },
         async firebaseRememberFCM() {
             const api_endpoint_main = import.meta.env.VITE_API_ENDPOINT_MAIN;
+            const tokenStorageKey = "fcm_token_data";
+            const fifteenDaysInMs = 15 * 24 * 60 * 60 * 1000;
+            let shouldGenerateToken = true;
 
+            // Retrieve token data from localStorage
+            const tokenDataStr = localStorage.getItem(tokenStorageKey);
+            if (tokenDataStr) {
+                try {
+                    const tokenData = JSON.parse(tokenDataStr);
+                    const { token, createdAt } = tokenData;
+                    const now = Date.now();
+                    const tokenAge = now - createdAt;
+                    if (token && tokenAge < fifteenDaysInMs) {
+                        console.log(
+                            "Token exists and is less than 15 days old:",
+                            token
+                        );
+                        shouldGenerateToken = false;
+                    } else {
+                        console.log(
+                            "Token is either missing or older than 15 days. Regenerating token."
+                        );
+                    }
+                } catch (e) {
+                    console.error("Error parsing stored token data:", e);
+                }
+            }
+
+            // If token is valid and recent, no need to generate a new one
+            if (!shouldGenerateToken) return;
+
+            // Get a new token from FCM
             messaging
                 .getToken({ vapidKey: import.meta.env.FCM_SERVER_KEY })
                 .then((currentToken) => {
                     if (currentToken) {
+                        // Cache the token along with the creation timestamp
+                        const tokenData = {
+                            token: currentToken,
+                            createdAt: Date.now(),
+                        };
+                        localStorage.setItem(
+                            tokenStorageKey,
+                            JSON.stringify(tokenData)
+                        );
+
+                        // Retrieve the authorization token from localStorage for your API call
                         const token = localStorage.getItem("token");
-                        // Send the token to your server using an API call (e.g., via Axios)
+
+                        // Send the token to your server
                         axios
                             .post(
                                 `${api_endpoint_main}/api/firebase/store`,
@@ -277,17 +320,20 @@ export default {
                                 }
                             )
                             .then((response) => {
-                                console.log("success:", response);
+                                console.log(
+                                    "Token stored successfully:",
+                                    response
+                                );
                             })
                             .catch((error) => {
-                                console.error("failed:", error);
+                                console.error("Failed to store token:", error);
                             });
                     } else {
                         console.log("No registration token available.");
                     }
                 })
                 .catch((err) => {
-                    console.error("Error retrieving token", err);
+                    console.error("Error retrieving token:", err);
                 });
         },
         async getMessage() {
@@ -407,6 +453,7 @@ export default {
                     description: item.content,
                     time: this.formatTimeAgo(item.created_at),
                     unread: item.is_seen == 1 ? false : true,
+                    is_urgent: item.is_urgent,
                 });
             });
 
