@@ -280,7 +280,7 @@ export default {
 
                 try {
                     const service_manual = await axios.get(
-                        `${main_api_endpoint}/api/machine-files/${this.machineData.machine_type}/${this.machineData.brand_name}/${this.machineData.model_number}/PartsList`,
+                        `${main_api_endpoint}/api/machine-files/${this.machineData.machine_type}/${this.machineData.brand_name}/${this.machineData.model_number}/TechSheet`,
                         { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
                     );
 
@@ -299,7 +299,7 @@ export default {
 
                 try {
                     const parts_diagram = await axios.get(
-                        `${main_api_endpoint}/api/machine-files/${this.machineData.machine_type}/${this.machineData.brand_name}/${this.machineData.model_number}/TechSheet`,
+                        `${main_api_endpoint}/api/machine-files/${this.machineData.machine_type}/${this.machineData.brand_name}/${this.machineData.model_number}/PartsList`,
                         { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
                     );
 
