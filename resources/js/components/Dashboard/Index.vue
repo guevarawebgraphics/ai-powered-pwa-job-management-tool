@@ -84,7 +84,7 @@
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300"
                 >
                     <div class="flex items-center space-x-2">
-                        <i v-if="this.latestNotif.featured_content"
+                        <i v-if="!this.latestNotif"
                             class="fas fa-thumbs-up text-lg text-[#171A1FFF]"
                         ></i>
                         <span
