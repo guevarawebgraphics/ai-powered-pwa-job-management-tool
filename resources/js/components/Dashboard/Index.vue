@@ -7,20 +7,11 @@
             <!-- Profile Picture -->
             <div class="relative w-24 h-24">
                 <!-- Profile Picture -->
-                <img
-                    :src="previewPhoto"
-                    alt="Profile Picture"
-                    class="w-24 h-24 rounded-md border border-gray-300 shadow-md object-cover"
-                />
+                <img :src="previewPhoto" alt="Profile Picture"
+                    class="w-24 h-24 rounded-md border border-gray-300 shadow-md object-cover" />
 
                 <!-- File Input (Hidden) -->
-                <input
-                    type="file"
-                    ref="fileInput"
-                    class="hidden"
-                    accept="image/*"
-                    @change="uploadProfilePhoto"
-                />
+                <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="uploadProfilePhoto" />
             </div>
 
             <!-- Name & Title -->
@@ -38,72 +29,50 @@
         <div class="max-w-lg mx-auto p-6">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl text-[#171A1FFF]">{{ formattedDate }}</h2>
-                <span class="text-gray-500 text-sm"
-                    >Last {{ getLastDaysRange }} days</span
-                >
+                <span class="text-gray-500 text-sm">Last {{ getLastDaysRange }} days</span>
             </div>
 
             <!-- Stats Grid -->
             <div class="grid grid-cols-2 gap-3">
-                <button
-                    type="button"
-                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300"
-                >
+                <button type="button"
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <div class="flex items-center space-x-2">
-                        <i
-                            class="fas fa-headphones-simple text-lg text-[#171A1FFF]"
-                        ></i>
-                        <span class="text-xl font-medium text-[#666666FF]"
-                            >DAX</span
-                        >
+                        <i class="fas fa-headphones-simple text-lg text-[#171A1FFF]"></i>
+                        <span class="text-xl font-medium text-[#666666FF]">DAX</span>
                     </div>
                     <!-- <p class="text-sm text-gray-500">Day gig streak</p> -->
                 </button>
 
-                <button
-                    type="button"
-                    @click="goToSchedule()"
-                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300"
-                >
+                <button type="button" @click="goToSchedule()"
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <div class="flex items-center space-x-2">
-                        <i
-                            class="fas fa-calendar-alt text-lg text-[#232850FF]"
-                        ></i>
+                        <i class="fas fa-calendar-alt text-lg text-[#232850FF]"></i>
                         <!-- <span class="text-xl font-bold text-[#171A1FFF]">{{ this.total_jobs }}</span> -->
 
                         <span class="text-xl font-bold text-[#171A1FFF]">{{
                             this.totalJobBookedToday
-                        }}</span>
+                            }}</span>
                     </div>
                     <p class="text-sm text-[#666666FF]">Jobs Booked Today</p>
                 </button>
 
-                <button
-                    @click="goToNotification()"
-                    type="button"
-                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300"
-                >
+                <button @click="goToNotification()" type="button"
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <div class="flex items-center space-x-2">
-                        <i v-if="!this.latestNotif"
-                            class="fas fa-thumbs-up text-lg text-[#171A1FFF]"
-                        ></i>
-                        <span
-                            class="text-sm text-left font-medium text-[#666666FF]"
-                            >{{ this.latestNotif.featured_content ?? 'No Latest Notification' }}</span
-                        >
+                        <i v-if="!this.latestNotif" class="fas fa-thumbs-up text-lg text-[#171A1FFF]"></i>
+                        <span>
+                            {{ latestNotif?.featured_content ?? 'No Latest Notification' }}
+                        </span>
+
                     </div>
                     <!-- <p class="text-sm text-gray-500">New Job Request Dryer, no Heat, Stuart</p> -->
                 </button>
 
-                <button
-                    type="button"
-                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300"
-                >
+                <button type="button"
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <p class="text-sm text-[#666666FF]">Earnings</p>
                     <div class="flex items-center space-x-2">
-                        <span class="text-xl font-bold text-[#171A1FFF]"
-                            >${{ this.totalGigPrice }}</span
-                        >
+                        <span class="text-xl font-bold text-[#171A1FFF]">${{ this.totalGigPrice }}</span>
                         <i class="fas fa-arrow-up text-green-500 text-sm"></i>
                     </div>
                 </button>
@@ -116,40 +85,20 @@
 
             <div class="space-y-4 mt-3">
                 <!-- Display message when there are no updates -->
-                <div
-                    v-if="latestUpdates.length === 0"
-                    class="text-center text-gray-500"
-                >
+                <div v-if="latestUpdates.length === 0" class="text-center text-gray-500">
                     No gig found.
                 </div>
 
-                <div
-                    v-else
-                    v-for="(update, index) in latestUpdates"
-                    :key="index"
-                    class="bg-white rounded-[12px] shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col space-y-2"
-                >
-                    <div
-                        class="flex items-start space-x-3 cursor-pointer"
-                        @click="goToGig(update.gig_id)"
-                    >
+                <div v-else v-for="(update, index) in latestUpdates" :key="index"
+                    class="bg-white rounded-[12px] shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col space-y-2">
+                    <div class="flex items-start space-x-3 cursor-pointer" @click="goToGig(update.gig_id)">
                         <!-- Image/Icon -->
-                        <img
-                            v-if="update.image"
-                            :src="update.image"
-                            class="w-10 rounded-md"
-                        />
-                        <i
-                            v-else
-                            :class="update.icon"
-                            class="text-3xl text-gray-700"
-                        ></i>
+                        <img v-if="update.image" :src="update.image" class="w-10 rounded-md" />
+                        <i v-else :class="update.icon" class="text-3xl text-gray-700"></i>
 
                         <!-- Content -->
                         <div class="flex-1">
-                            <h3
-                                class="text-normal font-medium text-[#222222FF]"
-                            >
+                            <h3 class="text-normal font-medium text-[#222222FF]">
                                 {{ update.title }}
                             </h3>
                             <p class="text-sm text-[#666666FF]">
@@ -163,76 +112,47 @@
                     <!-- Bottom Section: Icons on Left, Arrow Down on Right -->
                     <div class="flex justify-between items-center">
                         <div class="flex space-x-4 items-center">
-                            <span
-                                class="text-green-500 font-bold text-lg flex items-center"
-                            >
+                            <span class="text-green-500 font-bold text-lg flex items-center">
                                 <!-- <i class="fas fa-dollar-sign mr-1"></i>  -->
                                 {{ update.amount }}
                             </span>
-                            <i
-                                class="fas fa-thumbs-up text-xl text-[#171A1FFF]"
-                            ></i>
-                            <i
-                                class="fas fa-play-circle text-xl text-[#171A1FFF]"
-                            ></i>
-                            <i
-                                class="fas fa-info-circle text-xl text-[#171A1FFF]"
-                            ></i>
+                            <i class="fas fa-thumbs-up text-xl text-[#171A1FFF]"></i>
+                            <i class="fas fa-play-circle text-xl text-[#171A1FFF]"></i>
+                            <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>
                         </div>
                         <!-- Toggle Arrow -->
-                        <i
-                            @click="toggleExpand(index)"
+                        <i @click="toggleExpand(index)"
                             class="fas fa-chevron-down text-xl text-gray-500 cursor-pointer transition-transform duration-300"
-                            :class="{ 'rotate-180': expandedIndex === index }"
-                        ></i>
+                            :class="{ 'rotate-180': expandedIndex === index }"></i>
                     </div>
 
                     <!-- Expanded Content -->
-                    <div
-                        v-if="expandedIndex === index"
-                        class="mt-2 p-2 rounded-md"
-                    >
+                    <div v-if="expandedIndex === index" class="mt-2 p-2 rounded-md">
                         <ul>
-                            <li
-                                v-if="
+                            <li v-if="
                                     update.machine &&
                                     update.machine.common_repairs
-                                "
-                            >
+                                ">
                                 <span class="text-[#66B2ECFF] cursor-pointer">
-                                    <i
-                                        class="fas fa-info-circle text-xl text-[#171A1FFF]"
-                                    ></i
-                                    >&nbsp;{{
-                                        firstRepair(
-                                            update.machine.common_repairs
-                                        )
-                                    }}</span
-                                >
+                                    <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>&nbsp;{{
+                                    firstRepair(
+                                    update.machine.common_repairs
+                                    )
+                                    }}</span>
                             </li>
 
                             <li v-if="update.youtube_link" class="mt-2">
-                                <a
-                                    :href="update.youtube_link"
-                                    target="_blank"
-                                    class="cursor-pointer text-[#66B2ECFF]"
-                                    ><i
-                                        class="fas fa-play-circle text-xl text-[#171A1FFF]"
-                                    ></i>
+                                <a :href="update.youtube_link" target="_blank"
+                                    class="cursor-pointer text-[#66B2ECFF]"><i
+                                        class="fas fa-play-circle text-xl text-[#171A1FFF]"></i>
                                     {{ update.youtube_link }}
                                 </a>
                             </li>
                             <li class="mt-2">
-                                <button
-                                    type="button"
-                                    @click="
+                                <button type="button" @click="
                                         goToModel(update.machine.model_number)
-                                    "
-                                    class="text-[#66B2ECFF]"
-                                >
-                                    <i
-                                        class="fas fa-book text-xl text-[#171A1FFF]"
-                                    ></i>
+                                    " class="text-[#66B2ECFF]">
+                                    <i class="fas fa-book text-xl text-[#171A1FFF]"></i>
                                     Service Manual
                                 </button>
                             </li>
@@ -256,23 +176,12 @@
             </h2>
 
             <div class="space-y-4 mt-3">
-                <div
-                    v-for="(update, index) in earnWhileYouLearn"
-                    :key="index"
-                    class="bg-white rounded-[12px] shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col space-y-2"
-                >
+                <div v-for="(update, index) in earnWhileYouLearn" :key="index"
+                    class="bg-white rounded-[12px] shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col space-y-2">
                     <div class="flex items-start space-x-3">
                         <!-- Image/Icon -->
-                        <img
-                            v-if="update.image"
-                            :src="update.image"
-                            class="w-12 h-12 rounded-md"
-                        />
-                        <i
-                            v-else
-                            :class="update.icon"
-                            class="text-3xl text-gray-700"
-                        ></i>
+                        <img v-if="update.image" :src="update.image" class="w-12 h-12 rounded-md" />
+                        <i v-else :class="update.icon" class="text-3xl text-gray-700"></i>
 
                         <!-- Content -->
                         <div class="flex-1">
@@ -290,39 +199,26 @@
                     <!-- Bottom Section: Icons on Left, Arrow Down on Right -->
                     <div class="flex justify-between items-center">
                         <div class="flex space-x-4 items-center">
-                            <span
-                                class="text-green-500 font-bold text-lg flex items-center"
-                            >
+                            <span class="text-green-500 font-bold text-lg flex items-center">
                                 <i class="fas fa-dollar-sign mr-1"></i>
                                 {{ update.amount }}
                             </span>
-                            <i
-                                class="fas fa-thumbs-up text-xl text-[#171A1FFF]"
-                            ></i>
-                            <i
-                                class="fas fa-play-circle text-xl text-[#171A1FFF]"
-                            ></i>
-                            <i
-                                class="fas fa-info-circle text-xl text-[#171A1FFF]"
-                            ></i>
+                            <i class="fas fa-thumbs-up text-xl text-[#171A1FFF]"></i>
+                            <i class="fas fa-play-circle text-xl text-[#171A1FFF]"></i>
+                            <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>
                         </div>
 
                         <!-- Toggle Arrow -->
-                        <i
-                            @click="toggleExpandV2(index)"
+                        <i @click="toggleExpandV2(index)"
                             class="fas fa-chevron-down text-xl text-gray-500 cursor-pointer transition-transform duration-300"
-                            :class="{ 'rotate-180': expandedIndexV2 === index }"
-                        ></i>
+                            :class="{ 'rotate-180': expandedIndexV2 === index }"></i>
                     </div>
 
                     <!-- Expanded Content -->
-                    <div
-                        v-if="expandedIndexV2 === index"
-                        class="mt-2 p-2 bg-gray-100 rounded-md"
-                    >
+                    <div v-if="expandedIndexV2 === index" class="mt-2 p-2 bg-gray-100 rounded-md">
                         <p class="text-sm text-gray-700">
                             This is additional information about "{{
-                                update.title
+                            update.title
                             }}". You can add more details here.
                         </p>
                     </div>
@@ -333,8 +229,7 @@
         <div class="max-w-lg mx-auto p-6 text-center">
             <a>
                 <i
-                    class="fas fa-chevron-down text-xl text-gray-500 cursor-pointer transition-transform duration-300"
-                ></i>
+                    class="fas fa-chevron-down text-xl text-gray-500 cursor-pointer transition-transform duration-300"></i>
             </a>
         </div>
 
