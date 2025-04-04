@@ -199,6 +199,7 @@ export default {
             repairHelp: [],
             repairVideo: [],
             modelID: null,
+            gigId:null,
             machineData: [],
             isOpen: {
                 serviceManual: false,
@@ -215,14 +216,22 @@ export default {
     },
     created() {
         this.modelID = this.$route.params.id;
+        this.gigId = this.$route.params.gigId;
 
         if (this.modelID) {
             this.modelDetail(this.modelID);
+        }
+
+        if (this.gigId) {
+            this.gigDetail(this.gigId);
         }
     },
     watch: {
         '$route.params.id'(modelID) {
             this.modelDetail(modelID);
+        },
+        '$route.params.gigId'(gigId) {
+            this.modelDetail(gigId);
         }
     },
     methods: {
@@ -341,6 +350,47 @@ export default {
                 console.error("Error fetching machine data:", error);
             }
         },
+        async gigDetail(gigId) {
+            try {
+                const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
+                const token = import.meta.env.VITE_API_KEY;
+
+                const response = await axios.get(`${api_endpoint}/gigs/retrieveGigByGigID.php?gig_id=${gigId}`, {
+                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+                });
+
+                this.gigData = response.data.data[0];
+                if (this.gigData.top_recommended_repairs) {
+                    try {
+                        const parsedData = JSON.parse(this.gigData.top_recommended_repairs);
+                        this.repairHelp = parsedData;
+                        this.repairVideo = []; // Initialize the array
+
+                        console.log(`videos: `, parsedData);
+
+                        // // Loop through each repair object
+                        parsedData.forEach(repair => {
+                            // Check if youtubeLinks exists and is an array
+                            if (repair.youtubeLinks && Array.isArray(repair.youtubeLinks)) {
+                                // Loop through each link and add it to repairVideo
+                                repair.youtubeLinks.forEach(link => {
+                                    this.repairVideo.push(link);
+                                });
+                            }
+                        });
+                    } catch (error) {
+                        this.repairHelp = [];
+                        this.repairVideo = [];
+                    }
+                }
+
+
+                console.log(`Total Client Price`, response);
+
+            } catch (error) {
+                console.error("Error fetching gig history data:", error);
+            }
+        },
         formatDate(dateString) {
             if (!dateString) return "Unknown date";
             const options = { year: "numeric", month: "long", day: "numeric" };
@@ -350,21 +400,9 @@ export default {
             this.isOpen[section] = !this.isOpen[section];
         },
         transformToEmbedUrl(youtubeUrl) {
-            // If the URL already uses the embed format, return it directly.
-            if (youtubeUrl.includes("embed")) {
-                return youtubeUrl;
-            }
-            let videoId = "";
-            // Check if the URL contains "watch?v="
-            if (youtubeUrl.includes("watch?v=")) {
-                const parts = youtubeUrl.split("watch?v=");
-                videoId = parts[1].split("&")[0]; // Remove any extra query parameters
-            } else if (youtubeUrl.includes("youtu.be/")) {
-                const parts = youtubeUrl.split("youtu.be/");
-                videoId = parts[1].split("?")[0];
-            }
-            return videoId ? `https://www.youtube.com/embed/${videoId}` : youtubeUrl;
-        }
+            return `https://www.youtube.com/embed/${youtubeUrl.videoId}`;
+        },
+   
     }
 };
 </script>

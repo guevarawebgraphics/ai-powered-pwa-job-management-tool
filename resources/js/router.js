@@ -47,7 +47,7 @@ const routes = [
     { path: '/gig-end', component: GigEnd, meta: { requiresAuth: true, requiresVerification: true } },
     { path: '/gig-report/:id', component: GigReport, meta: { requiresAuth: true, requiresVerification: true } },
     { path: '/gig/:gigId/repair/:repairId', component: GigRepair, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/model/:id', component: ModelPage, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/model/:id/gig/:gigId', component: ModelPage, meta: { requiresAuth: true, requiresVerification: true } },
     { path: '/customer/:id', component: Customer, meta: { requiresAuth: true, requiresVerification: true } },
 ];
 

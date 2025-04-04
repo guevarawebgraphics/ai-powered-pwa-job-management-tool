@@ -89,4 +89,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('rating')->group(function () {
         Route::get('/rules', [App\Http\Controllers\RatingController::class, 'index']);
     });
+
+
+    Route::prefix('machine')->group(function () {
+        Route::get('/{modelNumber}', [App\Http\Controllers\GigController::class, 'getGigsPerMachine']);
+    });
 });

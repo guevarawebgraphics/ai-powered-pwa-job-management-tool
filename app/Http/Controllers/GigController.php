@@ -176,4 +176,9 @@ class GigController extends Controller
 
         return response()->json(['error' => 'File not found'], 404);
     }
+
+    public function getGigsPerMachine($modelNumber) {
+        $query = Gig::where('model_number', $modelNumber)->whereNull('deleted_at')->orderBy('created_at','DESC')->get();
+        return $query;
+    }
 }

@@ -5,7 +5,7 @@
         <!-- Repair Details Section -->
         <div class="max-w-lg mx-auto p-6">
             <h2 class="text-lg text-center text-[#232850]">
-                {{ this.selectedRepair.title }}
+                {{ this.selectedRepair.repairName }}
             </h2>
             <a href="#" class="block text-center text-blue-500 underline"
                 @click.prevent="goToModel(machineData.model_number)">{{ this.gigData.model_number }}</a>
@@ -13,7 +13,8 @@
             <div class="flex items-start mt-4 relative">
                 <p class="text-sm font-semibold  flex flex-col space-y-1">
                     <span class="flex items-center space-x-1 text-gray-600">
-                        <i class="fas fa-wrench text-sm text-gray-700"></i>
+                        <!-- <i class="fas fa-wrench text-sm text-gray-700"></i> -->
+                        <i class="fa-solid fa-lightbulb text-sm text-gray-700"></i>
                         <span>Most Common Repair</span>
                     </span>
                     <span class="flex items-center space-x-1 text-red-600" v-if="this.selectedRepair.symptoms">
@@ -21,10 +22,15 @@
                             class="fas fa-info-circle text-gray-700 text-sm"></i>
                         <span>{{ this.selectedRepair.symptoms }}</span>
                     </span>
-                    <span class="flex items-center space-x-1 text-green-600" v-if="this.selectedRepair.solution">
-                        <i data-tooltip-target="tooltip-solution" data-tooltip-style="light"
-                            class="fas fa-check text-gray-700 text-sm"></i>
-                        <span>{{ this.selectedRepair.solution }}</span>
+
+                    <!-- <i class="fas fa-wrench text-sm text-gray-700"></i> - -->
+
+                    <span class="space-x-1 text-xs text-gray-600 mt-3" v-if="this.selectedRepair.solution"
+                        v-html="this.selectedRepair.solution.replace(/\n/g, '<br/>')">
+                    </span>
+                    <span class="pace-x-1 text-xs text-gray-600 mt-4"><strong>Parts Needed:&nbsp;</strong> {{
+                        this.selectedRepair.partsNeeded.join(", ")
+                        }}
                     </span>
 
                 </p>
@@ -64,7 +70,7 @@
             </div>
 
             <!-- Diagnostic Videos -->
-            <h3 class="text-lg text-center mt-6 text-[#232850FF]">
+            <!-- <h3 class="text-lg text-center mt-6 text-[#232850FF]">
                 Diagnostic Videos
             </h3>
             <div class="space-y-4 mt-3">
@@ -74,19 +80,27 @@
                 <div class="bg-gray-200 w-full h-40 flex items-center justify-center rounded-md">
                     <i class="fas fa-play-circle text-4xl text-gray-600"></i>
                 </div>
-            </div>
+            </div> -->
 
             <!-- Common Repair Videos -->
             <h3 class="text-lg text-center mt-6 text-[#232850FF]">
                 Common Repair Videos
             </h3>
             <div class="space-y-4 mt-3">
-                <div class="bg-gray-200 w-full h-40 flex items-center justify-center rounded-md">
+                <!-- <div class="bg-gray-200 w-full h-40 flex items-center justify-center rounded-md">
                     <i class="fas fa-play-circle text-4xl text-gray-600"></i>
                 </div>
                 <div class="bg-gray-200 w-full h-40 flex items-center justify-center rounded-md">
                     <i class="fas fa-play-circle text-4xl text-gray-600"></i>
+                </div> -->
+
+                <div v-for="(videoLink, index) in repairVideo" :key="index"
+                    class="bg-gray-200 w-full h-52 flex items-center justify-center rounded-lg">
+                    <iframe :src="transformToEmbedUrl(videoLink)" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowfullscreen class="w-full h-52 rounded-lg"></iframe>
                 </div>
+
             </div>
 
             <!-- Other Useful Links -->
@@ -150,10 +164,10 @@ export default {
         return {
             gigId: null,
             repairId: null,
-            repairData: [],
             gigData: [],
             machineData: [],
-            selectedRepair:[]
+            selectedRepair: [],
+            repairVideo: [],
         };
     },
     created() {
@@ -183,64 +197,38 @@ export default {
                 });
 
                 this.gigData = response.data.data[0];
+                this.machineData = this.gigData.machine;
 
-                this.repairDetail(this.gigData.model_number, this.repairId);
+                let topRepairs = this.gigData.top_recommended_repairs;
 
-                console.log(this.gigData);
+                if (typeof topRepairs === 'string') {
+                    try {
+                        topRepairs = JSON.parse(topRepairs);
+                    } catch (e) {
+                        console.error('Failed to parse top_recommended_repairs:', e);
+                        topRepairs = [];
+                    }
+                }
+
+                const repairIdInt = parseInt(this.repairId);
+                this.selectedRepair = topRepairs.find(repair => repair.id === repairIdInt);
+
+
+                this.selectedRepair.youtubeLinks.forEach(repair => {
+                    this.repairVideo.push(repair);
+                });
+
+                console.log("Selected Repair:", this.selectedRepair);
 
             } catch (error) {
                 console.error("Error fetching gig history data:", error);
             }
         },
-        async repairDetail(machineID, repairId) {
-            try {
-                const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
-                const token = import.meta.env.VITE_API_KEY;
-
-                const response = await axios.get(`${api_endpoint}/machines/retrieveMachineByID.php?modelNumber=${machineID}`, {
-                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
-                });
-
-                this.machineData = response.data.data;
-
-                if (this.machineData && this.machineData.common_repairs) {
-                    let commonRepairs = [];
-
-                    try {
-                        commonRepairs = JSON.parse(this.machineData.common_repairs); // Parse JSON string
-                    } catch (error) {
-                        console.error("Error parsing common_repairs JSON:", error);
-                        return;
-                    }
-
-                    // Debugging: Log the parsed array and repairId
-                    console.log("Parsed common_repairs:", commonRepairs);
-                    console.log("repairId Type:", typeof repairId, "Value:", repairId);
-
-                    // Ensure repairId is a number for comparison
-                    const numericRepairId = Number(repairId);
-
-                    if (Array.isArray(commonRepairs)) {
-                        const repair = commonRepairs.find(repair => Number(repair.id) === numericRepairId);
-
-                        if (repair) {
-                            console.log("Matching repair:", repair);
-                            this.selectedRepair = repair;
-                        } else {
-                            console.log("Repair not found for ID:", numericRepairId);
-                        }
-                    } else {
-                        console.log("Parsed common_repairs is not an array:", commonRepairs);
-                    }
-                } else {
-                    console.log("common_repairs is missing or null:", this.machineData);
-                }
-            } catch (error) {
-                console.error("Error fetching repair data:", error);
-            }
-        },
         goToModel(modelID) {
             this.$router.push(`/model/${modelID}`);
+        },
+        transformToEmbedUrl(youtubeUrl) {
+            return `https://www.youtube.com/embed/${youtubeUrl.videoId}`;
         }
     }
 };

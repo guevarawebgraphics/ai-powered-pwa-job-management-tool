@@ -144,7 +144,7 @@
 
             <!-- Samsung Dryer Details -->
             <div class="bg-white rounded-lg shadow-md border p-4 flex items-center space-x-3 cursor-pointer"
-                @click="goToModel(this.gigData.model_number)">
+                @click="goToModel()">
                 <!-- Appliance Image -->
                 <img :src="`/images/machine/${this.machineData.machine_type}.png`"
                     :alt="`${this.machineData.machine_type} Image`" class="w-12 h-12 object-contain self-center">
@@ -183,9 +183,13 @@
                         <p class="text-lg font-bold text-gray-700">
                             #{{ repair.number }} {{ repair.repairName }}
                         </p>
-                        <p class="text-gray-700 text-sm"><strong>Symptoms:</strong> {{ repair.symptoms }}</p>
-                        <p class="text-gray-500 text-xs"><strong>Solution:</strong> {{ repair.solution }}</p>
-                        <p class="text-gray-500 text-xs"><strong>Parts Needed:</strong> {{ repair.partsNeeded.join(", ")
+                        <p class="text-gray-700 text-sm"><strong>Symptoms:&nbsp;</strong> {{ repair.symptoms }}</p>
+                        <p class="text-gray-500 text-xs mt-1"><strong>Solution:&nbsp;</strong>
+                            <br>
+                            <span v-html="repair.solution.replace(/\n/g, '<br/>')"></span>
+                        </p>
+                        <p class="text-gray-500 text-xs mt-1"><strong>Parts Needed:&nbsp;</strong> {{
+                            repair.partsNeeded.join(", ")
                             }}
                         </p>
                     </div>
@@ -207,10 +211,10 @@
                     </div> -->
                     <!-- Loop through each video URL -->
                     <div v-for="(videoLink, index) in repairVideo" :key="index"
-                        class="bg-gray-200 w-full h-32 flex items-center justify-center rounded-lg">
+                        class="bg-gray-200 w-full h-52 flex items-center justify-center rounded-lg">
                         <iframe :src="transformToEmbedUrl(videoLink)" frameborder="0"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowfullscreen class="w-full h-32 rounded-lg"></iframe>
+                            allowfullscreen class="w-full h-52 rounded-lg"></iframe>
                     </div>
                 </div>
             </div>
@@ -381,8 +385,8 @@ export default {
             if (!str) return ''; // Return an empty string if str is undefined/null
             return str.replace(/\b\w/g, char => char.toUpperCase());
         },
-        goToModel(modelID) {
-            this.$router.push(`/model/${modelID}`);
+        goToModel() {
+            this.$router.push(`/model/${this.gigData.model_number}/gig/${this.gigData.gig_id}`);
         },
         goToRepair(repairId, gigId) {
             this.$router.push(`/gig/${gigId}/repair/${repairId}`);
@@ -467,7 +471,9 @@ export default {
                         this.repairHelp = parsedData;
                         this.repairVideo = []; // Initialize the array
 
-                        // Loop through each repair object
+                        console.log(`videos: `, parsedData);
+
+                        // // Loop through each repair object
                         parsedData.forEach(repair => {
                             // Check if youtubeLinks exists and is an array
                             if (repair.youtubeLinks && Array.isArray(repair.youtubeLinks)) {
@@ -644,20 +650,7 @@ export default {
             window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, "_blank");
         },
         transformToEmbedUrl(youtubeUrl) {
-            // If the URL already uses the embed format, return it directly.
-            if (youtubeUrl.includes("embed")) {
-                return youtubeUrl;
-            }
-            let videoId = "";
-            // Check if the URL contains "watch?v="
-            if (youtubeUrl.includes("watch?v=")) {
-                const parts = youtubeUrl.split("watch?v=");
-                videoId = parts[1].split("&")[0]; // Remove any extra query parameters
-            } else if (youtubeUrl.includes("youtu.be/")) {
-                const parts = youtubeUrl.split("youtu.be/");
-                videoId = parts[1].split("?")[0];
-            }
-            return videoId ? `https://www.youtube.com/embed/${videoId}` : youtubeUrl;
+            return `https://www.youtube.com/embed/${youtubeUrl.videoId}`;
         }
     }
 };
