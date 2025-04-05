@@ -225,7 +225,7 @@ export default {
             }
         },
         goToModel(modelID) {
-            this.$router.push(`/model/${modelID}`);
+            this.$router.push(`/model/${modelID}/gig/${this.gigId}`);
         },
         transformToEmbedUrl(youtubeUrl) {
             return `https://www.youtube.com/embed/${youtubeUrl.videoId}`;

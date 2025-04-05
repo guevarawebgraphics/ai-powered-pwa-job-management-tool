@@ -6,26 +6,15 @@
         <div class="flex flex-col items-center p-6">
             <div class="relative w-24 h-24">
                 <!-- Profile Picture -->
-                <img
-                    :src="previewPhoto"
-                    alt="Profile Picture"
-                    class="w-24 h-24 rounded-md border border-gray-300 shadow-md object-cover"
-                />
+                <img :src="previewPhoto" alt="Profile Picture"
+                    class="w-24 h-24 rounded-md border border-gray-300 shadow-md object-cover" />
 
                 <!-- File Input (Hidden) -->
-                <input
-                    type="file"
-                    ref="fileInput"
-                    class="hidden"
-                    accept="image/*"
-                    @change="uploadProfilePhoto"
-                />
+                <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="uploadProfilePhoto" />
 
                 <!-- Edit Button (Top Right) -->
-                <button
-                    @click="triggerFileInput"
-                    class="absolute top-0 right-0 bg-white border rounded-full p-1 shadow-md hover:bg-gray-100 transition"
-                >
+                <button @click="triggerFileInput"
+                    class="absolute top-0 right-0 bg-white border rounded-full p-1 shadow-md hover:bg-gray-100 transition">
                     <i class="fas fa-external-link-alt text-[#BCC1CAFF]"></i>
                 </button>
             </div>
@@ -36,18 +25,11 @@
                     <h2 v-if="!isEditingName" class="text-xl text-[#171A1FFF]">
                         {{ name }}
                     </h2>
-                    <input
-                        v-else
-                        v-model="tempName"
-                        class="border border-gray-300 rounded-md px-2 py-1 text-lg text-gray-700 focus:outline-none focus:ring focus:ring-blue-300"
-                    />
+                    <input v-else v-model="tempName"
+                        class="border border-gray-300 rounded-md px-2 py-1 text-lg text-gray-700 focus:outline-none focus:ring focus:ring-blue-300" />
 
                     <!-- Edit Icon -->
-                    <button
-                        v-if="!isEditingName"
-                        @click="editName"
-                        class="absolute -right-6 top-1"
-                    >
+                    <button v-if="!isEditingName" @click="editName" class="absolute -right-6 top-1">
                         <i class="fas fa-edit text-[#BCC1CAFF]"></i>
                     </button>
                 </div>
@@ -56,29 +38,17 @@
                     <p v-if="!isEditingTitle" class="text-[#9095A0FF]">
                         {{ professionalTitle }}
                     </p>
-                    <input
-                        v-else
-                        v-model="tempTitle"
-                        class="border border-gray-300 rounded-md px-2 py-1 text-sm text-gray-700 focus:outline-none focus:ring focus:ring-blue-300"
-                    />
+                    <input v-else v-model="tempTitle"
+                        class="border border-gray-300 rounded-md px-2 py-1 text-sm text-gray-700 focus:outline-none focus:ring focus:ring-blue-300" />
                 </div>
 
                 <!-- Save & Cancel Buttons -->
-                <div
-                    v-if="isEditingName || isEditingTitle"
-                    class="flex justify-center mt-2 space-x-2"
-                >
-                    <button
-                        @click="saveChanges"
-                        class="text-green-600 hover:text-green-800"
-                    >
+                <div v-if="isEditingName || isEditingTitle" class="flex justify-center mt-2 space-x-2">
+                    <button @click="saveChanges" class="text-green-600 hover:text-green-800">
                         <i class="fas fa-check"></i>
                         <!-- Save -->
                     </button>
-                    <button
-                        @click="cancelChanges"
-                        class="text-red-600 hover:text-red-800"
-                    >
+                    <button @click="cancelChanges" class="text-red-600 hover:text-red-800">
                         <i class="fas fa-times"></i>
                         <!-- Cancel -->
                     </button>
@@ -88,24 +58,14 @@
             <Ratings />
 
             <div class="mt-6 w-full max-w-md space-y-3">
-                <div
-                    v-for="(item, index) in contactInfo"
-                    :key="index"
-                    class="bg-white rounded-lg shadow-sm border p-4 flex justify-between items-center"
-                >
+                <div v-for="(item, index) in contactInfo" :key="index"
+                    class="bg-white rounded-lg shadow-sm border p-4 flex justify-between items-center">
                     <div class="flex items-center space-x-3">
-                        <i
-                            :class="item.icon"
-                            class="text-[#171A1FFF] text-lg"
-                        ></i>
+                        <i :class="item.icon" class="text-[#171A1FFF] text-lg"></i>
 
-                        <input
-                            v-if="item.editing"
-                            type="text"
-                            v-model="item.tempValue"
+                        <input v-if="item.editing" type="text" v-model="item.tempValue"
                             :placeholder="getPlaceholder(item.key)"
-                            class="border border-gray-300 rounded-md px-2 py-1 text-sm text-[#171A1FFF] focus:outline-none focus:ring focus:ring-blue-300 w-full"
-                        />
+                            class="border border-gray-300 rounded-md px-2 py-1 text-sm text-[#171A1FFF] focus:outline-none focus:ring focus:ring-blue-300 w-full" />
 
                         <span v-else class="text-sm text-gray-700">
                             {{ item.value || getPlaceholder(item.key) }}
@@ -113,27 +73,16 @@
                     </div>
 
                     <div class="flex space-x-2">
-                        <button
-                            v-if="item.editing"
-                            @click="saveContact(index)"
-                            class="text-green-600 hover:text-green-800"
-                        >
+                        <button v-if="item.editing" @click="saveContact(index)"
+                            class="text-green-600 hover:text-green-800">
                             <i class="fas fa-check"></i>
                             <!-- Save Button -->
                         </button>
-                        <button
-                            v-if="item.editing"
-                            @click="cancelEdit(index)"
-                            class="text-red-600 hover:text-red-800"
-                        >
+                        <button v-if="item.editing" @click="cancelEdit(index)" class="text-red-600 hover:text-red-800">
                             <i class="fas fa-times"></i>
                             <!-- Cancel Button -->
                         </button>
-                        <button
-                            v-else
-                            @click="toggleEdit(index)"
-                            class="text-gray-500 hover:text-gray-700"
-                        >
+                        <button v-else @click="toggleEdit(index)" class="text-gray-500 hover:text-gray-700">
                             <i class="fas fa-edit"></i>
                             <!-- Edit Button -->
                         </button>
@@ -144,73 +93,49 @@
             <!-- Schedule Section -->
             <div class="mt-6 w-full max-w-md space-y-6">
                 <!-- Set Schedule -->
-                <div
-                    class="bg-white rounded-lg shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4"
-                >
+                <div class="bg-white rounded-lg shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4">
                     <div class="flex justify-between items-center">
                         <h3 class="text-lg font-bold text-[#171A1FFF]">
                             Set Schedule
                         </h3>
-                        <button
-                            class="text-gray-500 hover:text-gray-700"
-                            @click="goToSetSchedule"
-                        >
+                        <button class="text-gray-500 hover:text-gray-700" @click="goToSetSchedule">
                             <i class="fas fa-edit"></i>
                         </button>
                     </div>
                     <div class="mt-2">
-                        <div
-                            v-for="(schedule, index) in workSchedule"
-                            :key="index"
-                            class="flex justify-between"
-                        >
+                        <div v-for="(schedule, index) in workSchedule" :key="index" class="flex justify-between">
                             <span class="text-[#505050FF] font-semibold">{{
                                 schedule.day
-                            }}</span>
+                                }}</span>
                             <span class="text-[#505050FF]">{{
                                 schedule.hours
-                            }}</span>
+                                }}</span>
                         </div>
                     </div>
                 </div>
 
                 <!-- Set Advanced Schedule -->
                 <div
-                    class="bg-white rounded-lg shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex items-center justify-between"
-                >
+                    class="bg-white rounded-lg shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex items-center justify-between">
                     <div class="flex flex-col items-center">
-                        <h3
-                            class="text-lg font-bold text-[#171A1FFF] text-center"
-                        >
+                        <h3 class="text-lg font-bold text-[#171A1FFF] text-center">
                             Set Advanced Schedule
                         </h3>
-                        <div
-                            class="mt-2 border-2 border-blue-300 p-3 rounded-lg"
-                            @click="showCalendarModal"
-                        >
-                            <i
-                                class="fas fa-calendar-check text-blue-500 text-4xl"
-                            ></i>
+                        <div class="mt-2 border-2 border-blue-300 p-3 rounded-lg" @click="showCalendarModal">
+                            <i class="fas fa-calendar-check text-blue-500 text-4xl"></i>
                         </div>
                     </div>
                     <!-- Toggle Switch -->
                     <label class="flex items-center cursor-pointer">
-                        <input
-                            type="checkbox"
-                            v-model="advancedSchedule"
-                            @change="
+                        <input type="checkbox" v-model="advancedSchedule" @change="
                                 updateSettings('is_blackout', advancedSchedule)
-                            "
-                            class="sr-only"
-                        />
-                        <div
-                            class="relative w-10 h-5 bg-gray-300 rounded-full transition-all duration-300"
-                            :class="{ 'bg-green-500': advancedSchedule }"
-                        >
-                            <div
-                                class="absolute left-1 top-1 w-3.5 h-3.5 bg-white rounded-full shadow-md shadow-[#171a1f17] drop-shadow-sm transition-all duration-300"
-                                :class="{ 'translate-x-5': advancedSchedule }"
-                            ></div>
+                            " class="sr-only" />
+                        <div class="relative w-10 h-5 bg-gray-300 rounded-full transition-all duration-300"
+                            :class="{ 'bg-green-500': advancedSchedule }">
+                            <div class="absolute left-1 top-1/2 -translate-y-1/2
+               w-3.5 h-3.5 bg-white rounded-full
+               shadow-md shadow-[#171a1f17] drop-shadow-sm
+               transition-all duration-300" :class="{ 'translate-x-5': advancedSchedule }"></div>
                         </div>
                     </label>
                 </div>
@@ -222,141 +147,88 @@
                 <div class="bg-white rounded-lg shadow-md border p-4 relative">
                     <label class="text-lg font-bold text-[#171A1FFF]">
                         Advanced Skills
-                        <span class="text-gray-600 text-sm"
-                            >(Select all that apply)</span
-                        >
+                        <span class="text-gray-600 text-sm">(Select all that apply)</span>
                     </label>
 
                     <!-- Selected Items as Button -->
-                    <div
-                        class="mt-2 p-2 border border-gray-300 rounded-lg bg-white cursor-pointer flex justify-between items-center"
+                    <div class="mt-2 p-2 border border-gray-300 rounded-lg bg-white cursor-pointer flex justify-between items-center"
                         @click="
                             () => {
                                 console.log('clicked');
                                 toggleDropdown();
                             }
-                        "
-                    >
-                        <span
-                            v-if="selectedSkills.length === 0"
-                            class="text-gray-500"
-                            >Select skills...</span
-                        >
+                        ">
+                        <span v-if="selectedSkills.length === 0" class="text-gray-500">Select skills...</span>
                         <span v-else class="text-gray-700">{{
                             selectedSkills.join(", ")
-                        }}</span>
-                        <i
-                            class="fas fa-chevron-down text-gray-500 transition-transform duration-300"
-                            :class="{ 'rotate-180': isDropdownOpen }"
-                        ></i>
+                            }}</span>
+                        <i class="fas fa-chevron-down text-gray-500 transition-transform duration-300"
+                            :class="{ 'rotate-180': isDropdownOpen }"></i>
                     </div>
 
                     <!-- Dropdown List -->
-                    <div
-                        v-show="isDropdownOpen"
+                    <div v-show="isDropdownOpen"
                         class="absolute left-0 right-0 top-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-[9999] max-h-48 overflow-y-auto"
-                        style="display: block"
-                    >
-                        <div
-                            v-for="(skill, index) in skills"
-                            :key="index"
-                            class="p-3 flex items-center space-x-2 cursor-pointer hover:bg-gray-100"
-                        >
-                            <input
-                                type="checkbox"
-                                :id="'skill_' + index"
-                                v-model="selectedSkills"
-                                :value="skill"
-                                @change="updateSkills"
-                                class="w-4 h-4 text-blue-500 border-gray-300 rounded"
-                            />
-                            <label
-                                :for="'skill_' + index"
-                                class="text-gray-700 cursor-pointer"
-                                >{{ skill }}</label
-                            >
+                        style="display: block">
+                        <div v-for="(skill, index) in skills" :key="index"
+                            class="p-3 flex items-center space-x-2 cursor-pointer hover:bg-gray-100">
+                            <input type="checkbox" :id="'skill_' + index" v-model="selectedSkills" :value="skill"
+                                @change="updateSkills" class="w-4 h-4 text-blue-500 border-gray-300 rounded" />
+                            <label :for="'skill_' + index" class="text-gray-700 cursor-pointer">{{ skill }}</label>
                         </div>
                     </div>
                 </div>
 
                 <!-- Toggle Options -->
-                <div
-                    class="bg-white rounded-lg shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4"
-                >
+                <div class="bg-white rounded-lg shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4">
                     <div class="flex justify-between items-center">
-                        <span class="text-lg font-bold text-[#171A1FFF]"
-                            >Notifications</span
-                        >
+                        <span class="text-lg font-bold text-[#171A1FFF]">Notifications</span>
                         <label class="flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                v-model="notificationsEnabled"
-                                @change="
+                            <input type="checkbox" v-model="notificationsEnabled" @change="
                                     updateSettings(
                                         'is_notify',
                                         notificationsEnabled
                                     )
-                                "
-                                class="sr-only"
-                            />
-                            <div
-                                class="relative w-10 h-5 bg-gray-300 rounded-full transition-all duration-300"
-                                :class="{
+                                " class="sr-only" />
+                            <div class="relative w-10 h-5 bg-gray-300 rounded-full transition-all duration-300" :class="{
                                     'bg-green-500': notificationsEnabled,
-                                }"
-                            >
-                                <div
-                                    class="absolute left-1 top-1 w-3.5 h-3.5 bg-white rounded-full shadow-md shadow-[#171a1f17] drop-shadow-sm transition-all duration-300"
-                                    :class="{
+                                }">
+                                <div class="absolute left-1 top-1/2 -translate-y-1/2
+               w-3.5 h-3.5 bg-white rounded-full
+               shadow-md shadow-[#171a1f17] drop-shadow-sm
+               transition-all duration-300" :class="{
                                         'translate-x-5': notificationsEnabled,
-                                    }"
-                                ></div>
+                                    }"></div>
                             </div>
                         </label>
                     </div>
 
                     <div class="flex justify-between items-center mt-3">
-                        <span class="text-lg font-bold text-[#171A1FFF]"
-                            >Location Services</span
-                        >
+                        <span class="text-lg font-bold text-[#171A1FFF]">Location Services</span>
                         <label class="flex items-center cursor-pointer">
-                            <input
-                                type="checkbox"
-                                v-model="locationEnabled"
-                                @change="
+                            <input type="checkbox" v-model="locationEnabled" @change="
                                     updateSettings(
                                         'is_location',
                                         locationEnabled
                                     )
-                                "
-                                class="sr-only"
-                            />
-                            <div
-                                class="relative w-10 h-5 bg-gray-300 rounded-full transition-all duration-300"
-                                :class="{ 'bg-green-500': locationEnabled }"
-                            >
-                                <div
-                                    class="absolute left-1 top-1 w-3.5 h-3.5 bg-white rounded-full shadow-md transition-all duration-300"
-                                    :class="{
+                                " class="sr-only" />
+                            <div class="relative w-10 h-5 bg-gray-300 rounded-full transition-all duration-300"
+                                :class="{ 'bg-green-500': locationEnabled }">
+                                <div class="absolute left-1 top-1/2 -translate-y-1/2
+               w-3.5 h-3.5 bg-white rounded-full
+               shadow-md shadow-[#171a1f17] drop-shadow-sm
+               transition-all duration-300" :class="{
                                         'translate-x-5': locationEnabled,
-                                    }"
-                                ></div>
+                                    }"></div>
                             </div>
                         </label>
                     </div>
                 </div>
 
                 <!-- Chat for Help Button -->
-                <div
-                    class="cursor-pointer bg-white rounded-lg shadow-md border p-4 flex justify-between items-center"
-                >
-                    <span class="text-lg font-bold text-[#171A1FFF]"
-                        >Open a Chat for Help</span
-                    >
-                    <div
-                        class="border-2 border-blue-400 p-3 rounded-lg"
-                        @click="openChat()"
-                    >
+                <div class="cursor-pointer bg-white rounded-lg shadow-md border p-4 flex justify-between items-center">
+                    <span class="text-lg font-bold text-[#171A1FFF]">Open a Chat for Help</span>
+                    <div class="border-2 border-blue-400 p-3 rounded-lg" @click="openChat()">
                         <i class="fas fa-comment text-blue-500 text-3xl"></i>
                     </div>
                 </div>
@@ -367,15 +239,10 @@
     </div>
 
     <!-- Chat Modal -->
-    <div
-        v-if="isChatOpen"
-        class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center"
-    >
+    <div v-if="isChatOpen" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
         <div class="bg-white w-96 rounded-lg shadow-lg">
             <!-- Modal Header -->
-            <div
-                class="flex justify-between items-center bg-blue-500 text-white p-4 rounded-t-lg"
-            >
+            <div class="flex justify-between items-center bg-blue-500 text-white p-4 rounded-t-lg">
                 <h2 class="text-lg font-bold">Chat Support</h2>
                 <button @click="closeChat" class="text-white text-xl">
                     &times;
@@ -384,45 +251,29 @@
 
             <!-- Chat Body -->
             <div class="p-4 h-64 overflow-y-auto" ref="chatBox">
-                <div
-                    v-for="(message, index) in chatMessages"
-                    :key="index"
-                    class="flex items-start mb-3"
-                    :class="{
+                <div v-for="(message, index) in chatMessages" :key="index" class="flex items-start mb-3" :class="{
                         'justify-end': message.type === 'sender',
                         'justify-start': message.type === 'receiver',
-                    }"
-                >
+                    }">
                     <!-- Profile Picture -->
-                    <img
-                        :src="message.avatar"
-                        alt="Profile"
-                        class="w-8 h-8 rounded-full"
-                        :class="{
+                    <img :src="message.avatar" alt="Profile" class="w-8 h-8 rounded-full" :class="{
                             'order-2 ml-2': message.type === 'sender',
                             'mr-2': message.type === 'receiver',
-                        }"
-                    />
+                        }" />
 
                     <!-- Message Content -->
                     <div>
-                        <p
-                            class="text-xs font-bold"
-                            :class="{
+                        <p class="text-xs font-bold" :class="{
                                 'text-right': message.type === 'sender',
                                 'text-left': message.type === 'receiver',
-                            }"
-                        >
+                            }">
                             {{ message.name }}
                         </p>
-                        <div
-                            :class="
+                        <div :class="
                                 message.type === 'sender'
                                     ? 'bg-[#F3F4F6FF] text-[#171A1FFF]'
                                     : 'bg-[#E5EDF8FF] text[#171A1FFF]'
-                            "
-                            class="p-2 rounded-lg inline-block max-w-xs"
-                        >
+                            " class="p-2 rounded-lg inline-block max-w-xs">
                             {{ message.text }}
                         </div>
                     </div>
@@ -431,17 +282,9 @@
 
             <!-- Chat Input -->
             <div class="p-4 border-t flex">
-                <input
-                    v-model="newMessage"
-                    @keyup.enter="sendMessage"
-                    type="text"
-                    class="w-full p-2 border rounded-lg"
-                    placeholder="Type your message..."
-                />
-                <button
-                    @click="sendMessage"
-                    class="ml-2 bg-blue-500 text-white p-2 rounded-lg"
-                >
+                <input v-model="newMessage" @keyup.enter="sendMessage" type="text" class="w-full p-2 border rounded-lg"
+                    placeholder="Type your message..." />
+                <button @click="sendMessage" class="ml-2 bg-blue-500 text-white p-2 rounded-lg">
                     <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
