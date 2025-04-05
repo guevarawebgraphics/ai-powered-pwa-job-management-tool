@@ -59,11 +59,23 @@
                 <button @click="goToNotification()" type="button"
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <div class="flex items-center space-x-2">
-                        <i v-if="!this.latestNotif" class="fas fa-thumbs-up text-lg text-[#171A1FFF]"></i>
-                        <span>
-                            {{ latestNotif?.featured_content ?? 'No Latest Notification' }}
-                        </span>
+                        <!-- Left Column: Icon and Price stacked vertically -->
+                        <div class="flex flex-col items-center">
+                            <i class="fas fa-thumbs-up text-xl text-[#171A1FFF]"></i>
+                            <div class="text-2xl font-bold" v-if="hasFeaturedContent">
+                                ${{ parsedFeaturedContent?.gig_price }}
+                            </div>
+                        </div>
 
+                        <!-- Right Column: Notification description -->
+                        <div>
+                            <div class="text-gray-700" v-if="hasFeaturedContent">
+                                {{ parsedFeaturedContent?.initial_issue }}
+                            </div>
+                            <div v-else>
+                                No Latest Notification
+                            </div>
+                        </div>
                     </div>
                     <!-- <p class="text-sm text-gray-500">New Job Request Dryer, no Heat, Stuart</p> -->
                 </button>
@@ -277,12 +289,39 @@ export default {
             loadingGigHistory: true, // Loading state
             totalGigPrice: 0.0,
             totalJobBookedToday: 0,
-            latestNotif: [],
+            latestNotif: {
+                type: Object,
+                default: null
+            },
             selectedDate: new Date().toISOString().substr(0, 10),
             selectedTime: new Date().toISOString().substr(11, 5),
         };
     },
     computed: {
+        parsedFeaturedContent() {
+            if (this.latestNotif && this.latestNotif.featured_content) {
+                // If it's already an object, return it directly.
+                if (typeof this.latestNotif.featured_content === 'object') {
+                    return this.latestNotif.featured_content;
+                }
+                // Otherwise, try parsing it as JSON.
+                try {
+                    return JSON.parse(this.latestNotif.featured_content);
+                } catch (error) {
+                    console.error("Failed to parse featured_content JSON:", error);
+                    return {};
+                }
+            }
+            return {};
+        },
+        hasFeaturedContent() {
+            // Check that we have valid data (non-empty object) and that latestNotif exists.
+            return (
+                this.latestNotif &&
+                this.latestNotif.featured_content &&
+                Object.keys(this.parsedFeaturedContent).length > 0
+            );
+        },
         formattedDate() {
             const today = new Date();
             const options = { month: "long", day: "numeric", timeZone: "UTC" };

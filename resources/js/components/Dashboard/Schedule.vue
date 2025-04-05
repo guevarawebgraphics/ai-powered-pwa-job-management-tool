@@ -259,6 +259,7 @@ export default {
             latestUpdates: [],
             formattedDate: "",
             totalGigPrice: 0.0,
+
         };
     },
     computed: {
@@ -467,10 +468,20 @@ export default {
                 console.log("Response:", response);
 
                 if (this.gigHistoryData.length > 0) {
-                    this.totalGigPrice = this.gigHistoryData.reduce(
-                        (sum, gig) => sum + parseFloat(gig.gig_price || 0),
-                        0
-                    );
+
+                    const todayUTC = new Date().toISOString().split("T")[0]; // e.g., "2025-04-05"
+
+                    this.totalGigPrice = this.gigHistoryData
+                        .filter((gig) => {
+                            const gigDateUTC = new Date(
+                                gig.start_datetime.replace(" ", "T") + "Z"
+                            )
+                                .toISOString()
+                                .split("T")[0];
+                            return gigDateUTC === todayUTC;
+                        })
+                        .reduce((sum, gig) => sum + parseFloat(gig.gig_price || 0), 0);
+
 
                     // Transform the data for latestUpdates.
                     // Also, adjust the rawTime into a proper ISO UTC string if needed.

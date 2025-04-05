@@ -43,7 +43,7 @@
                 <div
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
-                    <p class="text-green-600 text-lg font-bold">$125</p>
+                    <p class="text-green-600 text-lg font-bold">${{this.gigData.gig_price}}</p>
                     <p class="text-sm text-gray-500">Gig Potential</p>
                 </div>
             </div>
@@ -157,8 +157,12 @@
                                 #{{ repair.number }} {{ repair.repairName }}
                             </p>
                             <p class="text-gray-700 text-sm"><strong>Symptoms:</strong> {{ repair.symptoms }}</p>
-                            <p class="text-gray-500 text-xs"><strong>Solution:</strong> {{ repair.solution }}</p>
-                            <p class="text-gray-500 text-xs"><strong>Parts Needed:</strong> {{ repair.partsNeeded.join(", ")
+                            <p class="text-gray-500 text-xs mt-1"><strong>Solution:&nbsp;</strong>
+                                <br>
+                                <span v-html="repair.solution.replace(/\n/g, '<br/>')"></span>
+                            </p>
+                            <p class="text-gray-500 text-xs"><strong>Parts Needed:</strong> {{
+                                repair.partsNeeded.join(", ")
                                 }}</p>
                         </div>
                     </label>
