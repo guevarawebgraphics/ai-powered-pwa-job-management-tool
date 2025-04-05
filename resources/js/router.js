@@ -73,8 +73,9 @@ router.beforeEach(async (to, from, next) => {
 
             const user = response.data.user;
             const isVerified = user.is_verified; // Assuming backend returns this
+            // alert(response.data.ip_address);
 
-            if (to.meta.requiresVerification && !isVerified) {
+            if (to.meta.requiresVerification && user.current_ip != response.data.ip_address && import.meta.env.APP_ENV != "local") {
                 return next('/otp'); // ❌ Not verified → Redirect to OTP
             }
 

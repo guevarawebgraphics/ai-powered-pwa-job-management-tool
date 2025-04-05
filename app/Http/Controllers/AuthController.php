@@ -159,7 +159,8 @@ class AuthController extends Controller
             'user'  =>  $user,
             'total_jobs_booked' =>  $total_jobs_booked,
             'total_gig_price'   =>  $total_gig_price,
-            'latest_notif'  =>  $latestNotif
+            'latest_notif'  =>  $latestNotif,
+            'ip_address'    =>  request()->header('X-Forwarded-For') ?? request()->ip()
         ];
         return $data;
     }
