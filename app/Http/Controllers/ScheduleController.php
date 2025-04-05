@@ -15,7 +15,7 @@ class ScheduleController extends Controller
     }
 
     public function index() {
-        $query = SchedulePerUser::where('user_id', auth()->user()->id )->orderBy('day','ASC')->get();
+        $query = SchedulePerUser::where('user_id', auth()->user()->id )->whereNull('deleted_at')->orderBy('day','ASC')->get();
         return $query;
     }
     public function store(StoreRequest $request) {
