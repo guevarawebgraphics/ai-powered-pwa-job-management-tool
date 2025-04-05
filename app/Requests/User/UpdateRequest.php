@@ -26,7 +26,8 @@ class UpdateRequest extends FormRequest
             'service_area'         => 'nullable',
             'black_out_from'       => 'nullable|date',
             'black_out_to'         => 'nullable|date|required_with:black_out_from|after:black_out_from',
-            'is_blackout'          => 'nullable'
+            'is_blackout'          => 'nullable',
+            'black_out_dates'      => 'nullable'
         ];
     }
 
