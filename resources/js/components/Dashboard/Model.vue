@@ -3,7 +3,8 @@
         <NavBar />
 
         <!-- Model Information -->
-        <div class="w-[350px] mx-auto p-6">
+        <div class="mx-auto p-6 min-w-[320px] sm:min-w-[480px] md:min-w-[500px]">
+
             <h2 class="text-lg font-medium text-center text-[#232850FF]">
                 {{ this.machineData.model_number }}
             </h2>
@@ -44,7 +45,7 @@
                     <div v-if="isOpen.serviceManual" class="mt-5 text-sm text-gray-700">
                         <ul v-if="serviceManual.length">
                             <li v-for="file in serviceManual" :key="file.file_name">
-                                <div class="flex items-center bg-white shadow-md rounded-lg p-4 mb-4">
+                                <!-- <div class="flex items-center bg-white shadow-md rounded-lg p-4 mb-4">
                                     <i class="fas fa-clipboard-list text-2xl text-gray-500"></i>
                                     <div class="ml-3">
                                         <p class="text-sm text-gray-800">{{ file.file_name }}</p>
@@ -53,7 +54,23 @@
                                             View Here
                                         </a>
                                     </div>
-                                </div>
+                                </div> -->
+                                <a :href="file.url" target="_blank"
+                                    class="flex items-start bg-white shadow-md rounded-lg p-4 mb-4">
+                                    <i class="fas fa-clipboard-list text-2xl text-gray-500"></i>
+                                    <!-- Use flex-col + min-w-0 to allow wrapping -->
+                                    <div class="flex flex-col ml-3 flex-1 min-w-0">
+                                        <!-- Allow text to wrap with whitespace-normal and break-words -->
+                                        <p class="text-sm text-gray-800 whitespace-normal break-words">
+                                            {{ file.file_name }}
+                                        </p>
+                                        <div class="text-blue-600 hover:underline font-medium">
+                                            View Here
+                                        </div>
+                                    </div>
+                                </a>
+
+
                             </li>
                         </ul>
                         <p v-else class="text-gray-500 italic text-center">No files found for Service Manual.</p>
@@ -71,7 +88,7 @@
                     <div v-if="isOpen.partsDiagram" class="mt-5 text-sm text-gray-700">
                         <ul v-if="partsDiagram.length">
                             <li v-for="file in partsDiagram" :key="file.file_name">
-                                <div class="flex items-center bg-white shadow-md rounded-lg p-4 mb-4">
+                                <!-- <div class="flex items-center bg-white shadow-md rounded-lg p-4 mb-4">
                                     <i class="fas fa-clipboard-list text-2xl text-gray-500"></i>
                                     <div class="ml-3">
                                         <p class="text-sm text-gray-800">{{ file.file_name }}</p>
@@ -80,7 +97,24 @@
                                             View Here
                                         </a>
                                     </div>
-                                </div>
+                                </div> -->
+                                <a :href="file.url" target="_blank"
+                                    class="flex items-start bg-white shadow-md rounded-lg p-4 mb-4">
+                                    <i class="fas fa-clipboard-list text-2xl text-gray-500"></i>
+                                    <!-- Use flex-col + min-w-0 to allow wrapping -->
+                                    <div class="flex flex-col ml-3 flex-1 min-w-0">
+                                        <!-- Allow text to wrap with whitespace-normal and break-words -->
+                                        <p class="text-sm text-gray-800 whitespace-normal break-words">
+                                            {{ file.file_name }}
+                                        </p>
+                                        <div class="text-blue-600 hover:underline font-medium">
+                                            View Here
+                                        </div>
+                                    </div>
+                                </a>
+
+
+
                             </li>
                         </ul>
                         <p v-else class="text-gray-500 italic text-center">No files found for Parts Diagram.</p>
@@ -99,7 +133,7 @@
                     <div v-if="isOpen.servicePointers" class="mt-5 text-sm text-gray-700">
                         <ul v-if="servicePointers.length">
                             <li v-for="file in servicePointers" :key="file.file_name">
-                                <div class="flex items-center bg-white shadow-md rounded-lg p-4 mb-4">
+                                <!-- <div class="flex items-center bg-white shadow-md rounded-lg p-4 mb-4">
                                     <i class="fas fa-clipboard-list text-2xl text-gray-500"></i>
                                     <div class="ml-3">
                                         <p class="text-sm text-gray-800">{{ file.file_name }}</p>
@@ -108,7 +142,24 @@
                                             View Here
                                         </a>
                                     </div>
-                                </div>
+                                </div> -->
+                                <a :href="file.url" target="_blank"
+                                    class="flex items-start bg-white shadow-md rounded-lg p-4 mb-4">
+                                    <i class="fas fa-clipboard-list text-2xl text-gray-500"></i>
+                                    <!-- Use flex-col + min-w-0 to allow wrapping -->
+                                    <div class="flex flex-col ml-3 flex-1 min-w-0">
+                                        <!-- Allow text to wrap with whitespace-normal and break-words -->
+                                        <p class="text-sm text-gray-800 whitespace-normal break-words">
+                                            {{ file.file_name }}
+                                        </p>
+                                        <div class="text-blue-600 hover:underline font-medium">
+                                            View Here
+                                        </div>
+                                    </div>
+                                </a>
+
+
+
                             </li>
                         </ul>
                         <p v-else class="text-gray-500 italic text-center">No files found for Service Pointers.</p>
@@ -406,3 +457,4 @@ export default {
     }
 };
 </script>
+

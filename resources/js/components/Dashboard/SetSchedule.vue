@@ -179,6 +179,8 @@ export default {
                     showConfirmButton: false
                 });
                 
+                this.$router.push("/profile");    
+                
             } catch (error) {
                 console.error("Error saving schedule:", error);
                 

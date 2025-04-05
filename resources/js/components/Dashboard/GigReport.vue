@@ -3,28 +3,30 @@
         <NavBar />
 
         <!-- Gig Report Section -->
-        <div class="max-w-lg mx-auto p-6">
-            <!-- Gig Title -->
-            <h2 class="text-xl text-center text-[#232850]">
+        <div class="max-w-lg mx-auto px-4 py-6 space-y-6">
+            <!-- Gig Header -->
+            <div class="text-center">
 
-                Gig #{{ this.capitalizeWords(this.gigData.gig_cryptic) }}
-            </h2>
-            <div class="flex items-center mt-2">
-                <img :src="this.machineData.machine_photo" alt="Samsung Dryer" class="w-16 rounded-md" />
-                <div class="ml-3">
-                    <p class="text-sm font-semibold text-gray-800">
-                        {{ this.capitalizeWords(this.gigData.machine.machine_type) }} - {{
-                        this.capitalizeWords(this.gigData.machine.brand_name) }}
-                    </p>
-                    <p class="text-xs text-gray-500">
-                        **{{ this.gigData.initial_issue }}**
-                    </p>
-                    <p class="text-xs text-gray-500">
-                        *{{ this.gigData.repair_notes }}*
-                    </p>
+                <h2 class="text-lg text-[#232850FF]">
+
+                    Gig #{{ this.capitalizeWords(this.gigData.gig_cryptic) }}
+                </h2>
+                <div class="flex items-center space-x-3 mt-2">
+                    <img :src="this.machineData.machine_photo" alt="Samsung Dryer" class="w-16 rounded-md" />
+                    <div class="ml-3">
+                        <p class="text-sm font-semibold text-gray-800">
+                            {{ this.capitalizeWords(this.gigData.machine.machine_type) }} - {{
+                            this.capitalizeWords(this.gigData.machine.brand_name) }}
+                        </p>
+                        <p class="text-xs text-gray-500">
+                            **{{ this.gigData.initial_issue }}**
+                        </p>
+                        <p class="text-xs text-gray-500">
+                            *{{ this.gigData.repair_notes }}*
+                        </p>
+                    </div>
                 </div>
             </div>
-
 
             <!-- Date & Time -->
             <div class="flex justify-between items-center mt-5">
@@ -33,7 +35,7 @@
             </div>
 
             <!-- Gig Stats -->
-            <div class="grid grid-cols-2 gap-4 mt-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
@@ -174,7 +176,7 @@
             <div class="space-y-4 mt-4">
 
 
-                <div v-if="textarea_content_array.length > 0" v-for="(repair, index) in textarea_content_array"
+                <!-- <div v-if="textarea_content_array.length > 0" v-for="(repair, index) in textarea_content_array"
                     :key="repair.content">
                     <label
                         class="relative bg-white rounded-lg shadow-md border p-4 cursor-pointer flex items-start space-x-4">
@@ -193,11 +195,33 @@
 
                         </div>
                     </label>
+                </div> -->
+
+                <div v-if="textarea_content_array.length > 0" v-for="(repair, index) in textarea_content_array"
+                    :key="repair.content">
+                    <label
+                        class="relative bg-white rounded-lg shadow-md border p-4 cursor-pointer flex items-start space-x-4">
+                        <!-- Checkbox in the top-right corner -->
+                        <input type="checkbox" v-model="repair.selected"
+                            class="absolute top-4 right-4 w-5 h-5 border-gray-400 rounded-md" />
+                        <div style="margin-left: unset;">
+                            <p class="text-gray-700 text-sm"><strong>Content:</strong> {{ repair.content }}</p>
+                            <div class="flex flex-wrap gap-2 mt-3">
+                                <div v-for="(image, idx) in repair.images" :key="idx" class="relative">
+                                    <img :src="image.url" :alt="image.filename"
+                                        class="w-20 h-20 object-cover rounded-md" @click="openImageViewer(image.url)" />
+                                </div>
+                            </div>
+                        </div>
+                    </label>
                 </div>
+
+
+
             </div>
 
 
-            <div class="space-y-4 mt-4">
+            <div class="space-y-4 mt-4 ">
                 <div class="relative bg-white rounded-lg shadow-md border p-4 cursor-pointer flex flex-col space-y-4">
                     <div style="margin-left: unset;">
                         <p class="text-lg font-bold text-gray-700"><i class="fa-solid fa-question"></i> Other</p>
@@ -215,21 +239,20 @@
                     </div>
 
 
-                    <div class="flex items-center relative">
+                    <div class="flex flex-wrap items-center relative space-x-2">
                         <button class="p-2 text-[#262025FF]" @click="openCameraV2()">
                             <i class="fas fa-camera text-2xl"></i>
                         </button>
                         <button type="button" class="p-2 text-[#262025FF]" @click="$refs.multipleFileInput.click()">
                             <i class="fas fa-image text-2xl"></i>
-
                             <input type="file" multiple ref="multipleFileInput" class="hidden"
                                 @change="openTextUploadImage" />
                         </button>
 
                         <!-- Input field with emoji -->
-                        <div class="relative flex-1">
+                        <div class="relative flex-1 min-w-0">
                             <input type="text" placeholder="Aa"
-                                class="mx-3 bg-gray-100 outline-none text-gray-700 placeholder-[#BCC1CA] flex-1 p-2 rounded-full pr-10"
+                                class="mx-3 bg-gray-100 outline-none text-gray-700 placeholder-[#BCC1CA] w-full p-2 rounded-full pr-10"
                                 v-model="textarea_content">
                             <button @click="showEmojiPicker = !showEmojiPicker"
                                 class="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700">
@@ -237,16 +260,14 @@
                             </button>
                         </div>
 
-
-
-                        <!-- <emoji-picker v-if="showEmojiPicker" @emoji="addEmoji" class="absolute bottom-12 right-0" /> -->
-
+                        <!-- Emoji Picker (positioned absolutely as before) -->
                         <emoji-picker v-if="showEmojiPicker" @select="addEmoji" class="absolute bottom-12 right-0" />
 
                         <button class="p-2 text-[#262025FF]" @click="addOtherRepair()">
                             <i class="fa-regular fa-paper-plane text-2xl"></i>
                         </button>
                     </div>
+
 
                 </div>
             </div>
@@ -264,6 +285,8 @@
 
         <BottomNav />
     </div>
+
+
     <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
         <div class="bg-white rounded-lg shadow-lg p-6 w-80">
             <h2 class="text-lg font-bold mb-4">Select Part Installed</h2>
@@ -717,7 +740,11 @@ export default {
                 formData.append("gig_id", this.gigID);
 
                 // Convert textarea_content_array to JSON and append
-                formData.append("addtl_recommended_repairs", JSON.stringify(this.textarea_content_array));
+                // formData.append("addtl_recommended_repairs", JSON.stringify(this.textarea_content_array));
+
+                // Filter additional repairs to include only the ones that are checked
+                const filteredAdditionalRepairs = this.textarea_content_array.filter(item => item.selected);
+                formData.append("addtl_recommended_repairs", JSON.stringify(filteredAdditionalRepairs));
 
                 // Append general images separately
                 this.images.forEach((image, index) => {
@@ -850,10 +877,25 @@ export default {
             // this.textarea_content += emoji;
         },
 
+        // addOtherRepair() {
+        //     const payload = {
+        //         content: this.textarea_content || '', // Ensure content is at least an empty string
+        //         images: Array.isArray(this.textarea_images) ? [...this.textarea_images] : [] // Ensure it's always an array
+        //     };
+
+        //     this.textarea_content_array.push(payload);
+
+        //     this.textarea_content = '';
+        //     this.textarea_images = [];
+
+        //     console.log(payload);
+        // },
+
         addOtherRepair() {
             const payload = {
-                content: this.textarea_content || '', // Ensure content is at least an empty string
-                images: Array.isArray(this.textarea_images) ? [...this.textarea_images] : [] // Ensure it's always an array
+                content: this.textarea_content || '',
+                images: Array.isArray(this.textarea_images) ? [...this.textarea_images] : [],
+                selected: true // Automatically checked by default
             };
 
             this.textarea_content_array.push(payload);
@@ -863,7 +905,6 @@ export default {
 
             console.log(payload);
         },
-
         async removeTextareaContent(index) {
             console.log("this.textarea_content_array:", this.textarea_content_array);
             console.log("Removing index:", index);

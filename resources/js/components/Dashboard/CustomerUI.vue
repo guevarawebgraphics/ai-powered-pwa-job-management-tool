@@ -219,27 +219,31 @@
     </div>
 
     <!-- Modal -->
-    <div v-if="isOpen" class="modal-overlay">
-        <div class="modal" @click.stop>
-            <!-- Image & Buttons -->
-            <div class="bg-white p-4 w-96">
-                <!-- Buttons as Containers -->
-                <div class="card mt-3">
-
-                    <i class="fas fa-phone text-gray-500 text-3xl"></i>
-                    <div>
-                        <p class="font-medium">Call Now</p>
-                        <a :href="`sms:${customerData.phone_number}`" class="text-gray-500"> {{
-                            customerData.phone_number }}</a>
-                    </div>
+    <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4">
+        <div class="bg-white p-6 w-full max-w-md mx-auto rounded-lg" @click.stop>
+            <!-- Call Now Button -->
+            <a :href="`tel:${customerData.phone_number}`" class="card flex items-center p-3 border rounded-lg mt-3">
+                <i class="fas fa-phone text-gray-500 text-3xl"></i>
+                <div class="ml-4">
+                    <p class="font-medium">Call Now</p>
+                    <label class="text-gray-500">{{ customerData.phone_number }}</label>
                 </div>
-                <!-- Close Button -->
-                <button @click="closeModal()" class="mt-4 px-4 py-2 bg-gray-700 text-white rounded-lg w-full">
-                    Close
-                </button>
-            </div>
+            </a>
+            <!-- Message Button -->
+            <a :href="`sms:${customerData.phone_number}`" class="card flex items-center p-3 border rounded-lg mt-3">
+                <i class="fa-regular fa-message text-gray-500 text-3xl"></i>
+                <div class="ml-4">
+                    <p class="font-medium">Message</p>
+                    <label class="text-gray-500">Compose your text message</label>
+                </div>
+            </a>
+            <!-- Close Button -->
+            <button @click="closeModal()" class="mt-4 w-full px-4 py-2 bg-gray-700 text-white rounded-lg">
+                Close
+            </button>
         </div>
     </div>
+
 </template>
 
 <script>

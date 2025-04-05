@@ -53,6 +53,7 @@
                 v-if="this.gigData.gig_complete != 3" @click="actionGig(this.gigData.gig_id)">
                 {{ buttonText }}
             </button>
+
             <button v-else :class="buttonClass" class="w-full text-white py-2 rounded-lg font-semibold" type="button"
                 disabled>
                 Gig Completed & Submitted Report
@@ -70,7 +71,7 @@
                         </div>
                         <div>
                             <p class="font-bold text-lg text-gray-900">
-                                {{ this.gigData.client_name }}
+                                {{ this.gigData.client_name }} {{ this.gigData.client_last_name }}
                             </p>
                             <p class="text-sm text-gray-500">{{ this.gigData.client_extra_field1 }}</p>
                             <p class="text-xs text-gray-500">{{ this.gigData.client_extra_field2 }}</p>
@@ -229,58 +230,59 @@
 
 
 
-    <!-- Modal -->
-    <div v-if="isOpen" class="modal-overlay">
-        <div class="modal" @click.stop>
-            <!-- Image & Buttons -->
-            <div class="bg-white p-4 w-96">
-                <h2 class="text-lg font-bold text-center mb-4">Select an Action</h2>
+    <!-- Mobile Responsive Modal -->
+    <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4">
+        <div class="bg-white p-6 w-full max-w-md mx-auto rounded-lg" @click.stop>
+            <h2 class="text-lg font-bold text-center mb-4">Select an Action</h2>
 
-                <!-- Buttons as Containers -->
-                <div class="card mt-3">
-
-                    <i class="fas fa-phone text-gray-500 text-3xl"></i>
-                    <div>
-                        <p class="font-medium">Call Now</p>
-                        <a :href="`tel:${ gigData.client_phone_number }`" class="text-gray-500"> {{
-                            gigData.client_phone_number }}</a>
-                    </div>
+            <!-- Call Now Button -->
+            <a :href="`tel:${gigData.client_phone_number}`" class="card flex items-center p-3 border rounded-lg mt-3">
+                <i class="fas fa-phone text-gray-500 text-3xl"></i>
+                <div class="ml-4">
+                    <p class="font-medium">Call Now</p>
+                    <label class="text-gray-500">
+                        {{ gigData.client_phone_number }}
+                    </label>
                 </div>
+            </a>
 
-                <div class="card mt-3" @click="sendMessage('arriving-early')"
-                    :class="{ 'opacity-50 pointer-events-none': isSending }">
-                    <i class="fa-regular fa-message text-gray-500 text-3xl"></i>
-                    <div>
-                        <p class="font-medium">Message</p>
-                        <p class="text-blue-500">Arriving Early</p>
-                    </div>
+            <!-- Arriving Early Message -->
+            <div class="card flex items-center p-3 border rounded-lg mt-3 cursor-pointer"
+                @click="sendMessage('arriving-early')" :class="{ 'opacity-50 pointer-events-none': isSending }">
+                <i class="fa-regular fa-message text-gray-500 text-3xl"></i>
+                <div class="ml-4">
+                    <p class="font-medium">Message</p>
+                    <p class="text-blue-500">Arriving Early</p>
                 </div>
-
-                <div class="card mt-3" @click="sendMessage('on-time')"
-                    :class="{ 'opacity-50 pointer-events-none': isSending }">
-                    <i class="fa-regular fa-message text-gray-500 text-3xl"></i>
-                    <div>
-                        <p class="font-medium">Message</p>
-                        <p class="text-green-500">On Time</p>
-                    </div>
-                </div>
-
-                <div class="card mt-3" @click="sendMessage('behind-schedule')"
-                    :class="{ 'opacity-50 pointer-events-none': isSending }">
-                    <i class="fa-regular fa-message text-gray-500 text-3xl"></i>
-                    <div>
-                        <p class="font-medium">Message</p>
-                        <p class="text-red-500">Behind Schedule</p>
-                    </div>
-                </div>
-
-                <!-- Close Button -->
-                <button @click="closeModal()" class="mt-4 px-4 py-2 bg-gray-700 text-white rounded-lg w-full">
-                    Close
-                </button>
             </div>
+
+            <!-- On Time Message -->
+            <div class="card flex items-center p-3 border rounded-lg mt-3 cursor-pointer"
+                @click="sendMessage('on-time')" :class="{ 'opacity-50 pointer-events-none': isSending }">
+                <i class="fa-regular fa-message text-gray-500 text-3xl"></i>
+                <div class="ml-4">
+                    <p class="font-medium">Message</p>
+                    <p class="text-green-500">On Time</p>
+                </div>
+            </div>
+
+            <!-- Behind Schedule Message -->
+            <div class="card flex items-center p-3 border rounded-lg mt-3 cursor-pointer"
+                @click="sendMessage('behind-schedule')" :class="{ 'opacity-50 pointer-events-none': isSending }">
+                <i class="fa-regular fa-message text-gray-500 text-3xl"></i>
+                <div class="ml-4">
+                    <p class="font-medium">Message</p>
+                    <p class="text-red-500">Behind Schedule</p>
+                </div>
+            </div>
+
+            <!-- Close Button -->
+            <button @click="closeModal()" class="mt-4 w-full px-4 py-2 bg-gray-700 text-white rounded-lg">
+                Close
+            </button>
         </div>
     </div>
+
 </template>
 
 <script>
