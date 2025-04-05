@@ -37,9 +37,14 @@ class NotificationCronJob extends Command
             ->orderBy('start_datetime', 'ASC')
             ->get();
 
+    
         foreach ($gigs as $gig) {
             $startTime = Carbon::parse($gig->start_datetime);
 
+            
+            $this->info('Gig #: ' . $gig->gig_cryptic);
+            $this->info('Start Datetime: ' . $startTime);
+            
             // Only process gigs that haven't started yet
             if (!$startTime->isFuture()) {
                 \Log::info('Only process gigs that haven\'t started yet');

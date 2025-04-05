@@ -54,9 +54,9 @@ class NotificationController extends Controller
         // }
 
         // SMS Notifications: only send if not in local environment
-        if (config('app.env') !== 'local') {
+        // if (config('app.env') !== 'local') {
             $this->sendSmsNotification($request->content);
-        }
+        // }
 
 
         return response()->json([
