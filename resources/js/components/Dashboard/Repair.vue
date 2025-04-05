@@ -95,10 +95,10 @@
                 </div> -->
 
                 <div v-for="(videoLink, index) in repairVideo" :key="index"
-                    class="bg-gray-200 w-full h-52 flex items-center justify-center rounded-lg">
+                    class="bg-gray-200 w-full h-72 flex items-center justify-center rounded-lg">
                     <iframe :src="transformToEmbedUrl(videoLink)" frameborder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen class="w-full h-52 rounded-lg"></iframe>
+                        allowfullscreen class="w-full h-72 rounded-lg"></iframe>
                 </div>
 
             </div>

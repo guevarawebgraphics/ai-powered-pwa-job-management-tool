@@ -58,17 +58,17 @@
 
                 <button @click="goToNotification()" type="button"
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
-                    <div class="flex items-center space-x-2">
+                    <div class="flex flex-col sm:flex-row items-center sm:space-x-4 space-y-2 sm:space-y-0">
                         <!-- Left Column: Icon and Price stacked vertically -->
                         <div class="flex flex-col items-center">
                             <i class="fas fa-thumbs-up text-xl text-[#171A1FFF]"></i>
-                            <div class="text-2xl font-bold" v-if="hasFeaturedContent">
+                            <div class="text-xl font-bold" v-if="hasFeaturedContent">
                                 ${{ parsedFeaturedContent?.gig_price }}
                             </div>
                         </div>
 
                         <!-- Right Column: Notification description -->
-                        <div>
+                        <div class="text-center sm:text-left">
                             <div class="text-gray-700" v-if="hasFeaturedContent">
                                 {{ parsedFeaturedContent?.initial_issue }}
                             </div>
@@ -77,6 +77,7 @@
                             </div>
                         </div>
                     </div>
+
                     <!-- <p class="text-sm text-gray-500">New Job Request Dryer, no Heat, Stuart</p> -->
                 </button>
 
