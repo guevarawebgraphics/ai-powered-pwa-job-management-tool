@@ -15,7 +15,8 @@ class StoreRequest extends FormRequest
     {
         return [
             'type' => ['required', 'in:diagnostic,full-repair'],
-            'images' => ['required', 'array', 'min:1'],
+            // 'images' => ['required', 'array', 'min:1'],
+            'images' => ['nullable'],
             'images.*' => ['image', 'mimes:jpeg,png,jpg,gif'], // Each file must be an image & max 2MB
             'selectedRepairs' => [
                 'required',
@@ -42,8 +43,8 @@ class StoreRequest extends FormRequest
         return [
             'type.required' => 'Please choose Diagnostic or Full Repair.',
             'type.in' => 'Invalid type selected. Choose either "diagnostic" or "full-repair".',
-            'images.required' => 'You must upload at least one image.',
-            'images.min' => 'You must upload at least one image.',
+            // 'images.required' => 'You must upload at least one post gig image',
+            // 'images.min' => 'You must upload at least one image.',
             'images.*.image' => 'Each file must be an image.',
             'images.*.mimes' => 'Allowed image formats are jpeg, png, jpg, and gif.',
             'images.*.max' => 'Each image must not exceed 2MB.',
