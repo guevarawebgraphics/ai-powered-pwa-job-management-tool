@@ -58,7 +58,7 @@
                     <i class="fas fa-phone-alt text-gray-500 text-[32px] flex-shrink-0 leading-none"></i>
                 </div>
                 <div>
-                    <p class="text-gray-600 text-md">Contact {{ customerData.client_name }} NOW</p>
+                    <p class="text-gray-600 text-md">Contact {{ customerData.client_name }}</p>
                     <a href="javascript:void(0);" class="text-gray-500">
                         {{ customerData.phone_number }}
                     </a>
@@ -233,8 +233,8 @@
             <a :href="`sms:${customerData.phone_number}`" class="card flex items-center p-3 border rounded-lg mt-3">
                 <i class="fa-regular fa-message text-gray-500 text-3xl"></i>
                 <div class="ml-4">
-                    <p class="font-medium">Message</p>
-                    <label class="text-gray-500">Compose your text message</label>
+                    <p class="font-medium">Send Message</p>
+                    <!-- <label class="text-gray-500">Compose your text message</label> -->
                 </div>
             </a>
             <!-- Close Button -->
