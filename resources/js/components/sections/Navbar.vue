@@ -261,27 +261,27 @@ export default {
 
             // Retrieve token data from localStorage
             const tokenDataStr = localStorage.getItem(tokenStorageKey);
-            if (tokenDataStr) {
-                try {
-                    const tokenData = JSON.parse(tokenDataStr);
-                    const { token, createdAt } = tokenData;
-                    const now = Date.now();
-                    const tokenAge = now - createdAt;
-                    if (token && tokenAge < fifteenDaysInMs) {
-                        console.log(
-                            "Token exists and is less than 15 days old:",
-                            token
-                        );
-                        shouldGenerateToken = false;
-                    } else {
-                        console.log(
-                            "Token is either missing or older than 15 days. Regenerating token."
-                        );
-                    }
-                } catch (e) {
-                    console.error("Error parsing stored token data:", e);
-                }
-            }
+            // if (tokenDataStr) {
+            //     try {
+            //         const tokenData = JSON.parse(tokenDataStr);
+            //         const { token, createdAt } = tokenData;
+            //         const now = Date.now();
+            //         const tokenAge = now - createdAt;
+            //         if (token && tokenAge < fifteenDaysInMs) {
+            //             console.log(
+            //                 "Token exists and is less than 15 days old:",
+            //                 token
+            //             );
+            //             shouldGenerateToken = false;
+            //         } else {
+            //             console.log(
+            //                 "Token is either missing or older than 15 days. Regenerating token."
+            //             );
+            //         }
+            //     } catch (e) {
+            //         console.error("Error parsing stored token data:", e);
+            //     }
+            // }
 
             // If token is valid and recent, no need to generate a new one
             if (!shouldGenerateToken) return;
@@ -482,6 +482,7 @@ export default {
             // Extract the message content
             const content = payload.notification?.body || "No content";
             const title = payload.notification?.title || "New Notification";
+            const api_endpoint_main = import.meta.env.VITE_API_ENDPOINT_MAIN;
 
             const newNotification = {
                 id: Date.now(),
@@ -492,6 +493,21 @@ export default {
             console.log(`newNotification: `, newNotification);
 
             this.notifications.push(newNotification);
+
+
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    new Notification(title, {
+                        body: content,
+                        icon: `${api_endpoint_main}/images/android-chrome-512x512.png`
+                    });
+                    console.log(`permission: `, permission);
+                } else {
+                    console.error("Notification permission not granted.");
+                }
+            });
+
+
 
             // // Auto-remove after 5 seconds
             setTimeout(() => {
