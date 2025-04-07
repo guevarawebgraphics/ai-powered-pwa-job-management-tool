@@ -412,10 +412,7 @@ export default {
                 this.loadingGigHistory = false; // Stop loading
 
                 if (this.gigHistoryData.length > 0) {
-                    this.totalGigPrice = this.gigHistoryData.reduce(
-                        (sum, gig) => sum + parseFloat(gig.gig_price || 0.0),
-                        0.0
-                    );
+                    
                     this.totalJobBookedToday = this.gigHistoryData.length;
 
                     // Transform data for latestUpdates
@@ -458,6 +455,11 @@ export default {
                             potentialGigPrice: potentialGigPrice  // New custom field
                         };
                     });
+
+                    this.totalGigPrice = this.latestUpdates.reduce(
+                        (sum, gig) => sum + parseFloat(gig.potentialGigPrice || 0.00),
+                        0.0
+                    );
                 } else {
                     this.latestUpdates = []; // Set to empty array if no data
                 }
