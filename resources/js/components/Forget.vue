@@ -89,6 +89,8 @@ export default {
                 });
 
 
+                this.$router.push("/login");
+
             } catch (error) {
                 console.error('Forgot failed:', error.response?.data || error);
                 Swal.fire({
