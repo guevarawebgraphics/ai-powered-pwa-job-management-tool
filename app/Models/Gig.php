@@ -68,7 +68,8 @@ class Gig extends Model
         'customer_input',
         'youtube_link',
         'gig_report_images',
-        'addtl_recommended_repairs'
+        'addtl_recommended_repairs',
+        'gig_type'
     ];
 
     public function machine()

@@ -127,7 +127,7 @@
                         <div class="flex space-x-4 items-center">
                             <span class="text-green-500 font-bold text-lg flex items-center">
                                 <!-- <i class="fas fa-dollar-sign mr-1"></i>  -->
-                                {{ update.amount }}
+                                ${{ update.potentialGigPrice }}
                             </span>
                             <i class="fas fa-thumbs-up text-xl text-[#171A1FFF]"></i>
                             <i class="fas fa-play-circle text-xl text-[#171A1FFF]"></i>
@@ -419,27 +419,49 @@ export default {
                     this.totalJobBookedToday = this.gigHistoryData.length;
 
                     // Transform data for latestUpdates
-                    this.latestUpdates = this.gigHistoryData.map((gig) => ({
-                        gig_id: gig.gig_id,
-                        image: gig.machine.machine_photo
-                            ? gig.machine.machine_photo
-                            : "../../../../images/washing-machine.png", // Keeping static image
-                        title: `Gig #${this.capitalizeWords(
-                            gig.gig_cryptic
-                        )} - ${this.capitalizeWords(
-                            gig.machine.brand_name
-                        )} ${this.capitalizeWords(gig.machine.machine_type)}`,
-                        description:
-                            gig.initial_issue ||
-                            "No issue description available.",
-                        amount: `$${gig.gig_price}`, // Format price
-                        repair_notes: `${gig.repair_notes}`,
-                        machine: gig.machine,
-                        youtube_link: gig.youtube_link,
-                    }));
+                    this.latestUpdates = this.gigHistoryData.map((gig) => {
+                        // Calculate potential gig earnings
+                        const gigPotentialEarnings = [];
+                        const upsell_price = !gig.insurance_plan || !gig.maintenance_plan ? 25.00 : 0.00;
+                        const basic_rate = gig.tech_rank_type == "0" ? 40.00 : 50.00; // First time visit Apprentice or Journeyman/Master
+
+                        // Use gig_type to choose the appropriate potential earnings.
+                        if (gig.gig_type == "0") {
+                            gigPotentialEarnings.push(
+                                { name: "Diagnostic", amount: basic_rate },
+                                { name: "Upsell", amount: upsell_price },
+                                { name: "Full repair", amount: basic_rate * 2 }
+                            );
+                        } else {
+                            gigPotentialEarnings.push(
+                                { name: "Return Repair", amount: basic_rate },
+                                { name: "Upsell", amount: upsell_price }
+                            );
+                        }
+                        // Sum up the potential earnings amounts.
+                        const potentialGigPrice = gigPotentialEarnings.reduce(
+                            (total, item) => total + item.amount,
+                            0
+                        );
+
+                        return {
+                            gig_id: gig.gig_id,
+                            image: gig.machine.machine_photo
+                                ? gig.machine.machine_photo
+                                : "../../../../images/washing-machine.png", // Keeping static image
+                            title: `Gig #${this.capitalizeWords(gig.gig_cryptic)} - ${this.capitalizeWords(gig.machine.brand_name)} ${this.capitalizeWords(gig.machine.machine_type)}`,
+                            description: gig.initial_issue || "No issue description available.",
+                            amount: `$${gig.gig_price}`, // Format price
+                            repair_notes: `${gig.repair_notes}`,
+                            machine: gig.machine,
+                            youtube_link: gig.youtube_link,
+                            potentialGigPrice: potentialGigPrice  // New custom field
+                        };
+                    });
                 } else {
                     this.latestUpdates = []; // Set to empty array if no data
                 }
+
 
                 console.log("Transformed latestUpdates:", this.latestUpdates);
             } catch (error) {

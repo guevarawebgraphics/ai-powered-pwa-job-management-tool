@@ -105,7 +105,7 @@
                                     <div class="flex space-x-4 items-center">
                                         <span
                                             class="text-green-500 font-bold text-lg flex items-center"
-                                            >{{ update.amount }}</span
+                                            >${{ update.potentialGigPrice }}</span
                                         >
                                         <i
                                             class="fas fa-thumbs-up text-xl text-[#171A1FFF]"
@@ -259,6 +259,7 @@ export default {
             latestUpdates: [],
             formattedDate: "",
             totalGigPrice: 0.0,
+            gigPotentialEarnings : []
 
         };
     },
@@ -505,7 +506,32 @@ export default {
                         if (rawTime && rawTime.indexOf("T") === -1) {
                             rawTime = rawTime.replace(" ", "T") + "Z";
                         }
+                        
+                        const gigPotentialEarnings = [];
+                        const upsell_price = !gig.insurance_plan || !gig.maintenance_plan ? 25.00 : 0.00;
+                        const basic_rate = gig.tech_rank_type == "0" ? 40.00 : 50.00; // First time visit Apprentice or Journeyman/Master
 
+                        // Use gig_type to choose the appropriate potential earnings.
+                        if (gig.gig_type == "0") {
+                            gigPotentialEarnings.push(
+                                { name: "Diagnostic", amount: basic_rate },
+                                { name: "Upsell", amount: upsell_price },
+                                { name: "Full repair", amount: basic_rate * 2 }
+                            );
+                        } else {
+                            gigPotentialEarnings.push(
+                                { name: "Return Repair", amount: basic_rate },
+                                { name: "Upsell", amount: upsell_price }
+                            );
+                        }
+                        // Sum up the potential earnings amounts.
+                        const potentialGigPrice = gigPotentialEarnings.reduce(
+                            (total, item) => total + item.amount,
+                            0
+                        );
+
+                        console.log(`potentialGigPrice: ${potentialGigPrice}`);
+    
                         return {
                             gig_id: gig.gig_id,
                             rawTime: rawTime, // Save the raw datetime in ISO UTC format
@@ -533,6 +559,7 @@ export default {
                                 "No recommended repairs.",
                             machine: gig.machine,
                             youtube_link: gig.youtube_link,
+                            potentialGigPrice: potentialGigPrice
                         };
                     });
                 } else {
