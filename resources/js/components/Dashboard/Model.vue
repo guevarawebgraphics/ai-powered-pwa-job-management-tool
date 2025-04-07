@@ -3,7 +3,7 @@
         <NavBar />
 
         <!-- Model Information -->
-        <div class="mx-auto p-6 min-w-[320px] sm:min-w-[480px] md:min-w-[500px]">
+        <div class="mx-auto p-6 min-w-[400px] sm:min-w-[480px] md:min-w-[500px]">
 
             <h2 class="text-lg font-medium text-center text-[#232850FF]">
                 {{ this.machineData.model_number }}
@@ -33,7 +33,7 @@
             <!-- Useful Links (Accordion) -->
             <div class="space-y-4 mt-6">
 
-                <div class="bg-white shadow-md rounded-lg p-4 cursor-pointer">
+                <div class="bg-white shadow-md rounded-lg p-4 cursor-pointer w-full">
                     <div class="flex items-center justify-between"
                         @click="isOpen.serviceManual = !isOpen.serviceManual">
                         <div class="flex items-center">
@@ -77,7 +77,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white shadow-md rounded-lg p-4 cursor-pointer">
+                <div class="bg-white shadow-md rounded-lg p-4 cursor-pointer w-full">
                     <div class="flex items-center justify-between" @click="isOpen.partsDiagram = !isOpen.partsDiagram">
                         <div class="flex items-center">
                             <i class="fas fa-diagram-project text-3xl text-gray-700"></i>
@@ -121,7 +121,7 @@
                     </div>
                 </div>
 
-                <div class="bg-white shadow-md rounded-lg p-4 cursor-pointer">
+                <div class="bg-white shadow-md rounded-lg p-4 cursor-pointer w-full">
                     <div class="flex items-center justify-between"
                         @click="isOpen.servicePointers = !isOpen.servicePointers">
                         <div class="flex items-center">
