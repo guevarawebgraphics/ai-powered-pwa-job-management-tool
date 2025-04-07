@@ -506,7 +506,7 @@ export default {
                         if (rawTime && rawTime.indexOf("T") === -1) {
                             rawTime = rawTime.replace(" ", "T") + "Z";
                         }
-                        
+
                         const gigPotentialEarnings = [];
                         const upsell_price = !gig.insurance_plan || !gig.maintenance_plan ? 25.00 : 0.00;
                         const basic_rate = gig.tech_rank_type == "0" ? 40.00 : 50.00; // First time visit Apprentice or Journeyman/Master
@@ -559,9 +559,24 @@ export default {
                                 "No recommended repairs.",
                             machine: gig.machine,
                             youtube_link: gig.youtube_link,
-                            potentialGigPrice: potentialGigPrice
+                            potentialGigPrice: potentialGigPrice,
+                            start_datetime: gig.start_datetime,
+                            gig_price:gig.gig_price
                         };
                     });
+
+
+                    this.totalGigPrice = this.latestUpdates
+                    .filter((gig) => {
+                        const gigDateUTC = new Date(
+                            gig.start_datetime.replace(" ", "T") + "Z"
+                        )
+                            .toISOString()
+                            .split("T")[0];
+                        return gigDateUTC === todayUTC;
+                    })
+                        .reduce((sum, gig) => sum + parseFloat(gig.potentialGigPrice || 0), 0);
+
                 } else {
                     this.totalGigPrice = 0;
                     this.latestUpdates = [];
