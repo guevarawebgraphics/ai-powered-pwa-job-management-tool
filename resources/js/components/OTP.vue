@@ -13,27 +13,14 @@
         <form @submit.prevent="validateOTP" class="space-y-6">
             <!-- OTP Input -->
             <div class="flex justify-center space-x-2">
-                <input 
-                    v-for="(digit, index) in otp" 
-                    :key="index" 
-                    type="text" 
-                    v-model="otp[index]" 
-                    maxlength="1" 
-                    class="otp-input" 
-                    ref="otpInput" 
-                    :class="otpBorderClass"
-                    @input="focusNext(index, $event)"
-                    @keydown.backspace="focusPrevious(index, $event)"
-                />
+                <input v-for="(digit, index) in otp" :key="index" type="tel" inputmode="numeric" v-model="otp[index]"
+                    maxlength="1" class="otp-input" ref="otpInput" :class="otpBorderClass"
+                    @input="focusNext(index, $event)" @keydown.backspace="focusPrevious(index, $event)" />
             </div>
 
             <!-- Resend Code Button -->
-            <button 
-                @click.prevent="resendCode"
-                :disabled="loading"
-                class="w-full py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 
-                    focus:outline-none flex items-center justify-center"
-            >
+            <button @click.prevent="resendCode" :disabled="loading" class="w-full py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 
+                    focus:outline-none flex items-center justify-center">
                 <span v-if="!loading">Resend the code</span>
                 <span v-if="loading">
                     <i class="fas fa-spinner fa-spin mr-2"></i> Sending...

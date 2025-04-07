@@ -19,7 +19,8 @@ class StoreRequest extends FormRequest
             'images' => ['nullable'],
             'images.*' => ['image', 'mimes:jpeg,png,jpg,gif'], // Each file must be an image & max 2MB
             'selectedRepairs' => [
-                'required',
+                'nullable',
+                // 'required',
                 function ($attribute, $value, $fail) {
                     // Decode JSON string to an array
                     $decodedValue = json_decode($value, true);
@@ -30,9 +31,9 @@ class StoreRequest extends FormRequest
                     }
 
                     // Ensure array has at least one item
-                    if (count($decodedValue) < 1) {
-                        return $fail('Please select at least one repair solution.');
-                    }
+                    // if (count($decodedValue) < 1) {
+                    //     return $fail('Please select at least one repair solution.');
+                    // }
                 }
             ],
         ];
@@ -48,7 +49,7 @@ class StoreRequest extends FormRequest
             'images.*.image' => 'Each file must be an image.',
             'images.*.mimes' => 'Allowed image formats are jpeg, png, jpg, and gif.',
             'images.*.max' => 'Each image must not exceed 2MB.',
-            'selectedRepairs.required' => 'Please select at least one repair solution.',
+            // 'selectedRepairs.required' => 'Please select at least one repair solution.',
         ];
     }
 }

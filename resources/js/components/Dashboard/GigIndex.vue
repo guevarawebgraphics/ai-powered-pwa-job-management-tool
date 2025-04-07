@@ -100,12 +100,24 @@
 
                 <!-- Expanded Content -->
                 <div v-if="expandedIndex === index" class="mt-2 p-2 rounded-md">
-                    <ul v-for="quick in gigQuickHistory" :key="quick.gig_cryptic">
+                    <!-- <ul v-for="quick in gigQuickHistory" :key="quick.gig_cryptic">
                         <li>
                             <button type="button" @click="goToGig(quick.gig_id)" class="text-gray-500 mt-1">Gig #{{
                                 quick.gig_cryptic }} = <span class="text-green-500">${{
                                     quick.gig_price }}</span>
                             </button>
+                        </li>
+                    </ul> -->
+
+                    <ul>
+                        <li>
+                            <p>Gigs Spend: ${{ this.gigData.client_total_gig_price }}</p>
+                        </li>
+                        <li>
+                            <p>Insurance Plan: {{ this.gigData.insurance_plan ?? 'N/A' }}</p>
+                        </li>
+                        <li>
+                            <p>Maintenance Plan: {{ this.gigData.maintenance_plan ?? 'N/A' }}</p>
                         </li>
                     </ul>
                 </div>
@@ -231,7 +243,8 @@
 
 
     <!-- Mobile Responsive Modal -->
-    <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4">
+    <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4"
+        @click="closeModal()">
         <div class="bg-white p-6 w-full max-w-md mx-auto rounded-lg" @click.stop>
             <h2 class="text-lg font-bold text-center mb-4">Select an Action</h2>
 

@@ -19,6 +19,7 @@
                     <div class="relative flex items-center">
                         <i class="fas fa-envelope absolute left-3 text-[#221C21FF]"></i>
                         <input v-model="email" type="email" required placeholder="Enter your email address"
+                            @blur="email = email.trim().toLowerCase()"
                             class="w-full px-10 py-2 mt-1 border border-[#BCC1CA] rounded-xl focus:ring focus:ring-blue-300 focus:border-blue-500" />
                     </div>
                 </div>
@@ -30,18 +31,16 @@
                     </div>
                 </div>
                 <div class="flex items-center justify-between">
-                    <a href="#" @click="redirectToForgot()" class="text-sm text-blue-500 hover:underline text-[#221C21FF]">Forgot password?</a>
+                    <a href="#" @click="redirectToForgot()"
+                        class="text-sm text-blue-500 hover:underline text-[#221C21FF]">Forgot password?</a>
                 </div>
                 <!-- <button type="submit"
                     class="w-full px-4 py-2 font-semibold text-white bg-[#232850] rounded-xl hover:bg-[#1d2142] focus:outline-none focus:ring-2 focus:ring-blue-300">
                     Continue
                 </button> -->
 
-                <button 
-                    @click.prevent="login"
-                    :disabled="loading"
-                    class="w-full px-4 py-2 font-semibold text-white bg-[#232850] rounded-xl hover:bg-[#1d2142] focus:outline-none focus:ring-2 focus:ring-blue-300"
-                >
+                <button @click.prevent="login" :disabled="loading"
+                    class="w-full px-4 py-2 font-semibold text-white bg-[#232850] rounded-xl hover:bg-[#1d2142] focus:outline-none focus:ring-2 focus:ring-blue-300">
                     <span v-if="!loading">Continue</span>
                     <span v-if="loading">
                         <i class="fas fa-spinner fa-spin mr-2"></i> Loading...
@@ -49,7 +48,8 @@
                 </button>
             </form>
             <p class="text-sm text-center text-gray-600">
-                Don't have an account? <a href="#" class="text-blue-500 hover:underline" @click="redirectToRegister()">Sign up</a>
+                Don't have an account? <a href="#" class="text-blue-500 hover:underline"
+                    @click="redirectToRegister()">Sign up</a>
             </p>
         </div>
     </div>
@@ -73,7 +73,9 @@ export default {
 
             
             this.loading = true;
-
+            // Ensure email is trimmed and in lowercase
+            this.email = this.email.trim().toLowerCase();
+            
             try {
                 await axios.get('/sanctum/csrf-cookie'); 
 

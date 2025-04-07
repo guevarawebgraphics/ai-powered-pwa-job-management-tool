@@ -42,10 +42,10 @@
                     <i class="fas fa-headset text-2xl text-gray-700"></i>
                     <p class="text-sm font-medium mt-2">DAX</p>
                 </div>
-                <div
+                <div @click="openGigPotentialEarning()"
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
-                    <p class="text-green-600 text-lg font-bold">${{this.gigData.gig_price}}</p>
+                    <p class="text-green-600 text-lg font-bold">${{ this.potentialGigPrice }}</p>
                     <p class="text-sm text-gray-500">Gig Potential</p>
                 </div>
             </div>
@@ -346,6 +346,22 @@
         </div>
     </div>
 
+    <!-- Modal -->
+    <div v-if="isGigPotentialOpen" class="fixed inset-0 flex items-center justify-center z-50">
+        <!-- Backdrop -->
+        <div class="absolute inset-0 bg-black opacity-50" @click="isGigPotentialOpen = false"></div>
+        <!-- Modal content -->
+        <div class="bg-white p-6 rounded-md shadow-lg relative z-10 max-w-xs w-full">
+            <h3 class="text-lg mb-2">Gig Potential</h3>
+            <ul v-for="earning in gigPotentialEarnings" :key="earning.name">
+                <li>{{ earning.name }} = <span class="text-green-500">${{ earning.amount }}</span></li>
+            </ul>
+            <button @click="isGigPotentialOpen = false" class="mt-4 px-4 py-2 bg-[#232850FF] text-white rounded">
+                Close
+            </button>
+        </div>
+    </div>
+
 </template>
 
 <script>
@@ -408,6 +424,9 @@ export default {
             textarea_content_array: [],
             textarea_images: [],
             showEmojiPicker: false,
+            gigPotentialEarnings: [],
+            potentialGigPrice: 0.00,
+            isGigPotentialOpen: false
 
         };
     },
@@ -505,6 +524,32 @@ export default {
                         this.repairHelp = [];
                     }
                 }
+
+
+
+                const gigPotentialEarnings = [];
+                const upsell_price = !this.gigData.insurance_plan || !this.gigData.maintenance_plan ? 25.00 : 0.00;
+                const basic_rate = this.gigData.tech_rank_type == "0" ? 40.00 : 50.00; // First time visit Apprentice or Journeyman/Master
+                if (this.gigData.gig_type == "0") {
+                    gigPotentialEarnings.push(
+                        { name: "Diagnostic", amount: basic_rate },
+                        { name: "Upsell", amount: upsell_price },
+                        { name: "Full repair", amount: basic_rate * 2 }
+                    );
+                } else {
+                    gigPotentialEarnings.push(
+                        { name: "Return Repair", amount: basic_rate },
+                        { name: "Upsell", amount: upsell_price }
+                    );
+                }
+
+                const potentialGigPrice = gigPotentialEarnings.reduce(
+                    (total, item) => total + item.amount,
+                    0
+                );
+                this.potentialGigPrice = potentialGigPrice;
+                this.gigPotentialEarnings = gigPotentialEarnings;
+
 
 
 
@@ -937,6 +982,9 @@ export default {
             if (this.textarea_content_array[index]) {
                 this.textarea_content_array.splice(index, 1);
             }
+        },
+        openGigPotentialEarning() {
+            this.isGigPotentialOpen = true;
         }
 
 

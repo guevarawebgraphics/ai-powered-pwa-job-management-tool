@@ -239,8 +239,9 @@
     </div>
 
     <!-- Chat Modal -->
-    <div v-if="isChatOpen" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center">
-        <div class="bg-white w-96 rounded-lg shadow-lg">
+    <div v-if="isChatOpen" class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center"
+        @click="closeChat">
+        <div class="bg-white w-96 rounded-lg shadow-lg" @click.stop>
             <!-- Modal Header -->
             <div class="flex justify-between items-center bg-blue-500 text-white p-4 rounded-t-lg">
                 <h2 class="text-lg font-bold">Chat Support</h2>

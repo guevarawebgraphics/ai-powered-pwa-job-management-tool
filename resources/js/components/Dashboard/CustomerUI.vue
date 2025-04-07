@@ -9,8 +9,8 @@
             <p class="text-sm text-gray-600" v-if="this.customerData.client_total_gig_price > 500">
                 Gold Star Customer
             </p>
-            <p class="text-xs text-gray-500">**NOT Maintenance Plan Member**</p>
-            <p class="text-xs text-gray-500">*NOT ARA Insured*</p>
+            <p class="text-xs text-gray-500">{{ this.customerData.maintenance_plan ?? '**NOT Maintenance Plan Member**'}}</p>
+            <p class="text-xs text-gray-500">{{ this.customerData.insurance_plan ?? '*NOT ARA Insured*' }}</p>
             <i class="fas fa-star text-yellow-500 text-2xl mt-2"
                 v-if="this.customerData.client_total_gig_price > 500"></i>
         </div>
@@ -115,7 +115,7 @@
                 </div>
                 <!-- <i class="fas fa-edit text-gray-400"></i> -->
             </a>
-            <div class="bg-white shadow-md rounded-lg p-4">
+            <div v-if="customerData.extra_field1 || customerData.extra_field2" class="bg-white shadow-md rounded-lg p-4">
                 <p class="text-sm font-medium text-[#666666FF]">
                     {{ customerData.extra_field1 }}
                 </p>
@@ -219,7 +219,7 @@
     </div>
 
     <!-- Modal -->
-    <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4">
+    <div v-if="isOpen" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 p-4"  @click="closeModal()">
         <div class="bg-white p-6 w-full max-w-md mx-auto rounded-lg" @click.stop>
             <!-- Call Now Button -->
             <a :href="`tel:${customerData.phone_number}`" class="card flex items-center p-3 border rounded-lg mt-3">
@@ -230,13 +230,13 @@
                 </div>
             </a>
             <!-- Message Button -->
-            <a :href="`sms:${customerData.phone_number}`" class="card flex items-center p-3 border rounded-lg mt-3">
+            <div @click="sendMessage('send-message')" class="card flex items-center p-3 border rounded-lg mt-3">
                 <i class="fa-regular fa-message text-gray-500 text-3xl"></i>
                 <div class="ml-4">
                     <p class="font-medium">Send Message</p>
                     <!-- <label class="text-gray-500">Compose your text message</label> -->
                 </div>
-            </a>
+            </div>
             <!-- Close Button -->
             <button @click="closeModal()" class="mt-4 w-full px-4 py-2 bg-gray-700 text-white rounded-lg">
                 Close
@@ -262,6 +262,7 @@ export default {
             loading: true,
             isOpen: false,
             gigId: null,
+            techData: {},
         };
     },
     created() {
@@ -272,6 +273,7 @@ export default {
         if (this.customerId) {
             this.clientData(this.customerId);
         }
+
     },
     watch: {
         // Watch for changes in route (if navigating to another customer)
@@ -349,6 +351,49 @@ export default {
         closeModal() {
             this.isOpen = false;
         },
+
+        async fetchUserData() {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("No token found in localStorage");
+                return;
+            }
+            try {
+                const response = await axios.get("/api/user", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                const userData = response.data.user;
+
+                this.techData = userData;
+
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
+        },
+        async sendMessage(type) {
+
+            const messages = {
+                "send-message": [
+                    `Hi ${this.customerData.client_name}, it’s ${this.techData.first_name} with Appliance Repair American.`,
+                    `Hello ${this.customerData.client_name}! This is ${this.techData.first_name}.`,
+                    `Greetings ${this.customerData.client_name}, this is ${this.techData.first_name} with Appliance Repair American.`,
+                ],
+            };
+
+            const selectedMessage =
+                messages[type][Math.floor(Math.random() * messages[type].length)];
+
+            const smsLink = `sms:${this.customerData.phone_number}?&body=${encodeURIComponent(
+                selectedMessage
+            )}`;
+
+            window.location.href = smsLink;
+
+        }
     },
 };
 </script>

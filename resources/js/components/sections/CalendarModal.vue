@@ -157,6 +157,8 @@ export default {
 
                 console.log("Black Out updated successfully:", response.data);
                 Swal.fire("Success", "Black Out Dates updated successfully!", "success");
+                this.showModal = false;
+
             } catch (error) {
                 console.error("Error updating blackout dates:", error);
                 Swal.fire("Error", "There was an error updating blackout dates.", "error");
