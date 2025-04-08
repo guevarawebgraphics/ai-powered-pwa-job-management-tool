@@ -37,6 +37,8 @@ class NotificationCronJob extends Command
             ->orderBy('start_datetime', 'ASC')
             ->get();
 
+        Log::info('GIGS ' . json_encode($gigs));
+
     
         foreach ($gigs as $gig) {
             $startTime = Carbon::parse($gig->start_datetime);
@@ -54,6 +56,9 @@ class NotificationCronJob extends Command
                 $this->info('Only process gigs that haven\'t started yet');
                 continue;
             }
+
+            
+            $this->info('Passed isFuture()');
 
             // Calculate minutes until the gig starts
             $minutesUntilGig = Carbon::now()->diffInMinutes($startTime);

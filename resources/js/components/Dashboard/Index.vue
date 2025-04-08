@@ -417,29 +417,45 @@ export default {
 
                     // Transform data for latestUpdates
                     this.latestUpdates = this.gigHistoryData.map((gig) => {
-                        // Calculate potential gig earnings
-                        const gigPotentialEarnings = [];
-                        const upsell_price = !gig.insurance_plan || !gig.maintenance_plan ? 25.00 : 0.00;
-                        const basic_rate = gig.tech_rank_type == "0" ? 40.00 : 50.00; // First time visit Apprentice or Journeyman/Master
 
-                        // Use gig_type to choose the appropriate potential earnings.
+
+
+                        // Determine upsell availability: upsell is available if the client is missing one or both plans.
+                        const hasUpsellPotential = !(gig.insurance_plan && gig.maintenance_plan);
+
+                        // Determine the basic rate based on technician rank
+                        const basic_rate = gig.tech_rank_type === "0" ? 40.00 : 50.00;
+
+                        // Empty the earnings array
+                        this.gigPotentialEarnings = [];
+
+                        // First-time visit logic
                         if (gig.gig_type == "0") {
-                            gigPotentialEarnings.push(
-                                { name: "Diagnostic", amount: basic_rate },
-                                { name: "Upsell", amount: upsell_price },
-                                { name: "Full repair", amount: basic_rate * 2 }
-                            );
-                        } else {
-                            gigPotentialEarnings.push(
-                                { name: "Return Repair", amount: basic_rate },
-                                { name: "Upsell", amount: upsell_price }
-                            );
+                            // Diagnostic only scenario
+                            this.gigPotentialEarnings.push({ name: "Diagnostic only", amount: basic_rate });
+                            // Diagnostic + Upsell scenario (only if upsell is applicable)
+                            if (hasUpsellPotential) {
+                                this.gigPotentialEarnings.push({ name: "Diagnostic + upsell", amount: basic_rate + 25.00 });
+                            }
+                            // Full repair onsite scenario (which is equivalent to doing both diagnostic and repair in one visit)
+                            this.gigPotentialEarnings.push({ name: "Full repair onsite", amount: basic_rate * 2 });
+                            // Full repair onsite with upsell (if upsell is applicable)
+                            if (hasUpsellPotential) {
+                                this.gigPotentialEarnings.push({ name: "Full repair onsite + upsell", amount: (basic_rate * 2) + 25.00 });
+                            }
                         }
-                        // Sum up the potential earnings amounts.
-                        const potentialGigPrice = gigPotentialEarnings.reduce(
-                            (total, item) => total + item.amount,
-                            0
-                        );
+                        // Return visit logic
+                        else if (gig.gig_type == "1") {
+                            // Return repair scenario
+                            this.gigPotentialEarnings.push({ name: "Return repair", amount: basic_rate });
+                            // Return repair with upsell scenario (if upsell is applicable)
+                            if (hasUpsellPotential) {
+                                this.gigPotentialEarnings.push({ name: "Return repair + upsell", amount: basic_rate + 25.00 });
+                            }
+                        }
+
+                        // Calculate the potential gig price by summing the amounts of all scenarios
+                        const potentialGigPrice = this.gigPotentialEarnings.reduce((total, item) => total + item.amount, 0);
 
                         return {
                             gig_id: gig.gig_id,

@@ -32,7 +32,7 @@ class User extends Authenticatable
         'otp_expires_at',
         'current_ip',
         'mobile_no', 'home_no','professional_title','skills','current_address','is_notify','is_location',
-        'black_out_from','black_out_to','is_blackout','device_token','black_out_dates','rank_type'
+        'black_out_from','black_out_to','is_blackout','device_token','black_out_dates','rank_type', 'otp_verified_at'
     ];
 
     protected $dates = ['deleted_at'];

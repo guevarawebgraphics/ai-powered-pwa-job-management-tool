@@ -43,7 +43,7 @@
                     <p class="text-sm font-medium mt-2">DAX</p>
                 </div>
                 <div @click="openGigPotentialEarning()"
-                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start cursor-pointer
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <p class="text-green-600 text-lg font-bold">${{ this.potentialGigPrice }}</p>
                     <p class="text-sm text-gray-500">Gig Potential</p>
@@ -527,28 +527,43 @@ export default {
 
 
 
-                const gigPotentialEarnings = [];
-                const upsell_price = !this.gigData.insurance_plan || !this.gigData.maintenance_plan ? 25.00 : 0.00;
-                const basic_rate = this.gigData.tech_rank_type == "0" ? 40.00 : 50.00; // First time visit Apprentice or Journeyman/Master
+                // Determine upsell availability: upsell is available if the client is missing one or both plans.
+                const hasUpsellPotential = !(this.gigData.insurance_plan && this.gigData.maintenance_plan);
+
+                // Determine the basic rate based on technician rank
+                const basic_rate = this.gigData.tech_rank_type === "0" ? 40.00 : 50.00;
+
+                // Empty the earnings array
+                this.gigPotentialEarnings = [];
+
+                // First-time visit logic
                 if (this.gigData.gig_type == "0") {
-                    gigPotentialEarnings.push(
-                        { name: "Diagnostic", amount: basic_rate },
-                        { name: "Upsell", amount: upsell_price },
-                        { name: "Full repair", amount: basic_rate * 2 }
-                    );
-                } else {
-                    gigPotentialEarnings.push(
-                        { name: "Return Repair", amount: basic_rate },
-                        { name: "Upsell", amount: upsell_price }
-                    );
+                    // Diagnostic only scenario
+                    this.gigPotentialEarnings.push({ name: "Diagnostic only", amount: basic_rate });
+                    // Diagnostic + Upsell scenario (only if upsell is applicable)
+                    if (hasUpsellPotential) {
+                        this.gigPotentialEarnings.push({ name: "Diagnostic + upsell", amount: basic_rate + 25.00 });
+                    }
+                    // Full repair onsite scenario (which is equivalent to doing both diagnostic and repair in one visit)
+                    this.gigPotentialEarnings.push({ name: "Full repair onsite", amount: basic_rate * 2 });
+                    // Full repair onsite with upsell (if upsell is applicable)
+                    if (hasUpsellPotential) {
+                        this.gigPotentialEarnings.push({ name: "Full repair onsite + upsell", amount: (basic_rate * 2) + 25.00 });
+                    }
+                }
+                // Return visit logic
+                else if (this.gigData.gig_type == "1") {
+                    // Return repair scenario
+                    this.gigPotentialEarnings.push({ name: "Return repair", amount: basic_rate });
+                    // Return repair with upsell scenario (if upsell is applicable)
+                    if (hasUpsellPotential) {
+                        this.gigPotentialEarnings.push({ name: "Return repair + upsell", amount: basic_rate + 25.00 });
+                    }
                 }
 
-                const potentialGigPrice = gigPotentialEarnings.reduce(
-                    (total, item) => total + item.amount,
-                    0
-                );
+                // Calculate the potential gig price by summing the amounts of all scenarios
+                const potentialGigPrice = this.gigPotentialEarnings.reduce((total, item) => total + item.amount, 0);
                 this.potentialGigPrice = potentialGigPrice;
-                this.gigPotentialEarnings = gigPotentialEarnings;
 
 
 
@@ -819,6 +834,7 @@ export default {
                 });
 
                 this.$router.push(`/gig/${this.gigID}`);
+
                 return;
 
             } catch (error) {

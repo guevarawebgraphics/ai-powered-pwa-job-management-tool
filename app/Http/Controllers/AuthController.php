@@ -10,7 +10,7 @@ use App\Services\UserService;
 use Illuminate\Http\Request;
 use App\Notifications\SendOtpNotification;
 use Auth;
-use \Carbon\Carbon;
+use Carbon\Carbon;
 use App\Models\User;
 use File;
 
@@ -46,13 +46,15 @@ class AuthController extends Controller
         \Log::info('Current IP: ' . $user->current_ip);
         \Log::info('New IP: ' . $ip);
   
-        if ( $user->current_ip != $ip || !$user->current_ip ) {
+        // if ( $user->is_verified == 0 ) {
+         if (!$user->otp_verified_at || Carbon::now()->greaterThan($user->otp_verified_at)) {
             // Generate 6-digit OTP
             $otp = rand(100000, 999999);
 
             // Store OTP in DB with expiration
             $user->update([
                 'otp_code' => $otp,
+                'is_verified'   =>  0,
                 'otp_expires_at' => Carbon::now()->addMinutes(10),
             ]);
 
@@ -64,8 +66,9 @@ class AuthController extends Controller
             $user->update([
                 'otp_code' => NULL,
                 'otp_expires_at' => NULL,
-                'is_verified' => 1,
-                'current_ip' => $ip
+                'is_verified' => true,
+                'current_ip' => $ip,
+                'otp_verified_at'   => now()->addDays(7),
             ]);
         }
 
@@ -79,7 +82,7 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        User::where('id', auth()->user()->id)->update(['is_verified'    =>  0]);
+        // User::where('id', auth()->user()->id)->update(['is_verified'    =>  0]);
 
 
         $this->authService->logout($request->user());
@@ -110,6 +113,8 @@ class AuthController extends Controller
 
         // Store OTP in DB with expiration
         $user->update([
+            'is_verified'   =>  false,
+            'otp_verified_at'   =>  NULL,
             'otp_code' => $otp,
             'otp_expires_at' => Carbon::now()->addMinutes(10),
         ]);
@@ -143,6 +148,7 @@ class AuthController extends Controller
             'email_verified_at' => Carbon::now(),
             'otp_code' => null, // Clear OTP after successful verification
             'otp_expires_at' => null,
+            'otp_verified_at'   =>  now()->addDays(7),
             'current_ip'    =>  request()->header('X-Forwarded-For') ?? request()->ip()
         ]);
     

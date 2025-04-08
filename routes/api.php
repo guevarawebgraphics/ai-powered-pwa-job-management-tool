@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Queue;
 use App\Notifications\UserNotification;
 use Illuminate\Support\Facades\Event;
 use App\Events\NewNotificationEvent;
+use App\Http\Middleware\EnsureTokenIsNotExpired;
 
 Route::post('/register', [App\Http\Controllers\AuthController::class, 'register'])->withoutMiddleware(['auth:sanctum']);
 
@@ -53,7 +54,8 @@ Route::prefix('firebase')->group(function () {
 
 
 
-Route::middleware('auth:sanctum')->group(function () {
+// Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', EnsureTokenIsNotExpired::class])->group(function () {
     
     Route::post('/logout', [App\Http\Controllers\AuthController::class, 'logout']);
 

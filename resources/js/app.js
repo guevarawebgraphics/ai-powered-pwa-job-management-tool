@@ -6,9 +6,22 @@ import axios from 'axios'; // Import Axios
 import './firebase';
 import { createStore } from 'vuex';
 
-// ✅ Always send cookies with requests
+// Set up Axios global defaults
 axios.defaults.withCredentials = true;
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
+
+// Register Axios interceptor globally
+// axios.interceptors.response.use(
+//     response => response,
+//     error => {
+//         if (error.response && error.response.status === 401) {
+//             // Clear the token from localStorage and redirect to login.
+//             localStorage.removeItem('token');
+//             window.location.href = '/login';
+//         }
+//         return Promise.reject(error);
+//     }
+// );
 
 // Create the Vuex store
 const store = createStore({
@@ -51,7 +64,6 @@ const app = createApp(App);
 app.use(router);
 app.use(store);
 app.mount('#app');
-
 
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
