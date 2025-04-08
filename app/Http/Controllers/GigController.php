@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\File;
+use GuzzleHttp\Client as GClient;
 
 class GigController extends Controller
 {    
@@ -180,5 +181,32 @@ class GigController extends Controller
     public function getGigsPerMachine($modelNumber) {
         $query = Gig::where('model_number', $modelNumber)->whereNull('deleted_at')->orderBy('created_at','DESC')->get();
         return $query;
+    }
+
+    public function getTravelTime(Request $request) {
+        $lat = $request->input('lat');
+        $lng = $request->input('lng');
+        $destination = $request->input('destination');
+        $apiKey = config('services.google.map.key'); // Make sure this is defined in your .env file
+
+        // Build the URL and query parameters
+        $url = 'https://maps.googleapis.com/maps/api/distancematrix/json';
+        $params = [
+            'units'      => 'metric',
+            'origins'    => "{$lat},{$lng}",
+            'destinations' => $destination,
+            'key'        => $apiKey,
+        ];
+
+        try {
+            $client = new GClient();
+            $response = $client->request('GET', $url, ['query' => $params]);
+            $data = json_decode($response->getBody(), true);
+        } catch (\Exception $e) {
+            // Optionally log the error or handle it as you see fit
+            return response()->json(['error' => 'Error fetching travel time'], 500);
+        }
+
+        return response()->json($data);
     }
 }

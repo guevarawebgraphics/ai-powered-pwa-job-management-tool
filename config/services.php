@@ -42,5 +42,10 @@ return [
 
     'firebase'  =>  [
         'fcm_token' =>  env('FCM_SERVER_KEY')
+    ],
+    'google'    =>  [
+        'map'   =>  [
+            'key'   =>  env('GOOGLE_MAP_API')
+        ]
     ]
 ];

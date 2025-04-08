@@ -103,7 +103,7 @@
                     </div>
                     <div>
                         <p class="text-sm font-medium text-[#666666FF]">
-                            35 Minutes from Your Location
+                            {{ this.timeOfArrival }} Minutes from Your Location
                         </p>
                         <div class="text-xs text-[#666666FF]" target="_blank">
                             {{ customerData.street_address }}
@@ -263,6 +263,8 @@ export default {
             isOpen: false,
             gigId: null,
             techData: {},
+            timeOfArrival: '',
+            destinationAddress: ''
         };
     },
     created() {
@@ -338,6 +340,10 @@ export default {
                 this.customerData = response.data.data;
                 this.loading = false; // Turn off loading
 
+
+                this.destinationAddress = `${this.customerData.street_address} ${this.customerData.city} ${this.customerData.state} ${this.customerData.country} ${this.customerData.zip_code}`;
+                this.calculateETA();
+
                 console.log(`Customer Data: `, response);
             } catch (error) {
                 console.error("Error fetching customer data:", error);
@@ -370,6 +376,7 @@ export default {
 
                 this.techData = userData;
 
+
             } catch (error) {
                 console.error("Error fetching user data:", error);
             }
@@ -393,6 +400,71 @@ export default {
 
             window.location.href = smsLink;
 
+        },
+        calculateETA() {
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by this browser.');
+                return;
+            }
+
+            // Step 1: Get user location
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    // Step 2: Call Google Distance Matrix or Directions API
+                    this.getTravelTime(lat, lng, this.destinationAddress);
+                },
+                error => {
+                    console.error(error);
+                }
+            );
+        },
+        async getTravelTime(lat, lng, address) {
+            try {
+
+
+                const apiKey = import.meta.env.VITE_API_GOOGLE_MAP_API; // or whichever variable you use
+                const origins = `${lat},${lng}`;
+                const destinationEncoded = encodeURIComponent(this.destinationAddress);
+
+                // Log the full URL for debugging:
+                const url = `https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=${origins}&destinations=${destinationEncoded}&key=${apiKey}`;
+                console.log('Google API URL:', url);
+
+                const token = localStorage.getItem("token");
+
+                const payload = {
+                    lat: lat,
+                    lng: lng,
+                    destination: address,
+                }
+
+                const response = await axios.post(`/api/gig/travel-time`, payload, {
+                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+                });
+
+                console.log(`google map : `, response);
+
+
+                // Assuming the response structure is similar to the API response:
+                if (
+                    response.data &&
+                    response.data.rows &&
+                    response.data.rows.length > 0 &&
+                    response.data.rows[0].elements &&
+                    response.data.rows[0].elements.length > 0 &&
+                    response.data.rows[0].elements[0].status === 'OK'
+                ) {
+                    this.timeOfArrival = response.data.rows[0].elements[0].duration.text;
+                } else {
+                    this.timeOfArrival = 'Travel time unavailable';
+                }
+            } catch (error) {
+                console.error('Error fetching travel time:', error);
+                this.timeOfArrival = 'Error fetching travel time';
+            }
         }
     },
 };

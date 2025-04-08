@@ -147,7 +147,7 @@
                     <i class="fas fa-map-marker-alt text-gray-500 text-[32px] flex-shrink-0 leading-none"></i>
                 </div>
                 <div>
-                    <p class="text-gray-700 text-sm font-semibold">35 Minutes from Your Current Location</p>
+                    <p class="text-gray-700 text-sm font-semibold">{{ timeOfArrival }} from Your Current Location</p>
                     <p class="text-gray-600">
                         {{ gigData.street_address }} {{ gigData.city }}, {{ gigData.state }} {{ gigData.country }} {{
                         gigData.zip_code }}
@@ -340,10 +340,13 @@ export default {
             isSending: false, 
             gigPotentialEarnings: [],
             potentialGigPrice: 0.00,
-            isGigPotentialOpen: false
+            isGigPotentialOpen: false,
+            timeOfArrival: '',
+            destinationAddress: ''
         };
     },
     created() {
+
         this.gigID = this.$route.params.id;
 
         if (this.gigID) {
@@ -487,7 +490,8 @@ export default {
                 console.log(`gig -> ${this.gigData.model_number}`);
                 this.machineDetail(this.modelNumber);
                 this.getQuickGigHistory(this.gigData.client_id);
-                console.log(`Gig Data: ` , this.gigData );
+                console.log(`Gig Data: `, this.gigData);
+                this.destinationAddress = `${this.gigData.street_address} ${this.gigData.city} ${this.gigData.state} ${this.gigData.country} ${this.gigData.zip_code}`;
 
                 // if (this.gigData.top_recommended_repairs) {
                 //     try {
@@ -574,6 +578,7 @@ export default {
                     this.potentialGigPrice = 0;
                 }
 
+                this.calculateETA();
 
                 console.log(`Total Client Price`, response);
 
@@ -739,6 +744,71 @@ export default {
         },
         openGigPotentialEarning() {
             this.isGigPotentialOpen = true;
+        },
+        calculateETA() {
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by this browser.');
+                return;
+            }
+
+            // Step 1: Get user location
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    // Step 2: Call Google Distance Matrix or Directions API
+                    this.getTravelTime(lat, lng, this.destinationAddress);
+                },
+                error => {
+                    console.error(error);
+                }
+            );
+        },
+        async getTravelTime(lat, lng, address) {
+            try {
+
+
+                const apiKey = import.meta.env.VITE_API_GOOGLE_MAP_API; // or whichever variable you use
+                const origins = `${lat},${lng}`;
+                const destinationEncoded = encodeURIComponent(this.destinationAddress);
+
+                // Log the full URL for debugging:
+                const url = `https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=${origins}&destinations=${destinationEncoded}&key=${apiKey}`;
+                console.log('Google API URL:', url);
+                
+                const token = localStorage.getItem("token");
+
+                const payload = {
+                    lat: lat,
+                    lng: lng,
+                    destination: address,
+                }
+
+                const response = await axios.post(`/api/gig/travel-time`, payload , {
+                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+                });
+
+                console.log(`google map : `, response);
+
+
+                // Assuming the response structure is similar to the API response:
+                if (
+                    response.data &&
+                    response.data.rows &&
+                    response.data.rows.length > 0 &&
+                    response.data.rows[0].elements &&
+                    response.data.rows[0].elements.length > 0 &&
+                    response.data.rows[0].elements[0].status === 'OK'
+                ) {
+                    this.timeOfArrival = response.data.rows[0].elements[0].duration.text;
+                } else {
+                    this.timeOfArrival = 'Travel time unavailable';
+                }
+            } catch (error) {
+                console.error('Error fetching travel time:', error);
+                this.timeOfArrival = 'Error fetching travel time';
+            }
         }
     }
 };

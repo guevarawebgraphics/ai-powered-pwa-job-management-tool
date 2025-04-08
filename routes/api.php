@@ -81,6 +81,7 @@ Route::middleware(['auth:sanctum', EnsureTokenIsNotExpired::class])->group(funct
         Route::post('/report', [App\Http\Controllers\GigController::class, 'update']);
         Route::get('/quick/history/{client_id}', [App\Http\Controllers\GigController::class, 'indexQuickHistory']);
         Route::post('/send_sms/contact', [App\Http\Controllers\GigController::class, 'sendGigSMS']);
+        Route::post('/travel-time', [App\Http\Controllers\GigController::class, 'getTravelTime']);
     });
 
     Route::prefix('temporary')->group(function () {
@@ -96,4 +97,5 @@ Route::middleware(['auth:sanctum', EnsureTokenIsNotExpired::class])->group(funct
     Route::prefix('machine')->group(function () {
         Route::get('/{modelNumber}', [App\Http\Controllers\GigController::class, 'getGigsPerMachine']);
     });
+
 });
