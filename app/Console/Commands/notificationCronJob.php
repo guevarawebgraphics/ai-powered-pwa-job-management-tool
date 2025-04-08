@@ -44,6 +44,9 @@ class NotificationCronJob extends Command
             
             $this->info('Gig #: ' . $gig->gig_cryptic);
             $this->info('Start Datetime: ' . $startTime);
+            $this->info('Cron Time: ' . Carbon::today());
+            
+            
             
             // Only process gigs that haven't started yet
             if (!$startTime->isFuture()) {
