@@ -3,7 +3,7 @@
         <NavBar />
 
         <!-- Model Information -->
-        <div class="mx-auto p-6 min-w-[400px] sm:min-w-[480px] md:min-w-[500px]">
+        <div class="mx-auto p-6 max-w-[700px]">
 
             <h2 class="text-lg font-medium text-center text-[#232850FF]">
                 {{ this.machineData.model_number }}
@@ -230,6 +230,19 @@
                         allowfullscreen class="w-full h-72 rounded-lg"></iframe>
                 </div>
             </div>
+
+
+            <div data-v-fb51d1f3="" class="space-y-3">
+                <div data-v-fb51d1f3="" class="">
+                    <p data-v-fb51d1f3="" class="text-white text-xs mt-1"><strong
+                            data-v-fb51d1f3="">Solution:&nbsp;</strong><br data-v-fb51d1f3=""><span
+                            data-v-fb51d1f3="">1. Disconnect the washer from the power supply. 2. Locate the lint
+                            filter; typically found near the door seal or back of the washer. 3. Remove any accumulated
+                            lint and debris. 4. Ensure the filter is not damaged. Replace if necessary. 5. Reassemble
+                            and test the washer.</span></p>
+                </div>
+            </div>
+
 
         </div>
 
