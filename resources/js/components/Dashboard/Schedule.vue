@@ -542,7 +542,11 @@ export default {
                         }
 
                         // Calculate the potential gig price by summing the amounts of all scenarios
-                        const potentialGigPrice = this.gigPotentialEarnings.reduce((total, item) => total + item.amount, 0);
+                        // const potentialGigPrice = this.gigPotentialEarnings.reduce((total, item) => total + item.amount, 0);
+                        let potentialGigPrice = 0.00;
+                        if (this.gigPotentialEarnings.length > 0) {
+                            potentialGigPrice = Math.max(...this.gigPotentialEarnings.map(item => item.amount));
+                        }
     
                         return {
                             gig_id: gig.gig_id,

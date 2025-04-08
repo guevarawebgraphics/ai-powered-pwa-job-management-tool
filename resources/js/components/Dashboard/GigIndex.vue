@@ -561,8 +561,18 @@ export default {
                 }
 
                 // Calculate the potential gig price by summing the amounts of all scenarios
-                const potentialGigPrice = this.gigPotentialEarnings.reduce((total, item) => total + item.amount, 0);
-                this.potentialGigPrice = potentialGigPrice;
+                // const potentialGigPrice = this.gigPotentialEarnings.reduce((total, item) => total + item.amount, 0);
+                if (this.gigPotentialEarnings.length > 0) {
+                    // Option 1: Using Math.max and Array.map
+                    this.potentialGigPrice = Math.max(...this.gigPotentialEarnings.map(item => item.amount));
+
+                    // Option 2: Alternatively using Array.reduce:
+                    // this.potentialGigPrice = this.gigPotentialEarnings.reduce(
+                    //   (max, item) => (item.amount > max ? item.amount : max), 0
+                    // );
+                } else {
+                    this.potentialGigPrice = 0;
+                }
 
 
                 console.log(`Total Client Price`, response);
