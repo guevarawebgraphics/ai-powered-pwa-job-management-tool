@@ -47,5 +47,8 @@ return [
         'map'   =>  [
             'key'   =>  env('GOOGLE_MAP_API')
         ]
-    ]
+    ],
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY'),
+    ],
 ];

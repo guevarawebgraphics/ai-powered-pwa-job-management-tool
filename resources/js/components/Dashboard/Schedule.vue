@@ -9,33 +9,28 @@
 
                 <!-- Date Picker -->
                 <div class="relative">
-                    <input
-                        type="date"
-                        v-model="selectedDate"
-                        @change="gigHistory"
-                        class="border border-gray-600 text-gray-700 text-sm px-3 py-1.5 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                    />
+                    <input type="date" v-model="selectedDate" @change="gigHistory"
+                        class="border border-gray-600 text-gray-700 text-sm px-3 py-1.5 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
                 </div>
             </div>
 
             <!-- Stats Grid -->
             <div class="grid grid-cols-2 gap-3">
-                <div
+                <!-- <div
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300"
                 >
                     <div class="flex flex-col items-center space-y-2">
                         <i class="fas fa-headset text-xl text-[#171A1FFF]"></i>
                         <span class="text-sm text-[#666666FF]">DAX</span>
                     </div>
-                </div>
+                </div> -->
+
+                <DAX />
 
                 <div
-                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300"
-                >
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <div class="flex items-center space-x-2">
-                        <span class="text-xl font-bold text-green-500"
-                            >${{ this.totalGigPrice }}</span
-                        >
+                        <span class="text-xl font-bold text-green-500">${{ this.totalGigPrice }}</span>
                     </div>
                     <p class="text-sm text-[#666666FF]">
                         Today's Potential Earnings
@@ -48,10 +43,7 @@
             <h2 class="text-xl text-[#171A1FFF]">Latest Updates</h2>
             <div class="space-y-6 mt-3">
                 <!-- Show message if no gigs -->
-                <div
-                    v-if="Object.keys(groupedUpdates).length === 0"
-                    class="text-center text-gray-500"
-                >
+                <div v-if="Object.keys(groupedUpdates).length === 0" class="text-center text-gray-500">
                     No gig found.
                 </div>
 
@@ -67,26 +59,12 @@
                         </h4>
                         <div class="space-y-4 mt-2">
                             <!-- Loop through each update in that time slot -->
-                            <div
-                                v-for="(update, index) in updates"
-                                :key="index"
-                                class="bg-white rounded-[12px] shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col space-y-2"
-                            >
-                                <div
-                                    class="flex items-start space-x-3 cursor-pointer"
-                                    @click="goToGig(update.gig_id)"
-                                >
+                            <div v-for="(update, index) in updates" :key="index"
+                                class="bg-white rounded-[12px] shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col space-y-2">
+                                <div class="flex items-start space-x-3 cursor-pointer" @click="goToGig(update.gig_id)">
                                     <!-- Display image or icon -->
-                                    <img
-                                        v-if="update.image"
-                                        :src="update.image"
-                                        class="w-10 rounded-md"
-                                    />
-                                    <i
-                                        v-else
-                                        :class="update.icon"
-                                        class="text-3xl text-gray-700"
-                                    ></i>
+                                    <img v-if="update.image" :src="update.image" class="w-10 rounded-md" />
+                                    <i v-else :class="update.icon" class="text-3xl text-gray-700"></i>
                                     <!-- Update content -->
                                     <div class="flex-1">
                                         <h3 class="text-normal text-gray-800">
@@ -103,90 +81,56 @@
                                 <!-- Bottom section with icons and expand toggle -->
                                 <div class="flex justify-between items-center">
                                     <div class="flex space-x-4 items-center">
-                                        <span
-                                            class="text-green-500 font-bold text-lg flex items-center"
-                                            >${{ update.potentialGigPrice }}</span
-                                        >
-                                        <i
-                                            class="fas fa-thumbs-up text-xl text-[#171A1FFF]"
-                                        ></i>
-                                        <i
-                                            class="fas fa-play-circle text-xl text-[#171A1FFF]"
-                                        ></i>
-                                        <i
-                                            class="fas fa-info-circle text-xl text-[#171A1FFF]"
-                                        ></i>
+                                        <span class="text-green-500 font-bold text-lg flex items-center">${{
+                                            update.potentialGigPrice }}</span>
+                                        <i class="fas fa-thumbs-up text-xl text-[#171A1FFF]"></i>
+                                        <i class="fas fa-play-circle text-xl text-[#171A1FFF]"></i>
+                                        <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>
                                     </div>
-                                    <i
-                                        @click="toggleExpand(date, hour, index)"
+                                    <i @click="toggleExpand(date, hour, index)"
                                         class="fas fa-chevron-down text-xl text-gray-500 cursor-pointer transition-transform duration-300"
                                         :class="{
                                             'rotate-180':
                                                 expandedIndex ===
                                                 `${date}-${hour}-${index}`,
-                                        }"
-                                    ></i>
+                                        }"></i>
                                 </div>
 
                                 <!-- Expanded details -->
-                                <div
-                                    v-if="
+                                <div v-if="
                                         expandedIndex ===
                                         `${date}-${hour}-${index}`
-                                    "
-                                    class="mt-2 p-2 rounded-md"
-                                >
+                                    " class="mt-2 p-2 rounded-md">
                                     <ul>
-                                        <li
-                                            v-if="
+                                        <li v-if="
                                                 update.machine &&
                                                 update.machine.common_repairs
-                                            "
-                                        >
-                                            <span
-                                                class="text-[#66B2ECFF] cursor-pointer"
-                                            >
-                                                <i
-                                                    class="fas fa-info-circle text-xl text-[#171A1FFF]"
-                                                ></i
-                                                >&nbsp;
+                                            ">
+                                            <span class="text-[#66B2ECFF] cursor-pointer">
+                                                <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>&nbsp;
                                                 {{
-                                                    firstRepair(
-                                                        update.machine
-                                                            .common_repairs
-                                                    )
+                                                firstRepair(
+                                                update.machine
+                                                .common_repairs
+                                                )
                                                 }}
                                             </span>
                                         </li>
-                                        <li
-                                            v-if="update.youtube_link"
-                                            class="mt-2"
-                                        >
-                                            <a
-                                                :href="update.youtube_link"
-                                                target="_blank"
-                                                class="cursor-pointer text-[#66B2ECFF]"
-                                            >
-                                                <i
-                                                    class="fas fa-play-circle text-xl text-[#171A1FFF]"
-                                                ></i>
+                                        <li v-if="update.youtube_link" class="mt-2">
+                                            <a :href="update.youtube_link" target="_blank"
+                                                class="cursor-pointer text-[#66B2ECFF]">
+                                                <i class="fas fa-play-circle text-xl text-[#171A1FFF]"></i>
                                                 {{ update.youtube_link }}
                                             </a>
                                         </li>
                                         <li class="mt-2">
-                                            <button
-                                                type="button"
-                                                @click="
+                                            <button type="button" @click="
                                                     goToModel(
                                                         update.machine
                                                             .model_number
                                                     )
-                                                "
-                                                class="text-[#66B2ECFF]"
-                                            >
-                                                <i
-                                                    class="fas fa-book text-xl text-[#171A1FFF]"
-                                                ></i>
+                                                " class="text-[#66B2ECFF]">
+                                                <i class="fas fa-book text-xl text-[#171A1FFF]"></i>
                                                 Service Manual
                                             </button>
                                         </li>
@@ -206,11 +150,12 @@
 <script>
 import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
+import DAX from "../sections/DAX.vue";
 
 import axios from "axios"; // Ensure axios is imported
 
 export default {
-    components: { NavBar, BottomNav },
+    components: { NavBar, BottomNav, DAX },
     name: "SchedulePage",
     data() {
         return {

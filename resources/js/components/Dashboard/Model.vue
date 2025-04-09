@@ -25,10 +25,12 @@
             </div>
 
             <!-- DAX Section -->
-            <div class="bg-white shadow-md rounded-lg p-4 flex items-center justify-center mt-6">
+            <!-- <div class="bg-white shadow-md rounded-lg p-4 flex items-center justify-center mt-6">
                 <i class="fas fa-headset text-3xl text-gray-700"></i>
                 <p class="text-sm font-medium ml-2">DAX</p>
-            </div>
+            </div> -->
+
+            <DAX :page="'Model'" />
 
             <!-- Useful Links (Accordion) -->
             <div class="space-y-4 mt-6">
@@ -253,10 +255,12 @@
 <script>
 import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
+
+import DAX from "../sections/DAX.vue";
 import axios from "axios";
 
 export default {
-    components: { NavBar, BottomNav },
+    components: { NavBar, BottomNav, DAX },
     name: "ModelPage",
     data() {
         return {

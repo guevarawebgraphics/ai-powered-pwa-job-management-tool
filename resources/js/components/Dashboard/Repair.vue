@@ -56,12 +56,17 @@
 
             <!-- Gig Stats -->
             <div class="grid grid-cols-2 gap-4 mt-4">
-                <div
+                <!-- <div
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <i class="fas fa-headset text-2xl text-gray-700"></i>
                     <p class="text-sm font-medium mt-2">DAX</p>
-                </div>
+                </div> -->
+                
+
+                <DAX />
+
+
                 <div
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
@@ -154,11 +159,12 @@
 <script>
 import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
+import DAX from "../sections/DAX.vue";
 
 import axios from "axios"; // Ensure ax
 
 export default {
-    components: { NavBar, BottomNav },
+    components: { NavBar, BottomNav, DAX },
     name: "GigRepairPage",
     data() {
         return {

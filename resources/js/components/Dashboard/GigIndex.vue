@@ -33,12 +33,17 @@
 
             <!-- Earnings & Gig Potential -->
             <div class="grid grid-cols-2 gap-3">
-                <div
+                <!-- <div
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <i class="fas fa-headset text-lg text-gray-700"></i>
                     <span class="text-md mt-1">DAX</span>
-                </div>
+                </div> -->
+
+
+                <DAX />
+
+
                 <div @click="openGigPotentialEarning()"
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300 cursor-pointer">
@@ -320,10 +325,11 @@ import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
 import axios from "axios"; // Ensure ax
 import Swal from 'sweetalert2'; // Import SweetAlert2
+import DAX from "../sections/DAX.vue";
 
 
 export default {
-    components: { NavBar, BottomNav },
+    components: { NavBar, BottomNav, DAX },
     name: "GigPage",
     data() {
         return {

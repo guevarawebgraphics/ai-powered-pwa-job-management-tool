@@ -98,4 +98,10 @@ Route::middleware(['auth:sanctum', EnsureTokenIsNotExpired::class])->group(funct
         Route::get('/{modelNumber}', [App\Http\Controllers\GigController::class, 'getGigsPerMachine']);
     });
 
+
+    
+    Route::prefix('dax')->group(function () {
+        Route::post('/chat', [App\Http\Controllers\DaxController::class, 'chat']);
+    });
+
 });
