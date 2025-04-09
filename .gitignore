@@ -24,3 +24,4 @@ yarn-error.log
 /storage/framework
 /storage/logs
 /public/images/gigs
+/storage/app
