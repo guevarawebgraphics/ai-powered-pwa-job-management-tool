@@ -9,20 +9,21 @@
             </span>
         </div>
     </button>
-    <div @click="openModal" class="bg-white shadow-md rounded-lg p-4 flex items-center justify-center mt-6" v-else>
+    <div @click="openModal"  class="bg-white shadow-md rounded-lg p-4 flex items-center justify-center mt-6" v-else>
         <i class="fas fa-headset text-3xl text-gray-700"></i>
         <p class="text-sm font-medium ml-2">DAX</p>
     </div>
 
     <!-- MODAL -->
     <div v-if="showModal"
-        class="fixed inset-0 z-50 bg-[#fff] flex flex-col items-center justify-between text-white px-4 py-6">
+        class="fixed inset-0 z-50 bg-[#fff] flex flex-col items-center justify-center text-white px-4 py-6">
 
         <!-- Exit -->
         <button @click="closeModal" class="absolute top-5 right-5 text-[#333] text-2xl">✖</button>
 
+
         <!-- Dynamic Assistant State Heading -->
-        <div class="text-gray-800 mb-4 text-center mt-10">
+        <div class="text-gray-800 mb-4 text-center">
             <template v-if="isRecording">
                 <h2 class="text-4xl font-semibold leading-tight">Listening...</h2>
                 <p class="text-4xl text-gray-500 mt-1">Speak now</p>
@@ -39,9 +40,12 @@
             </template>
         </div>
 
+
         <!-- Scrollable Transcript Log -->
         <div ref="transcriptContainer"
             class="w-full max-w-2xl h-80 overflow-y-auto px-4 py-2 mb-6 text-center space-y-2">
+
+
 
             <div v-for="(msg, index) in chatHistory" :key="index" @mouseover="hoveredIndex = index"
                 @mouseleave="hoveredIndex = null" :class="[
@@ -68,15 +72,24 @@
             </div>
         </div>
 
+
+        <!-- Animated Waveform -->
+        <!-- <div v-if="isSpeaking" class="flex items-end justify-center h-32 mb-10">
+            <div v-for="i in 32" :key="i"
+                class="w-[3px] bg-gradient-to-b from-cyan-400 to-purple-500 mx-[1px] animate-wave" :style="getStyle(i)">
+            </div>
+        </div> -->
+
         <!-- Mic Button -->
-        <div class="mb-20">
-            <button @click="toggleRecording" :class="[
-                'relative w-20 h-20 rounded-full shadow-lg flex items-center justify-center text-white text-3xl transition',
-                isRecording || isSpeaking ? 'bg-blue-500 pulse-active' : 'bg-blue-500 hover:scale-110'
-            ]">
-                <i class="fas fa-microphone"></i>
-            </button>
-        </div>
+        <button @click="toggleRecording" :class="[
+            'relative w-20 h-20 rounded-full shadow-lg flex items-center justify-center text-white text-3xl transition',
+            isRecording ? 'bg-blue-500 pulse-active' : 'bg-blue-500 hover:scale-110'
+        ]">
+            <i class="fas fa-microphone"></i>
+        </button>
+
+
+
 
     </div>
 </template>
@@ -101,7 +114,6 @@ export default {
             chatHistory: [],
             typingReply: '',
             hoveredIndex: null,
-            voice: null,
         };
     },
     mounted() {
@@ -109,11 +121,6 @@ export default {
         this.recognition = new SpeechRecognition();
         this.recognition.lang = 'en-US';
         this.recognition.interimResults = true;
-
-        window.speechSynthesis.onvoiceschanged = () => {
-            const voices = window.speechSynthesis.getVoices();
-            this.voice = voices.find(v => v.name.includes('Samantha') || v.lang === 'en-US');
-        };
 
         this.recognition.onresult = async (event) => {
             let finalTranscript = '';
@@ -176,15 +183,18 @@ export default {
                 const data = await response.json();
                 const reply = data.reply;
 
+                // Start speaking first (don’t wait)
                 this.speak(reply);
 
+                // Animate typing simultaneously
                 this.typingReply = '';
                 for (let i = 0; i < reply.length; i++) {
                     this.typingReply += reply[i];
                     this.scrollToBottom();
-                    await new Promise(resolve => setTimeout(resolve, 20));
+                    await new Promise(resolve => setTimeout(resolve, 20)); // still animating while speaking
                 }
 
+                // Once typed, save to chatHistory
                 this.chatHistory.push({ role: 'assistant', content: reply });
                 this.typingReply = '';
                 this.scrollToBottom();
@@ -194,17 +204,21 @@ export default {
             }
         },
         speak(text) {
-            if (!window.speechSynthesis) return;
-
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-US';
-            if (this.voice) utterance.voice = this.voice;
-
             utterance.onend = () => {
                 this.isSpeaking = false;
             };
-
             window.speechSynthesis.speak(utterance);
+        },
+        getStyle(i) {
+            const height = Math.floor(Math.random() * 60 + 20); // 20–80px
+            const delay = (i % 8) * 0.1;
+            return {
+                height: `${height}px`,
+                animationDelay: `${delay}s`,
+                animationDuration: `1s`,
+            };
         },
         scrollToBottom() {
             this.$nextTick(() => {
@@ -219,6 +233,26 @@ export default {
 </script>
 
 <style scoped>
+@keyframes wave {
+
+    0%,
+    100% {
+        transform: scaleY(1);
+    }
+
+    50% {
+        transform: scaleY(2.2);
+    }
+}
+
+.animate-wave {
+    animation-name: wave;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    transform-origin: bottom center;
+}
+
+
 @keyframes pulse-ring {
     0% {
         transform: scale(1);
@@ -242,6 +276,7 @@ export default {
     width: 100%;
     height: 100%;
     background-color: #3b82f6;
+    /* Tailwind blue-500 */
     border-radius: 9999px;
     animation: pulse-ring 1.5s infinite;
     z-index: -1;
