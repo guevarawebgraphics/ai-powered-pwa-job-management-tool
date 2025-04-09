@@ -9,7 +9,7 @@
             </span>
         </div>
     </button>
-    <div @click="openModal"  class="bg-white shadow-md rounded-lg p-4 flex items-center justify-center mt-6" v-else>
+    <div @click="openModal" class="bg-white shadow-md rounded-lg p-4 flex items-center justify-center mt-6" v-else>
         <i class="fas fa-headset text-3xl text-gray-700"></i>
         <p class="text-sm font-medium ml-2">DAX</p>
     </div>
@@ -81,14 +81,17 @@
         </div> -->
 
         <!-- Mic Button -->
-        <button @click="toggleRecording" :class="[
+        <!-- <button @click="toggleRecording" :class="[
             'relative w-20 h-20 rounded-full shadow-lg flex items-center justify-center text-white text-3xl transition',
             isRecording ? 'bg-blue-500 pulse-active' : 'bg-blue-500 hover:scale-110'
         ]">
             <i class="fas fa-microphone"></i>
+        </button> -->
+
+        <button @click="recording ? stopRecording() : startRecording()" :class="['relative w-20 h-20 rounded-full shadow-lg flex items-center justify-center text-white text-3xl transition',
+            recording ? 'bg-red-500 pulse-active' : 'bg-blue-500 hover:scale-110']">
+            <i :class="recording ? 'fas fa-stop' : 'fas fa-microphone'"></i>
         </button>
-
-
 
 
     </div>
@@ -114,17 +117,57 @@ export default {
             chatHistory: [],
             typingReply: '',
             hoveredIndex: null,
+            selectedVoice: null,
+            recording: false,
+            audioChunks: [],
+            mediaRecorder: null,
         };
     },
+    // mounted() {
+    //     // const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    //     // this.recognition = new SpeechRecognition();
+    //     // this.recognition.lang = 'en-US';
+    //     // this.recognition.interimResults = true;
+
+    //     // window.speechSynthesis.onvoiceschanged = () => {
+    //     //     const voices = window.speechSynthesis.getVoices();
+    //     //     this.selectedVoice = voices.find(v => v.lang === 'en-US' || v.name.includes('Samantha')) || voices[0];
+    //     // };
+
+    //     // this.recognition.onresult = async (event) => {
+    //     //     let finalTranscript = '';
+    //     //     for (let i = event.resultIndex; i < event.results.length; ++i) {
+    //     //         const result = event.results[i];
+    //     //         const transcript = result[0].transcript;
+    //     //         if (result.isFinal) {
+    //     //             finalTranscript += transcript;
+    //     //             this.chatHistory.push({ role: 'user', content: transcript });
+    //     //             this.liveTranscript = '';
+    //     //             this.scrollToBottom();
+    //     //             // await this.getAIResponse(transcript);
+    //     //         } else {
+    //     //             this.liveTranscript = transcript;
+    //     //             this.scrollToBottom();
+    //     //         }
+    //     //     }
+    //     // };
+
+    //     // this.recognition.onend = () => {
+    //     //     this.isRecording = false;
+    //     // };
+    // },
     mounted() {
+        // Initialize the SpeechRecognition API
         const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
         this.recognition = new SpeechRecognition();
         this.recognition.lang = 'en-US';
         this.recognition.interimResults = true;
 
-        this.recognition.onresult = async (event) => {
+        // Handle speech recognition results
+        this.recognition.onresult = (event) => {
             let finalTranscript = '';
-            for (let i = event.resultIndex; i < event.results.length; ++i) {
+            // Process all results from the event
+            for (let i = event.resultIndex; i < event.results.length; i++) {
                 const result = event.results[i];
                 const transcript = result[0].transcript;
                 if (result.isFinal) {
@@ -132,19 +175,92 @@ export default {
                     this.chatHistory.push({ role: 'user', content: transcript });
                     this.liveTranscript = '';
                     this.scrollToBottom();
-                    await this.getAIResponse(transcript);
+                    // await this.getAIResponse(transcript);
                 } else {
                     this.liveTranscript = transcript;
                     this.scrollToBottom();
                 }
             }
+            // If there's a final transcript, add it to your chatHistory and clear liveTranscript
+            if (finalTranscript) {
+                this.chatHistory.push({ role: 'user', content: finalTranscript });
+                this.liveTranscript = '';
+                this.scrollToBottom();
+            }
         };
 
+        // When speech recognition ends, update the state
         this.recognition.onend = () => {
             this.isRecording = false;
         };
     },
+
     methods: {
+        async startRecording() {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            this.mediaRecorder = new MediaRecorder(stream);
+            this.audioChunks = [];
+
+            this.mediaRecorder.ondataavailable = (e) => {
+                this.audioChunks.push(e.data);
+            };
+
+            this.mediaRecorder.onstop = this.sendAudioToServer;
+            this.mediaRecorder.start();
+            this.recording = true;
+            this.isRecording = true;
+            this.isSpeaking = false;
+        },
+        stopRecording() {
+            if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
+                this.mediaRecorder.stop();
+            }
+            this.recording = false;
+            this.isRecording = false;
+            this.isSpeaking = true;
+        },
+        async sendAudioToServer() {
+            const audioBlob = new Blob(this.audioChunks, { type: 'audio/webm' });
+            const formData = new FormData();
+            formData.append('audio', audioBlob, 'voice.webm'); // name must be 'audio'
+
+            const token = localStorage.getItem('token');
+
+            const response = await fetch('/api/dax/voice-chat', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    Authorization: `Bearer ${token}`
+                    // Do not set Content-Type when using FormData
+                },
+            });
+
+            const data = await response.json();
+
+            this.isRecording = false;
+            this.isSpeaking = false;
+
+            // Optionally play the returned audio
+            if (data.audio_url) {
+                const audio = new Audio(data.audio_url);
+                audio.play();
+            }
+
+            // Display the AI reply with a typewriter effect
+            if (data.reply) {
+                this.typingReply = '';
+                // Loop over each character in the reply text with a short delay
+                for (let i = 0; i < data.reply.length; i++) {
+                    this.typingReply += data.reply[i];
+                    this.scrollToBottom(); // Ensure transcript scrolls as text animates
+                    await new Promise(resolve => setTimeout(resolve, 20));
+                }
+                // Once the animated reply is complete, push it into chatHistory
+                this.chatHistory.push({ role: 'assistant', content: data.reply });
+                this.typingReply = ''; // Clear the typing effect placeholder
+            }
+        },
+        
         openModal() {
             this.showModal = true;
             this.$nextTick(() => {
@@ -206,10 +322,13 @@ export default {
         speak(text) {
             const utterance = new SpeechSynthesisUtterance(text);
             utterance.lang = 'en-US';
+            if (this.selectedVoice) utterance.voice = this.selectedVoice;
             utterance.onend = () => {
                 this.isSpeaking = false;
             };
-            window.speechSynthesis.speak(utterance);
+            if (typeof window !== "undefined" && window.speechSynthesis) {
+                window.speechSynthesis.speak(utterance);
+            }
         },
         getStyle(i) {
             const height = Math.floor(Math.random() * 60 + 20); // 20–80px

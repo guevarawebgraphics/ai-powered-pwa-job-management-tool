@@ -102,6 +102,7 @@ Route::middleware(['auth:sanctum', EnsureTokenIsNotExpired::class])->group(funct
     
     Route::prefix('dax')->group(function () {
         Route::post('/chat', [App\Http\Controllers\DaxController::class, 'chat']);
+        Route::post('/voice-chat', [App\Http\Controllers\DaxController::class, 'voiceChat']);
     });
 
 });
