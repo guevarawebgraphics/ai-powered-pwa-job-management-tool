@@ -25,3 +25,5 @@ TWILIO_ACCOUNT_SID=
 `npm install vuex@next`
 
 `composer require openai-php/client`
+
+`composer require openai-php/laravel`
