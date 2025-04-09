@@ -23,3 +23,5 @@ TWILIO_ACCOUNT_SID=
 `composer require google/auth`
 
 `npm install vuex@next`
+
+`composer require openai-php/client`
