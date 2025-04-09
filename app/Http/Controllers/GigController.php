@@ -98,7 +98,6 @@ class GigController extends Controller
             'user' => $input,
         ], 201);
     }
-
     public function indexQuickHistory($clientId)
     {
         $query = \DB::table('gigs')->where('client_id', $clientId)->select('gig_id','gig_cryptic', 'gig_price')->orderBy('created_at','DESC')->get();
@@ -108,7 +107,6 @@ class GigController extends Controller
             'data' => $query,
         ], 201);
     }
-
     public function sendGigSMS(Request $request) {
 
         $sid = config('services.twilio.sid');
@@ -152,7 +150,6 @@ class GigController extends Controller
             'data' => $response,
         ], 201);
     }
-
     public function storeTemporaryImage(Request $request) {
         if ($request->hasFile('image')) {
             $file = $request->file('image');
@@ -166,7 +163,6 @@ class GigController extends Controller
         }
         return response()->json(['error' => 'No file uploaded'], 400);
     }
-
     public function destroyTemporaryImage(Request $request) {
         $filename = $request->filename;
 
@@ -177,12 +173,10 @@ class GigController extends Controller
 
         return response()->json(['error' => 'File not found'], 404);
     }
-
     public function getGigsPerMachine($modelNumber) {
         $query = Gig::where('model_number', $modelNumber)->whereNull('deleted_at')->orderBy('created_at','DESC')->get();
         return $query;
     }
-
     public function getTravelTime(Request $request) {
         $lat = $request->input('lat');
         $lng = $request->input('lng');
