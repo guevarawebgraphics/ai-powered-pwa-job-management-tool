@@ -41,7 +41,7 @@
                 </div> -->
 
 
-                <DAX />
+                <DAX :page="'GigIndex'" :user_id="techID" />
 
 
                 <div @click="openGigPotentialEarning()"
@@ -348,7 +348,8 @@ export default {
             potentialGigPrice: 0.00,
             isGigPotentialOpen: false,
             timeOfArrival: '',
-            destinationAddress: ''
+            destinationAddress: '',
+            techID: null
         };
     },
     created() {
@@ -493,6 +494,7 @@ export default {
 
                 this.gigData = response.data.data[0]; 
                 this.modelNumber = this.gigData.model_number;
+                this.techID = this.gigData.assigned_tech_id;
                 console.log(`gig -> ${this.gigData.model_number}`);
                 this.machineDetail(this.modelNumber);
                 this.getQuickGigHistory(this.gigData.client_id);

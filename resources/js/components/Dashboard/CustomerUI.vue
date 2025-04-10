@@ -25,7 +25,7 @@
 
             
 
-            <DAX />
+            <DAX :page="'CustomerUI'" :user_id="techData.id" />
 
             <div
                 class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 text-center transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
