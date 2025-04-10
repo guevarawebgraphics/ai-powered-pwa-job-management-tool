@@ -281,11 +281,15 @@ export default {
                     type: "session.update",
                     session: {
                         modalities: ["text", "audio"],
+                        voice: "ash",
                         instructions: `
-                            You are provided with additional context derived from the current webpage:
-                            "${pageContent.trim()}"
-                            When responding to user queries, consider this context only if there is a clear, relevant connection. Otherwise, answer using your standard knowledge. 
-                            `
+                        You are provided with additional context derived from the current webpage:
+                        "${pageContent.trim()}"
+
+                        And you are assisting trained appliance repair professionals in the field. These technicians are knowledgeable and experienced, often using tech sheets, wiring diagrams, and diagnostic tools. Respond to their questions with concise, technical, and accurate guidance focused on diagnostics, error codes, mechanical functions, and repairs. Assume they understand appliance mechanics and only need help narrowing down issues or verifying steps. Avoid oversimplifying or providing basic definitions unless asked.
+                        
+                        When responding to user queries, consider this context only if there is a clear, relevant connection. Otherwise, answer using your standard knowledge.
+                        `
 
                     },
                 };
