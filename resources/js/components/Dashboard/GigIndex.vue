@@ -793,11 +793,13 @@ export default {
                     destination: address,
                 }
 
+                console.log(`payload `, payload);
+
                 const response = await axios.post(`/api/gig/travel-time`, payload , {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
                 });
 
-                console.log(`google map : `, response);
+                console.log(`google map : `, response.data.rows[0].elements[0]);
 
 
                 // Assuming the response structure is similar to the API response:

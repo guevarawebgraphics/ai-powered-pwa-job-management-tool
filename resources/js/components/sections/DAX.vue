@@ -72,7 +72,8 @@ export default {
         page: {
             type: String,
             default: 'Guest'
-        }
+        },
+        contentSelector: { type: String, default: 'body' }
     },
     data() {
         return {
@@ -90,6 +91,10 @@ export default {
         };
     },
     methods: {
+        getPageContent() {
+            const element = document.querySelector(this.contentSelector);
+            return element ? element.innerText : '';
+        },
         openModal() {
             this.showModal = true;
         },
@@ -269,10 +274,19 @@ export default {
         },
         configureData() {
             if (this.dataChannel && this.dataChannel.readyState === "open") {
+
+                const pageContent = document.querySelector(this.contentSelector)?.innerText || '';
+
                 const event = {
                     type: "session.update",
                     session: {
-                        modalities: ["text", "audio"]
+                        modalities: ["text", "audio"],
+                        instructions: `
+                            You are provided with additional context derived from the current webpage:
+                            "${pageContent.trim()}"
+                            When responding to user queries, consider this context only if there is a clear, relevant connection. Otherwise, answer using your standard knowledge. 
+                            `
+
                     },
                 };
                 this.dataChannel.send(JSON.stringify(event));
