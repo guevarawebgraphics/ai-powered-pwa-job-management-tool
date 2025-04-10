@@ -94,6 +94,8 @@ export default {
                         remoteAudio.id = "remoteAudio";
                         remoteAudio.autoplay = true;
                         remoteAudio.controls = true;
+                        // Hide the audio element
+                        remoteAudio.style.display = 'none';
                         document.body.appendChild(remoteAudio);
                     }
                     remoteAudio.srcObject = event.streams[0];
@@ -172,4 +174,7 @@ export default {
 
 <style scoped>
 /* Add your component-specific styles here */
+#remoteAudio {
+    display: none;
+}
 </style>
