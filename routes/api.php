@@ -105,4 +105,9 @@ Route::middleware(['auth:sanctum', EnsureTokenIsNotExpired::class])->group(funct
         Route::post('/voice-chat', [App\Http\Controllers\DaxController::class, 'voiceChat']);
     });
 
+
+    Route::prefix('analytics')->group(function () {
+        Route::get('/report/{techId?}', [App\Http\Controllers\AnalyticsController::class, 'index']);
+    });
+
 });
