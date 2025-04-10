@@ -281,6 +281,10 @@ export default {
             this.isRecording = false;
             this.showModal = false;
             this.liveTranscript = '';
+            if (this.peerConnection) {
+        this.peerConnection.close();
+        this.peerConnection = null;
+      }
         },
         async getAIResponse(text) {
             try {
