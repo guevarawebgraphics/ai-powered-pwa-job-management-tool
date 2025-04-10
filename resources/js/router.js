@@ -24,6 +24,8 @@ import GigIndex from './components/Dashboard/GigIndex.vue';
 import Forget from './components/Forget.vue';
 import ResetPassword from './components/ResetPassword.vue';
 import Model2 from './components/Dashboard/Model2.vue';
+import Analytics from './components/Dashboard/Analytic.vue';
+import AnalyticType from './components/Dashboard/AnalyticType.vue';
 
 const routes = [
     // Public Routes
@@ -51,6 +53,8 @@ const routes = [
     { path: '/model/:id/gig/:gigId?', component: ModelPage, meta: { requiresAuth: true, requiresVerification: true } },
     { path: '/customer/:id/gig/:gigId', component: Customer, meta: { requiresAuth: true, requiresVerification: true } },
     { path: '/model2/:id/gig/:gigId?', component: Model2, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/analytics', component: Analytics, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/analytics/type/:type?', component: AnalyticType, meta: { requiresAuth: true, requiresVerification: true } },
 ];
 
 const router = createRouter({

@@ -26,7 +26,7 @@
                 </div> -->
 
 
-                <DAX :page="'Schedule'" :user_id="user_id" />
+                <DAX :page="'Schedule'" :user_id="this.user_id" />
 
 
                 <div

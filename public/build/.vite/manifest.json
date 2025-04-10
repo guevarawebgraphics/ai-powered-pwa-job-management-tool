@@ -7,27 +7,52 @@
     "file": "assets/profile-Bi5cY6os.png",
     "src": "public/images/profile.png"
   },
+  "public/images/selection-0.png": {
+    "file": "assets/selection-0-DQepUz_3.png",
+    "src": "public/images/selection-0.png"
+  },
+  "public/images/selection-1.png": {
+    "file": "assets/selection-1-BiS-Wj2P.png",
+    "src": "public/images/selection-1.png"
+  },
+  "public/images/selection-2.png": {
+    "file": "assets/selection-2-tXVvbTI1.png",
+    "src": "public/images/selection-2.png"
+  },
+  "public/images/selection-3.png": {
+    "file": "assets/selection-3-Dec8teFc.png",
+    "src": "public/images/selection-3.png"
+  },
+  "public/images/selection-4.png": {
+    "file": "assets/selection-4-tOwhVsIs.png",
+    "src": "public/images/selection-4.png"
+  },
   "public/images/washing-machine.png": {
     "file": "assets/washing-machine-BYFiqJs5.png",
     "src": "public/images/washing-machine.png"
   },
   "resources/css/app.css": {
-    "file": "assets/app-CUEzAccz.css",
+    "file": "assets/app-DXPzjTlF.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-DwTsll7n.js",
+    "file": "assets/app-CgGmDWp0.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "css": [
-      "assets/app-NOq14XEh.css"
+      "assets/app-D1A_rajB.css"
     ],
     "assets": [
       "assets/logo-D_x7Z3el.png",
       "assets/profile-Bi5cY6os.png",
-      "assets/washing-machine-BYFiqJs5.png"
+      "assets/washing-machine-BYFiqJs5.png",
+      "assets/selection-0-DQepUz_3.png",
+      "assets/selection-1-BiS-Wj2P.png",
+      "assets/selection-2-tXVvbTI1.png",
+      "assets/selection-3-Dec8teFc.png",
+      "assets/selection-4-tOwhVsIs.png"
     ]
   }
 }
