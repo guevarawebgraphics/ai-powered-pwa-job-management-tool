@@ -30,7 +30,7 @@
                 <p class="text-sm font-medium ml-2">DAX</p>
             </div> -->
 
-            <DAX :page="'Model'" />
+            <DAX :page="'Model'" :user_id="gigData.assigned_tech_id"/>
 
             <!-- Useful Links (Accordion) -->
             <div class="space-y-4 mt-6">
@@ -279,7 +279,8 @@ export default {
             servicePointers: [],
             noServiceManualMessage: null,
             noPartsDiagramMessage: null,
-            noServicePointersMessage: null
+            noServicePointersMessage: null,
+            gigData: []
         };
     },
     created() {
@@ -299,7 +300,7 @@ export default {
             this.modelDetail(modelID);
         },
         '$route.params.gigId'(gigId) {
-            this.modelDetail(gigId);
+            this.gigDetail(gigId);
         }
     },
     methods: {
@@ -428,6 +429,7 @@ export default {
                 });
 
                 this.gigData = response.data.data[0];
+
                 if (this.gigData.top_recommended_repairs) {
                     try {
                         const parsedData = JSON.parse(this.gigData.top_recommended_repairs);

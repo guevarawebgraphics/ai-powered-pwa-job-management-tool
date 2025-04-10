@@ -62,9 +62,10 @@
                     <i class="fas fa-headset text-2xl text-gray-700"></i>
                     <p class="text-sm font-medium mt-2">DAX</p>
                 </div> -->
-                
 
-                <DAX />
+
+
+                <DAX :page="'Repair'" :user_id="techId" />
 
 
                 <div
@@ -174,6 +175,7 @@ export default {
             machineData: [],
             selectedRepair: [],
             repairVideo: [],
+            techId: null
         };
     },
     created() {
@@ -204,6 +206,7 @@ export default {
 
                 this.gigData = response.data.data[0];
                 this.machineData = this.gigData.machine;
+                this.techId = this.gigData.assigned_tech_id;
 
                 let topRepairs = this.gigData.top_recommended_repairs;
 
