@@ -97,9 +97,19 @@
         <div class="max-w-lg mx-auto p-6">
             <h2 class="text-xl text-[#171A1FFF]">Latest Updates</h2>
 
+            <!-- Loading Spinner -->
+            <div v-if="loading" class="flex justify-center items-center h-64">
+                <!-- Tailwind CSS spinner -->
+                <!-- <svg class="animate-spin h-10 w-10 text-[#171A1FFF]" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg> -->
+            </div>
+
             <div class="space-y-6 mt-3">
                 <!-- Show message if no gigs -->
-                <div v-if="Object.keys(groupedUpdates).length === 0" class="text-center text-gray-500">
+                <div v-if="dataLoaded && Object.keys(groupedUpdates).length === 0" class="text-center text-gray-500">
                     No gig found.
                 </div>
 
@@ -173,9 +183,9 @@
                                             </span> -->
                                             <span class="text-[#66B2ECFF] cursor-pointer" @click="goToClient(update)">
                                                 <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>&nbsp;{{
-                                                    update.gig.client_name }} {{ update.gig.client_last_name }} - {{
-                                                    capitalizeWords(update.gig.machine.machine_type) }} {{
-                                                    capitalizeWords(update.gig.machine.brand_name) }}</span>
+                                                update.gig.client_name }} {{ update.gig.client_last_name }} - {{
+                                                capitalizeWords(update.gig.machine.machine_type) }} {{
+                                                capitalizeWords(update.gig.machine.brand_name) }}</span>
                                         </li>
                                         <li v-if="update.youtube_link" class="mt-2">
                                             <a :href="update.youtube_link" target="_blank"
@@ -291,6 +301,8 @@ export default {
     name: "DashboardIndex",
     data() {
         return {
+            loading: false,
+            dataLoaded: false,
             serviceManual: [],
             noServiceManualMessage: null,
             expandedIndex: null,

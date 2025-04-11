@@ -22,7 +22,7 @@ export default {
         // For testing, we can automatically hide it after 3 seconds
         setTimeout(() => {
             this.$store.commit("setLoading", false);
-        }, 2000);
+        }, 3000);
     }
 };
 </script>
