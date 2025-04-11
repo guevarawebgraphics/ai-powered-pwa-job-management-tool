@@ -614,6 +614,9 @@ export default {
             } catch (error) {
                 console.error("Error fetching gig history data:", error);
                 this.loadingGigHistory = false;
+            } finally {
+                this.loading = false; // stop loading animation after request is finished
+                this.dataLoaded = true;
             }
         },
         async fetchUserData() {
