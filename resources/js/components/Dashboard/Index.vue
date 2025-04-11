@@ -40,17 +40,17 @@
                 <DAX :page="'Index'" :user_id="user_id" />
 
                 <button type="button" @click="goToSchedule()"
-                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
-                    <div class="flex items-center space-x-2">
-                        <i class="fas fa-calendar-alt text-lg text-[#232850FF]"></i>
-                        <!-- <span class="text-xl font-bold text-[#171A1FFF]">{{ this.total_jobs }}</span> -->
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-center justify-center text-center transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
 
-                        <span class="text-xl font-bold text-[#171A1FFF]">{{
-                            this.totalJobBookedToday
-                            }}</span>
+                    <div class="flex items-center justify-center space-x-2">
+                        <i class="fas fa-calendar-alt text-lg text-[#232850FF]"></i>
+                        <span class="text-xl font-bold text-[#171A1FFF]">
+                            {{ this.totalJobBookedToday }}
+                        </span>
                     </div>
-                    <p class="text-sm text-[#666666FF]">Jobs Booked Today</p>
+                    <p class="text-sm text-[#666666FF] mt-1">Jobs Booked Today</p>
                 </button>
+
 
                 <button @click="goToNotification()" type="button"
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
@@ -65,26 +65,31 @@
 
                         <!-- Right Column: Notification description -->
                         <div class="text-center sm:text-left">
-                            <div class="text-gray-700" v-if="hasFeaturedContent">
-                                {{ parsedFeaturedContent?.initial_issue }}
+                            <div class="text-center sm:text-left">
+                                <div class="text-gray-700 leading-snug" v-if="hasFeaturedContent">
+                                    {{ parsedFeaturedContent?.initial_issue }}
+                                </div>
+                                <div class="leading-snug" v-else>
+                                    No Latest Notification
+                                </div>
                             </div>
-                            <div v-else>
-                                No Latest Notification
-                            </div>
+
                         </div>
                     </div>
 
                     <!-- <p class="text-sm text-gray-500">New Job Request Dryer, no Heat, Stuart</p> -->
                 </button>
 
-                <button type="button"
-                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
-                    <p class="text-sm text-[#666666FF]">Earnings</p>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-xl font-bold text-[#171A1FFF]">${{ this.totalGigPrice }}</span>
+                <button type="button" @click="goToAnalytics"
+                    class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-center justify-center text-center transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
+
+                    <p class="text-sm font-bold text-[#666666FF]">Earnings</p>
+                    <div class="flex items-center justify-center space-x-2">
+                        <span class="text-xl font-bold text-green-500">${{ this.totalGigPrice }}</span>
                         <i class="fas fa-arrow-up text-green-500 text-sm"></i>
                     </div>
                 </button>
+
             </div>
         </div>
 
@@ -92,80 +97,108 @@
         <div class="max-w-lg mx-auto p-6">
             <h2 class="text-xl text-[#171A1FFF]">Latest Updates</h2>
 
-            <div class="space-y-4 mt-3">
-                <!-- Display message when there are no updates -->
-                <div v-if="latestUpdates.length === 0" class="text-center text-gray-500">
+            <div class="space-y-6 mt-3">
+                <!-- Show message if no gigs -->
+                <div v-if="Object.keys(groupedUpdates).length === 0" class="text-center text-gray-500">
                     No gig found.
                 </div>
 
-                <div v-else v-for="(update, index) in latestUpdates" :key="index"
-                    class="bg-white rounded-[12px] shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col space-y-2">
-                    <div class="flex items-start space-x-3 cursor-pointer" @click="goToGig(update.gig_id)">
-                        <!-- Image/Icon -->
-                        <img v-if="update.image" :src="update.image" class="w-10 rounded-md" />
-                        <i v-else :class="update.icon" class="text-3xl text-gray-700"></i>
+                <!-- Loop through dates -->
+                <div v-else v-for="(hours, date) in groupedUpdates" :key="date">
+                    <h3 class="text-lg font-normal text-[#171A1FFF] mt-4">
+                        {{ date }}
+                    </h3>
+                    <!-- Loop through time slots within each date -->
+                    <div v-for="(updates, hour) in hours" :key="hour">
+                        <h4 class="text-md font-normal text-[#171A1FFF] mt-2">
+                            {{ hour }}
+                        </h4>
+                        <div class="space-y-4 mt-2">
+                            <!-- Loop through each update in that time slot -->
+                            <div v-for="(update, index) in updates" :key="index"
+                                class="bg-white rounded-[12px] shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4 flex flex-col space-y-2">
+                                <div class="flex items-start space-x-3 cursor-pointer" @click="goToGig(update.gig_id)">
+                                    <!-- Display image or icon -->
+                                    <img v-if="update.image" :src="update.image" class="w-10 rounded-md" />
+                                    <i v-else :class="update.icon" class="text-3xl text-gray-700"></i>
+                                    <!-- Update content -->
+                                    <div class="flex-1">
+                                        <h3 class="text-normal text-gray-800">
+                                            {{ update.title }}
+                                        </h3>
+                                        <p class="text-sm text-gray-500">
+                                            {{ update.description }}
+                                        </p>
+                                    </div>
+                                </div>
 
-                        <!-- Content -->
-                        <div class="flex-1">
-                            <h3 class="text-normal font-medium text-[#222222FF]">
-                                {{ update.title }}
-                            </h3>
-                            <p class="text-sm text-[#666666FF]">
-                                {{ update.description }}
-                            </p>
+                                <hr class="border-gray-300 my-2" />
+
+                                <!-- Bottom section with icons and expand toggle -->
+                                <div class="flex justify-between items-center">
+                                    <div class="flex space-x-4 items-center">
+                                        <span class="text-green-500 font-bold text-lg flex items-center">${{
+                                            update.potentialGigPrice }}</span>
+                                        <i class="fas fa-thumbs-up text-xl text-[#171A1FFF]"></i>
+                                        <i class="fas fa-play-circle text-xl text-[#171A1FFF]"></i>
+                                        <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>
+                                    </div>
+                                    <i @click="toggleExpand(date, hour, index)"
+                                        class="fas fa-chevron-down text-xl text-gray-500 cursor-pointer transition-transform duration-300"
+                                        :class="{
+                                            'rotate-180':
+                                                expandedIndex ===
+                                                `${date}-${hour}-${index}`,
+                                        }"></i>
+                                </div>
+
+                                <!-- Expanded details -->
+                                <div v-if="
+                                    expandedIndex ===
+                                    `${date}-${hour}-${index}`
+                                " class="mt-2 p-2 rounded-md">
+                                    <ul>
+                                        <li v-if="
+                                            update.machine &&
+                                            update.machine.common_repairs
+                                        ">
+                                            <!-- <span class="text-[#66B2ECFF] cursor-pointer">
+                                                <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>&nbsp;
+                                                {{
+                                                firstRepair(
+                                                update.machine
+                                                .common_repairs
+                                                )
+                                                }}
+                                            </span> -->
+                                            <span class="text-[#66B2ECFF] cursor-pointer" @click="goToClient(update)">
+                                                <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>&nbsp;{{
+                                                    update.gig.client_name }} {{ update.gig.client_last_name }} - {{
+                                                    capitalizeWords(update.gig.machine.machine_type) }} {{
+                                                    capitalizeWords(update.gig.machine.brand_name) }}</span>
+                                        </li>
+                                        <li v-if="update.youtube_link" class="mt-2">
+                                            <a :href="update.youtube_link" target="_blank"
+                                                class="cursor-pointer text-[#66B2ECFF]">
+                                                <i class="fas fa-play-circle text-xl text-[#171A1FFF]"></i>
+                                                {{ update.youtube_link }}
+                                            </a>
+                                        </li>
+                                        <li class="mt-2">
+                                            <button type="button" @click="
+                                                goToModel(
+                                                    update.machine
+                                                        .model_number, update.gig_id
+                                                )
+                                                " class="text-[#66B2ECFF]">
+                                                <i class="fas fa-book text-xl text-[#171A1FFF]"></i>
+                                                Service Manual
+                                            </button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-
-                    <hr class="border-gray-300 my-2" />
-
-                    <!-- Bottom Section: Icons on Left, Arrow Down on Right -->
-                    <div class="flex justify-between items-center">
-                        <div class="flex space-x-4 items-center">
-                            <span class="text-green-500 font-bold text-lg flex items-center">
-                                <!-- <i class="fas fa-dollar-sign mr-1"></i>  -->
-                                ${{ update.potentialGigPrice }}
-                            </span>
-                            <i class="fas fa-thumbs-up text-xl text-[#171A1FFF]"></i>
-                            <i class="fas fa-play-circle text-xl text-[#171A1FFF]"></i>
-                            <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>
-                        </div>
-                        <!-- Toggle Arrow -->
-                        <i @click="toggleExpand(index)"
-                            class="fas fa-chevron-down text-xl text-gray-500 cursor-pointer transition-transform duration-300"
-                            :class="{ 'rotate-180': expandedIndex === index }"></i>
-                    </div>
-
-                    <!-- Expanded Content -->
-                    <div v-if="expandedIndex === index" class="mt-2 p-2 rounded-md">
-                        <ul>
-                            <li v-if="
-                                    update.machine &&
-                                    update.machine.common_repairs
-                                ">
-                                <span class="text-[#66B2ECFF] cursor-pointer">
-                                    <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>&nbsp;{{
-                                    firstRepair(
-                                    update.machine.common_repairs
-                                    )
-                                    }}</span>
-                            </li>
-
-                            <li v-if="update.youtube_link" class="mt-2">
-                                <a :href="update.youtube_link" target="_blank"
-                                    class="cursor-pointer text-[#66B2ECFF]"><i
-                                        class="fas fa-play-circle text-xl text-[#171A1FFF]"></i>
-                                    {{ update.youtube_link }}
-                                </a>
-                            </li>
-                            <li class="mt-2">
-                                <button type="button" @click="
-                                        goToModel(update.machine.model_number)
-                                    " class="text-[#66B2ECFF]">
-                                    <i class="fas fa-book text-xl text-[#171A1FFF]"></i>
-                                    Service Manual
-                                </button>
-                            </li>
-                        </ul>
                     </div>
                 </div>
             </div>
@@ -295,7 +328,49 @@ export default {
             selectedTime: new Date().toISOString().substr(11, 5),
         };
     },
+    mounted() {
+        const date = new Date();
+        const options = { month: "long", day: "numeric" };
+        this.formattedDate = date.toLocaleDateString("en-US", options);
+    },
     computed: {
+
+        groupedUpdates() {
+            return this.latestUpdates.reduce((groups, update) => {
+                // Convert rawTime to a proper ISO UTC format if needed.
+                // For example, if the rawTime is "2025-04-03 10:20:30", convert it to "2025-04-03T10:20:30Z"
+                let rawTime = update.rawTime;
+                if (rawTime && rawTime.indexOf("T") === -1) {
+                    rawTime = rawTime.replace(" ", "T") + "Z";
+                }
+                const updateDate = new Date(rawTime);
+                if (isNaN(updateDate)) {
+                    console.error("Invalid date:", update.rawTime);
+                    return groups;
+                }
+                // Group by UTC date: "Month Day" (e.g., "April 4")
+                const dateStr = updateDate.toLocaleDateString("en-US", {
+                    timeZone: "UTC",
+                    month: "long",
+                    day: "numeric",
+                });
+                // Group by UTC time: "h:mm AM/PM" (e.g., "5:00 AM")
+                const timeStr = updateDate.toLocaleTimeString("en-US", {
+                    timeZone: "UTC",
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true,
+                });
+                if (!groups[dateStr]) {
+                    groups[dateStr] = {};
+                }
+                if (!groups[dateStr][timeStr]) {
+                    groups[dateStr][timeStr] = [];
+                }
+                groups[dateStr][timeStr].push(update);
+                return groups;
+            }, {});
+        },
         parsedFeaturedContent() {
             if (this.latestNotif && this.latestNotif.featured_content) {
                 // If it's already an object, return it directly.
@@ -321,9 +396,25 @@ export default {
             );
         },
         formattedDate() {
-            const today = new Date();
-            const options = { month: "long", day: "numeric", timeZone: "UTC" };
-            return new Intl.DateTimeFormat("en-US", options).format(today);
+            if (this.selectedDate) {
+                // Append time to ensure correct UTC parsing if the value is in "YYYY-MM-DD" format
+                const date = new Date(this.selectedDate + "T00:00:00Z");
+                const options = {
+                    month: "long",
+                    day: "numeric",
+                    timeZone: "UTC",
+                };
+                return new Intl.DateTimeFormat("en-US", options).format(date);
+            } else {
+                // Default to today's date if no date is selected
+                const today = new Date();
+                const options = {
+                    month: "long",
+                    day: "numeric",
+                    timeZone: "UTC",
+                };
+                return new Intl.DateTimeFormat("en-US", options).format(today);
+            }
         },
         getLastDaysRange() {
             const today = new Date();
@@ -338,12 +429,24 @@ export default {
     },
 
     methods: {
+        goToNotification() {
+            this.$router.push("/notification");
+        },
+        goToAnalytics() {
+            this.$router.push("/analytics");
+        },
         capitalizeWords(str) {
             if (!str) return ""; // Return an empty string if str is undefined/null
             return str.replace(/\b\w/g, (char) => char.toUpperCase());
         },
-        toggleExpand(index) {
-            this.expandedIndex = this.expandedIndex === index ? null : index;
+        toggleExpand(date, time, index) {
+            // Convert time & index into a unique identifier
+            const itemKey = `${date}-${time}-${index}`;
+
+            // If the clicked item is already open, close it
+            // Otherwise, close all and open the clicked one
+            this.expandedIndex =
+                this.expandedIndex === itemKey ? null : itemKey;
         },
         toggleExpandV2(index) {
             this.expandedIndexV2 =
@@ -355,8 +458,8 @@ export default {
         goToSchedule() {
             this.$router.push(`/schedules`);
         },
-        goToModel(modelNumber) {
-            this.$router.push(`/model/${modelNumber}`);
+        goToModel(modelNumber, gig_id) {
+            this.$router.push(`/model/${modelNumber}/gig/${gig_id}`);
         },
         goToNotification() {
             this.$router.push(`/notification`);
@@ -379,14 +482,19 @@ export default {
                     total_records: 5, // Limit to 5
                 };
 
-                // alert(this.selectedDate);
                 if (this.selectedDate) {
-                    payload.date = this.selectedDate; // Add selected date to request if available
+                    payload.date = this.selectedDate;
                 }
 
-                if (this.selectedTime) {
-                    payload.time = this.selectedTime;
-                }
+
+                // alert(this.selectedDate);
+                // if (this.selectedDate) {
+                //     payload.date = this.selectedDate; // Add selected date to request if available
+                // }
+
+                // if (this.selectedTime) {
+                //     payload.time = this.selectedTime;
+                // }
 
                 console.log(`Selected Date: ${this.selectedDate}`);
                 console.log(`Selected Time: ${this.selectedTime}`);
@@ -416,6 +524,11 @@ export default {
                     this.latestUpdates = this.gigHistoryData.map((gig) => {
 
 
+                        // Adjust rawTime if needed. For example, convert "YYYY-MM-DD HH:mm:ss" to ISO "YYYY-MM-DDTHH:mm:ssZ"
+                        let rawTime = gig.start_datetime;
+                        if (rawTime && rawTime.indexOf("T") === -1) {
+                            rawTime = rawTime.replace(" ", "T") + "Z";
+                        }
 
                         // Determine upsell availability: upsell is available if the client is missing one or both plans.
                         const hasUpsellPotential = !(gig.insurance_plan && gig.maintenance_plan);
@@ -459,7 +572,8 @@ export default {
                         }
 
                         return {
-                            gig_id: gig.gig_id,
+                            gig_id: gig.gig_id, 
+                            rawTime: rawTime, // Save the raw datetime in ISO UTC format
                             image: gig.machine.machine_photo
                                 ? gig.machine.machine_photo
                                 : "../../../../images/washing-machine.png", // Keeping static image
@@ -469,7 +583,8 @@ export default {
                             repair_notes: `${gig.repair_notes}`,
                             machine: gig.machine,
                             youtube_link: gig.youtube_link,
-                            potentialGigPrice: potentialGigPrice  // New custom field
+                            potentialGigPrice: potentialGigPrice,  // New custom field
+                            gig:gig
                         };
                     });
 
@@ -530,6 +645,20 @@ export default {
                 console.error("Error fetching user data:", error);
             }
         },
+
+        goToRepair(data, gig_id) {
+            try {
+                const repairs = JSON.parse(data);
+                const id = Array.isArray(repairs) && repairs.length > 0
+                    ? `${repairs[0].id}`
+                    : '#';
+
+                this.$router.push(`/gig/${gig_id}/repair/${id}`);
+            } catch (e) {
+
+                this.$router.push(`/dashboard#`);
+            }
+        },
         firstRepair(data) {
             try {
                 const repairs = JSON.parse(data);
@@ -539,6 +668,9 @@ export default {
             } catch (e) {
                 return null;
             }
+        },
+        goToClient(data) {
+            this.$router.push(`/customer/${data.gig.client_id}/gig/${data.gig_id}`);
         },
     },
 };

@@ -125,32 +125,32 @@
                             <i class="fas fa-calendar-check text-blue-500 text-4xl"></i>
                         </div>
                     </div>
-                    <!-- Toggle Switch -->
+                    <!-- Toggle Switch with label -->
                     <label class="flex items-center cursor-pointer">
-                        <input type="checkbox" v-model="advancedSchedule" @change="
-                                updateSettings('is_blackout', advancedSchedule)
-                            " class="sr-only" />
+                        <input type="checkbox" v-model="advancedSchedule"
+                            @change="updateSettings('is_blackout', advancedSchedule)" class="sr-only" />
                         <div class="relative w-10 h-5 bg-gray-300 rounded-full transition-all duration-300"
                             :class="{ 'bg-green-500': advancedSchedule }">
-                            <div class="absolute left-1 top-1/2 -translate-y-1/2
-               w-3.5 h-3.5 bg-white rounded-full
-               shadow-md shadow-[#171a1f17] drop-shadow-sm
-               transition-all duration-300" :class="{ 'translate-x-5': advancedSchedule }"></div>
+                            <div class="absolute left-1 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 bg-white rounded-full shadow-md transition-all duration-300"
+                                :class="{ 'translate-x-5': advancedSchedule }"></div>
                         </div>
+                        <span class="ml-2 font-medium text-sm text-gray-700">
+                            {{ advancedSchedule ? 'On Duty' : 'Off Duty' }}
+                        </span>
                     </label>
                 </div>
+
             </div>
 
             <!-- Advanced Skills Section -->
             <div class="mt-6 w-full max-w-md space-y-6">
                 <!-- Dropdown -->
-                <div class="bg-white rounded-lg shadow-md border p-4 relative">
+                <!-- <div class="bg-white rounded-lg shadow-md border p-4 relative">
                     <label class="text-lg font-bold text-[#171A1FFF]">
                         Advanced Skills
                         <span class="text-gray-600 text-sm">(Select all that apply)</span>
                     </label>
 
-                    <!-- Selected Items as Button -->
                     <div class="mt-2 p-2 border border-gray-300 rounded-lg bg-white cursor-pointer flex justify-between items-center"
                         @click="
                             () => {
@@ -166,7 +166,6 @@
                             :class="{ 'rotate-180': isDropdownOpen }"></i>
                     </div>
 
-                    <!-- Dropdown List -->
                     <div v-show="isDropdownOpen"
                         class="absolute left-0 right-0 top-full mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-[9999] max-h-48 overflow-y-auto"
                         style="display: block">
@@ -177,7 +176,7 @@
                             <label :for="'skill_' + index" class="text-gray-700 cursor-pointer">{{ skill }}</label>
                         </div>
                     </div>
-                </div>
+                </div> -->
 
                 <!-- Toggle Options -->
                 <div class="bg-white rounded-lg shadow-md shadow-[#171a1f17] drop-shadow-sm border p-4">

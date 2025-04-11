@@ -1,18 +1,44 @@
 <template>
-    <!-- Star Rating -->
     <div class="flex space-x-1 mt-3">
-        <template v-for="(star, index) in 5" :key="index">
-            <i v-if="index + 1 <= Math.floor(calculatedStars)" class="fas fa-star text-4xl text-[#232850FF]"></i>
-            <i v-else-if="index < calculatedStars" class="fas fa-star-half-alt text-4xl text-[#232850FF]"></i>
-            <i v-else class="far fa-star text-4xl text-gray-300"></i>
+        <template v-for="(rule, index) in rating_rules.slice(0, 5)" :key="index">
+            <div class="relative inline-block cursor-pointer">
+                <!-- Icon with hover/click detection -->
+                <i class="text-4xl" :class="[
+                    rule.stars <= Math.floor(calculatedStars)
+                        ? 'fas fa-star text-[#232850FF]'
+                        : rule.stars <= calculatedStars
+                            ? 'fas fa-star-half-alt text-[#232850FF]'
+                            : 'far fa-star text-gray-300'
+                ]" @mouseenter="hoveredIndex = index" @mouseleave="hoveredIndex = null"
+                    @click="activeTooltip = activeTooltip === index ? null : index"></i>
+
+                <!-- Tooltip -->
+                <div v-if="hoveredIndex === index || activeTooltip === index"
+                    class="absolute min-w-[100px] max-w-[180px] bottom-full mb-2 left-1/2 -translate-x-1/2 w-max px-3 py-2 text-xs text-white bg-gray-900 rounded-lg shadow-md transition-opacity duration-200 z-10 break-words">
+                    Earn ${{ rule.min_price.toLocaleString() }} - ${{ rule.max_price.toLocaleString() }}<br />
+                    for {{ rule.stars }} star(s).<br />
+                    Your earnings: ${{ total_gig_price.toLocaleString() }}
+                </div>
+            </div>
         </template>
     </div>
 </template>
 
+
+
 <script>
 
-import axios from "axios"; // Ensure axios is imported
+// [
+//     { "id": 1, "min_price": 0, "max_price": 1499.99, "stars": 1 },
+//     { "id": 2, "min_price": 1500, "max_price": 2999.99, "stars": 2 },
+//     { "id": 3, "min_price": 3000, "max_price": 4499.99, "stars": 3 },
+//     { "id": 4, "min_price": 4500, "max_price": 5999.99, "stars": 4 },
+//     { "id": 5, "min_price": 6000, "max_price": 7499.99, "stars": 4.5 },
+//     { "id": 6, "min_price": 7500, "max_price": 1000000, "stars": 5 }
+// ]
 
+
+import axios from "axios"; // Ensure axios is imported
 
 export default {
     name: "Ratings",
@@ -20,8 +46,16 @@ export default {
         return {
             user_id: null,
             total_gig_price: 0.00,
-            rating_rules: []
+            rating_rules: [],
+            hoveredIndex: null,
+            activeTooltip: null
         };
+    },
+    mounted() {
+        document.addEventListener("click", this.closeTooltipOnOutsideClick);
+    },
+    beforeUnmount() {
+        document.removeEventListener("click", this.closeTooltipOnOutsideClick);
     },
     computed: {
         calculatedStars() {
@@ -32,7 +66,7 @@ export default {
                 this.total_gig_price >= rule.min_price && this.total_gig_price <= rule.max_price
             );
 
-            return rule ? rule.stars : 1; // Default to 1 star if no rule matches
+            return rule ? rule.stars : 0; // Default to 1 star if no rule matches
         }
     },
     created() {
@@ -42,6 +76,11 @@ export default {
         });
     },
     methods: {
+        closeTooltipOnOutsideClick(event) {
+            if (!event.target.closest(".inline-block")) {
+                this.activeTooltip = null;
+            }
+        },
         async fetchUserData() {
             const token = localStorage.getItem('token');
             if (!token) {
@@ -57,6 +96,7 @@ export default {
                 });
 
                 this.user_id = response.data.user.id;
+                // Remove division by 100 if total_gig_price is already in dollars.
                 this.total_gig_price = response.data.total_gig_price;
             } catch (error) {
                 console.error("Error fetching user data:", error);
@@ -84,7 +124,8 @@ export default {
     }
 };
 </script>
-
 <style scoped>
-/* Add any additional styling here */
+.inline-block i {
+    pointer-events: auto;
+}
 </style>

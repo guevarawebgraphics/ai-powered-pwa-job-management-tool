@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>American Appliance Repair</title>
+    <title>Appliance Repair American</title>
 @if (app()->environment('local'))
     {{-- Development: Use Vite --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
