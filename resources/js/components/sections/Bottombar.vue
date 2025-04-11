@@ -23,7 +23,7 @@ export default {
             navItems: [
                 { name: "Home", label: "Home", icon: "fas fa-home", route: "/dashboard" },
                 { name: "Calendar", label: "Calendar", icon: "fas fa-calendar-alt", route: "/schedules" },
-                { name: "CoPilot", label: "CoPilot", icon: "fas fa-headset", route: "/copilot" },
+                { name: "CoPilot", label: "CoPilot", icon: "fas fa-headset", route: "/dax" },
                 { name: "Analytics", label: "Analytics", icon: "fas fa-chart-bar", route: "/analytics" },
                 { name: "Guild", label: "Guild", icon: "fas fa-project-diagram", route: "/guild-profile" }
             ],

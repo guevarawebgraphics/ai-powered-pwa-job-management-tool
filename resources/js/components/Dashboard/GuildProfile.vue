@@ -5,36 +5,26 @@
         <!-- Guild Profile -->
         <div class="flex flex-col items-center p-6">
             <!-- Profile Picture -->
-            <div class="relative">
-                <img src="../../../../public/images/profile.png" alt="Profile Picture"
-                    class="w-24 h-24 rounded-md border border-gray-300 shadow-md" />
-                <!-- Edit Icon (Top Right) -->
-                <button class="absolute top-0 right-0 bg-white border rounded-full p-1 shadow-md">
-                    <i class="fas fa-external-link-alt text-[#BCC1CAFF]"></i>
-                </button>
+            <div class="relative w-24 h-24">
+                <!-- Profile Picture -->
+                <img :src="previewPhoto" alt="Profile Picture"
+                    class="w-24 h-24 rounded-md border border-gray-300 shadow-md object-cover" />
+
+                <!-- File Input (Hidden) -->
+                <input type="file" ref="fileInput" class="hidden" accept="image/*" @change="uploadProfilePhoto" />
             </div>
 
             <!-- Name & Title -->
             <div class="mt-3 text-center">
                 <div class="relative inline-block">
-                    <h2 class="text-lg font-bold text-[#232850FF]">Full Name</h2>
-                    <!-- Edit Icon -->
-                    <button class="absolute -right-6 top-1">
-                        <i class="fas fa-edit text-[#BCC1CAFF]"></i>
-                    </button>
+                    <h2 class="text-xl text-[#171A1FFF]">{{ name ?? "--" }}</h2>
                 </div>
-                <p class="text-[#9095A0FF]">Professional title</p>
+                <p class="text-[#9095A0FF]">{{ professionalTitle ?? "--" }}</p>
             </div>
 
-            <!-- Star Rating -->
-            <div class="flex space-x-1 mt-3">
-                <i class="fas fa-star text-4xl text-[#232850FF]"></i>
-                <i class="fas fa-star text-4xl text-[#232850FF]"></i>
-                <i class="fas fa-star text-4xl text-[#232850FF]"></i>
-                <i class="fas fa-star text-4xl text-[#232850FF]"></i>
-                <i class="fas fa-star text-4xl text-[#232850FF]"></i>
-            </div>
+            <Ratings />
         </div>
+
 
         <!-- Statistics Section -->
         <div class="max-w-lg mx-auto p-6">
@@ -147,12 +137,17 @@
 <script>
 import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
+import Ratings from "../sections/Ratings.vue";
+import axios from "axios"; // Ensure axios is imported
 
 export default {
-    components: { NavBar, BottomNav },
+    components: { NavBar, BottomNav, Ratings },
     name: "GuildProfilePage",
     data() {
         return {
+            name: "--",
+            professionalTitle: "--",
+            previewPhoto: "/images/avatar.png",
             badges: [
                 {
                     name: "Rockstar",
@@ -178,5 +173,47 @@ export default {
             ],
         };
     },
+    created() {
+        this.fetchUserData();
+    },
+    methods: {
+        async fetchUserData() {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("No token found in localStorage");
+                return;
+            }
+            try {
+                const response = await axios.get("/api/user", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                const userData = response.data.user;
+
+                // Check if profile_photo exists and is valid
+                if (
+                    userData.profile_photo &&
+                    userData.profile_photo !== "null"
+                ) {
+                    this.previewPhoto = userData.profile_photo.startsWith(
+                        "http"
+                    )
+                        ? userData.profile_photo
+                        : `${process.env.VUE_APP_BASE_URL}/storage/${userData.profile_photo}`;
+                } else {
+                    this.previewPhoto = "/images/avatar.png";
+                }
+
+                // Set user info
+                this.name = userData.name;
+                this.professionalTitle = userData.professional_title;
+            } catch (error) {
+                console.error("Error fetching user data:", error);
+            }
+        },
+    }
 };
 </script>

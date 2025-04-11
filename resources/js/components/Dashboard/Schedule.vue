@@ -108,7 +108,7 @@
                                                 update.machine &&
                                                 update.machine.common_repairs
                                             ">
-                                            <span class="text-[#66B2ECFF] cursor-pointer">
+                                            <!-- <span class="text-[#66B2ECFF] cursor-pointer">
                                                 <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>&nbsp;
                                                 {{
                                                 firstRepair(
@@ -116,7 +116,12 @@
                                                 .common_repairs
                                                 )
                                                 }}
-                                            </span>
+                                            </span> -->
+                                            <span class="text-[#66B2ECFF] cursor-pointer" @click="goToClient(update)">
+                                                <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>&nbsp;{{
+                                                    update.gig.client_name }} {{ update.gig.client_last_name }} - {{
+                                                    capitalizeWords(update.gig.machine.machine_type) }} {{
+                                                    capitalizeWords(update.gig.machine.brand_name) }}</span>
                                         </li>
                                         <li v-if="update.youtube_link" class="mt-2">
                                             <a :href="update.youtube_link" target="_blank"
@@ -129,7 +134,7 @@
                                             <button type="button" @click="
                                                     goToModel(
                                                         update.machine
-                                                            .model_number
+                                                            .model_number, update.gig_id
                                                     )
                                                 " class="text-[#66B2ECFF]">
                                                 <i class="fas fa-book text-xl text-[#171A1FFF]"></i>
@@ -524,7 +529,8 @@ export default {
                             youtube_link: gig.youtube_link,
                             potentialGigPrice: potentialGigPrice,
                             start_datetime: gig.start_datetime,
-                            gig_price:gig.gig_price
+                            gig_price:gig.gig_price,
+                            gig: gig
                         };
                     });
 
@@ -590,8 +596,8 @@ export default {
             }
         },
 
-        goToModel(modelNumber) {
-            this.$router.push(`/model/${modelNumber}`);
+        goToModel(modelNumber, gig_id) {
+            this.$router.push(`/model/${modelNumber}/gig/${gig_id}`);
         },
         firstRepair(data) {
             try {
@@ -602,6 +608,13 @@ export default {
             } catch (e) {
                 return null;
             }
+        },
+        goToClient(data) {
+            this.$router.push(`/customer/${data.gig.client_id}/gig/${data.gig_id}`);
+        },
+        capitalizeWords(str) {
+            if (!str) return ""; // Return an empty string if str is undefined/null
+            return str.replace(/\b\w/g, (char) => char.toUpperCase());
         },
     },
 };

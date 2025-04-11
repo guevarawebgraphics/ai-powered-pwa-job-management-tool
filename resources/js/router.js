@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import axios from 'axios'; // Import Axios for API calls
+import axios from 'axios';
+
+// Import your components for routes
 import Home from './components/Home.vue'; 
 import Login from './components/Login.vue';
 import Register from './components/Register.vue';
@@ -26,6 +28,10 @@ import ResetPassword from './components/ResetPassword.vue';
 import Model2 from './components/Dashboard/Model2.vue';
 import Analytics from './components/Dashboard/Analytic.vue';
 import AnalyticType from './components/Dashboard/AnalyticType.vue';
+import DAX from './components/sections/DAX-page.vue';
+
+// Import the store from store.js
+import store from './store';
 
 const routes = [
     // Public Routes
@@ -37,7 +43,7 @@ const routes = [
     { path: '/otp', component: OTP },
     { path: '/forgot-password', component: Forget },
     { path: '/reset-password', component: ResetPassword },
-
+    
     // Protected Routes (Require Authentication)
     { path: '/profile', component: Profile, meta: { requiresAuth: true, requiresVerification: true } },
     { path: '/set-schedule', component: SetSchedule, meta: { requiresAuth: true, requiresVerification: true } },
@@ -55,6 +61,7 @@ const routes = [
     { path: '/model2/:id/gig/:gigId?', component: Model2, meta: { requiresAuth: true, requiresVerification: true } },
     { path: '/analytics', component: Analytics, meta: { requiresAuth: true, requiresVerification: true } },
     { path: '/analytics/type/:type?', component: AnalyticType, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/dax', component: DAX, meta: { requiresAuth: true, requiresVerification: true } },
 ];
 
 const router = createRouter({
@@ -62,39 +69,44 @@ const router = createRouter({
     routes
 });
 
-// 🔐 Navigation Guard to Protect Routes
+// Navigation Guard to show/hide pre-loader and perform auth checks
 router.beforeEach(async (to, from, next) => {
+    // Show the pre-loader on route change start
+    store.dispatch('showLoader');
+    
     const token = localStorage.getItem('token');
-
+    
     if (to.meta.requiresAuth) {
         if (!token) {
-            return next('/login'); // ❌ Not authenticated → Redirect to Login
+            store.dispatch('hideLoader');
+            return next('/login'); // Not authenticated → Redirect to Login
         }
-
         try {
-            // ✅ Check user verification status from API
+            // Check user verification status from API
             const response = await axios.get('/api/user', {
                 headers: { Authorization: `Bearer ${token}` }
             });
-
             const user = response.data.user;
-            const isVerified = user.is_verified; // Assuming backend returns this
-            // alert(response.data.ip_address);
-
+            const isVerified = user.is_verified;
             if (to.meta.requiresVerification && !isVerified) {
-                return next('/otp'); // ❌ Not verified → Redirect to OTP
+                store.dispatch('hideLoader');
+                return next('/otp'); // Not verified → Redirect to OTP
             }
-
-            next(); // ✅ Authenticated & verified → Allow access
+            next(); // Authenticated & verified → Allow access
         } catch (error) {
             console.error('Auth check failed:', error);
-            localStorage.removeItem('token'); // Remove invalid token
-            return next('/login'); // ❌ Redirect to Login on error
+            localStorage.removeItem('token');
+            store.dispatch('hideLoader');
+            return next('/login'); // Redirect to Login on error
         }
     } else {
-        next(); // ✅ Public routes
+        next(); // Public routes
     }
 });
 
+router.afterEach(() => {
+    // Hide the pre-loader after route change
+    store.dispatch('hideLoader');
+});
 
 export default router;

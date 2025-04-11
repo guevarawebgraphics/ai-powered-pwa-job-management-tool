@@ -3,10 +3,6 @@
     "file": "assets/logo-D_x7Z3el.png",
     "src": "public/images/logo.png"
   },
-  "public/images/profile.png": {
-    "file": "assets/profile-Bi5cY6os.png",
-    "src": "public/images/profile.png"
-  },
   "public/images/selection-0.png": {
     "file": "assets/selection-0-DQepUz_3.png",
     "src": "public/images/selection-0.png"
@@ -32,21 +28,20 @@
     "src": "public/images/washing-machine.png"
   },
   "resources/css/app.css": {
-    "file": "assets/app-D8aY955m.css",
+    "file": "assets/app-CG0wXhSm.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-R4xgbRuE.js",
+    "file": "assets/app-DP54BBla.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "css": [
-      "assets/app-CDZalVa0.css"
+      "assets/app-Dq3ONLNo.css"
     ],
     "assets": [
       "assets/logo-D_x7Z3el.png",
-      "assets/profile-Bi5cY6os.png",
       "assets/washing-machine-BYFiqJs5.png",
       "assets/selection-0-DQepUz_3.png",
       "assets/selection-1-BiS-Wj2P.png",

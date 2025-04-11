@@ -1,45 +1,25 @@
 <template>
-    <!-- DAX Button to open the modal -->
-    <button type="button" @click="openModal" v-if="page !== 'Model'"
-        class="bg-white min-h-[100px] rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-center justify-center text-center transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
 
-        <div class="flex items-center justify-center space-x-2">
-            <i class="fas fa-headphones-simple text-lg text-[#171A1FFF]"></i>
-            <span class="text-xl font-medium text-[#666666FF]">
-                DAX
-            </span>
-        </div>
-    </button>
+    <div class="mt-20 mb-20">
+        <NavBar />
+        <div class="max-w-lg mx-auto p-6 text-center">
+            <!-- Dynamic Conversation State Heading -->
+            <div class="text-gray-800 mb-4 text-center">
+                <template v-if="recording">
+                    <h2 class="text-4xl font-semibold leading-tight">Listening...</h2>
+                    <p class="text-4xl text-gray-500 mt-1">Speak now</p>
+                </template>
+                <template v-else>
+                    <h2 class="text-4xl font-semibold leading-tight">Talk to DAX</h2>
+                    <p class="text-2xl text-gray-500 mt-1">Press the button to start talking</p>
+                </template>
+            </div>
 
-    <div @click="openModal" class="bg-white shadow-md rounded-lg p-4 flex items-center justify-center mt-6" v-else>
-        <i class="fas fa-headset text-3xl text-gray-700"></i>
-        <p class="text-sm font-medium ml-2">DAX</p>
-    </div>
-
-    <!-- Modal -->
-    <div v-if="showModal"
-        class="fixed inset-0 z-50 bg-[#fff] flex flex-col items-center justify-center text-white px-4 py-6">
-
-        <!-- Exit Button -->
-        <button @click="closeModal" class="absolute top-5 right-5 text-[#333] text-2xl">✖</button>
-
-        <!-- Dynamic Conversation State Heading -->
-        <div class="text-gray-800 mb-4 text-center">
-            <template v-if="recording">
-                <h2 class="text-4xl font-semibold leading-tight">Listening...</h2>
-                <p class="text-4xl text-gray-500 mt-1">Speak now</p>
-            </template>
-            <template v-else>
-                <h2 class="text-4xl font-semibold leading-tight">Talk to DAX</h2>
-                <p class="text-2xl text-gray-500 mt-1">Press the button to start talking</p>
-            </template>
-        </div>
-
-        <!-- Scrollable Transcript Log -->
-        <div ref="transcriptContainer"
-            class="w-full max-w-2xl h-80 overflow-y-auto px-4 py-2 mb-6 text-center space-y-2">
-            <div v-for="(msg, index) in chatHistory" :key="index" @mouseover="hoveredIndex = index"
-                @mouseleave="hoveredIndex = null" :class="[
+            <!-- Scrollable Transcript Log -->
+            <div ref="transcriptContainer"
+                class="w-full max-w-2xl h-80 overflow-y-auto px-4 py-2 mb-6 text-center space-y-2">
+                <div v-for="(msg, index) in chatHistory" :key="index" @mouseover="hoveredIndex = index"
+                    @mouseleave="hoveredIndex = null" :class="[
                     'leading-snug transition-all duration-300 cursor-default',
                     hoveredIndex === index
                         ? 'text-base font-semibold opacity-100'
@@ -48,27 +28,38 @@
                             : 'text-lg opacity-40',
                     msg.role === 'user' ? 'text-[#232850FF]' : 'text-blue-300'
                 ]">
-                <span class="mr-2">{{ msg.role === 'user' ? 'You' : 'DAX' }}:</span>
-                <span class="text-[#333]">{{ msg.content }}</span>
-            </div>
+                    <span class="mr-2">{{ msg.role === 'user' ? 'You' : 'DAX' }}:</span>
+                    <span class="text-[#333]">{{ msg.content }}</span>
+                </div>
 
-            <!-- Typing (live transcript) effect -->
-            <div v-if="typingReply" class="leading-snug text-base font-semibold text-blue-300">
-                <span class="mr-2">DAX:</span>
-                <span class="text-[#333]">{{ typingReply }}</span>
+                <!-- Typing (live transcript) effect -->
+                <div v-if="typingReply" class="leading-snug text-base font-semibold text-blue-300">
+                    <span class="mr-2">DAX:</span>
+                    <span class="text-[#333]">{{ typingReply }}</span>
+                </div>
             </div>
-        </div>
-
-        <!-- Toggle Recording Button -->
-        <button @click="recording ? stopRecording() : startRecording()" :class="['relative w-20 h-20 rounded-full shadow-lg flex items-center justify-center text-white text-3xl transition',
+            <div class="relative">
+                <!-- Toggle Recording Button -->
+                <button @click="recording ? stopRecording() : startRecording()" :class="['absolute left-1/2 transform -translate-x-1/2 -translate-y-full w-20 h-20 rounded-full shadow-lg flex items-center justify-center text-white text-3xl transition',
             recording ? 'bg-red-500 pulse-active' : 'bg-blue-500 hover:scale-110']">
-            <i :class="recording ? 'fas fa-stop' : 'fas fa-microphone'"></i>
-        </button>
+                    <i :class="recording ? 'fas fa-stop' : 'fas fa-microphone'"></i>
+                </button>
+
+
+            </div>
+            <BottomNav />
+        </div>
     </div>
 </template>
 
 <script>
+
+import NavBar from "../sections/Navbar.vue";
+import BottomNav from "../sections/Bottombar.vue";
+
 export default {
+
+    components: { NavBar, BottomNav },
     name: "DAX",
     props: {
         page: {
@@ -79,7 +70,6 @@ export default {
     },
     data() {
         return {
-            showModal: false,
             recording: false,
             speaking: false,
             chatHistory: [],
@@ -97,20 +87,7 @@ export default {
             const element = document.querySelector(this.contentSelector);
             return element ? element.innerText : '';
         },
-        openModal() {
-            this.showModal = true;
-        },
-        closeModal() {
-            this.showModal = false;
-            this.recording = false;
-            this.speaking = false;
-            this.chatHistory = [];
-            this.typingReply = '';
-            if (this.peerConnection) {
-                this.peerConnection.close();
-                this.peerConnection = null;
-            }
-        },
+
         async startRecording() {
             this.recording = true;
 

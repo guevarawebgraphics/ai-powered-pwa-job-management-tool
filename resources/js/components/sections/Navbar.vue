@@ -12,15 +12,16 @@
             <img
                 src="../../../../public/images/logo.png"
                 alt="Logo"
-                class="w-12 h-12"
+                class="w-12 h-12 cursor-pointer"
+                @click="goToHome"
             />
         </div>
 
         <!-- Right Icons -->
         <div class="relative flex space-x-6">
-            <button class="text-gray-800 text-2xl hover:text-gray-600">
+            <!-- <button class="text-gray-800 text-2xl hover:text-gray-600">
                 <i class="fa-solid fa-circle-plus text-[#171A1FFF]"></i>
-            </button>
+            </button> -->
 
             <!-- 🔔 Notification Bell with Badge -->
             <button
@@ -166,6 +167,9 @@ export default {
             } else {
                 this.$router.go(-1);
             }
+        },
+        goToHome() {
+            this.$router.push("/dashboard");
         },
         goToNotification() {
             this.$router.push("/notification");
