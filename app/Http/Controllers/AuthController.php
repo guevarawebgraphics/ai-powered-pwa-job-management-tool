@@ -159,7 +159,7 @@ class AuthController extends Controller
     {
         $user = $request->user();
         $total_jobs_booked = \DB::table('gigs')->where('assigned_tech_id', auth()->user()->id)->count();
-        $total_gig_price = \DB::table('gigs')->whereNull('deleted_at')->where('assigned_tech_id', auth()->user()->id)->sum('gig_price');
+        $total_gig_price = \DB::table('gigs')->where('gig_complete', 3)->whereNull('deleted_at')->where('assigned_tech_id', auth()->user()->id)->sum('gig_price');
         $latestNotif = \DB::table('notification')->where('user_id', auth()->user()->id)->whereNull('deleted_at')->first();
         $data = [
             'user'  =>  $user,
