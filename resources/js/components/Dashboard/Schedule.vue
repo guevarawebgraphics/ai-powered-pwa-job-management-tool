@@ -43,9 +43,22 @@
 
         <div class="max-w-lg mx-auto p-6">
             <h2 class="text-xl text-[#171A1FFF]">Latest Updates</h2>
-            <div class="space-y-6 mt-3">
+
+            <!-- Loading Spinner -->
+            <div v-if="loading" class="flex justify-center items-center h-64">
+                <!-- Tailwind CSS spinner -->
+                <!-- <svg class="animate-spin h-10 w-10 text-[#171A1FFF]" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg> -->
+            </div>
+
+            <!-- Content -->
+            <div v-else class="space-y-6 mt-3">
                 <!-- Show message if no gigs -->
-                <div v-if="Object.keys(groupedUpdates).length === 0" class="text-center text-gray-500">
+                <!-- <div v-if="Object.keys(groupedUpdates).length === 0" class="text-center text-gray-500"> -->
+                <div v-if="dataLoaded && Object.keys(groupedUpdates).length === 0" class="text-center text-gray-500">
                     No gig found.
                 </div>
 
@@ -91,37 +104,19 @@
                                     </div>
                                     <i @click="toggleExpand(date, hour, index)"
                                         class="fas fa-chevron-down text-xl text-gray-500 cursor-pointer transition-transform duration-300"
-                                        :class="{
-                                            'rotate-180':
-                                                expandedIndex ===
-                                                `${date}-${hour}-${index}`,
-                                        }"></i>
+                                        :class="{ 'rotate-180': expandedIndex === `${date}-${hour}-${index}` }"></i>
                                 </div>
 
                                 <!-- Expanded details -->
-                                <div v-if="
-                                        expandedIndex ===
-                                        `${date}-${hour}-${index}`
-                                    " class="mt-2 p-2 rounded-md">
+                                <div v-if="expandedIndex === `${date}-${hour}-${index}`" class="mt-2 p-2 rounded-md">
                                     <ul>
-                                        <li v-if="
-                                                update.machine &&
-                                                update.machine.common_repairs
-                                            ">
-                                            <!-- <span class="text-[#66B2ECFF] cursor-pointer">
-                                                <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>&nbsp;
-                                                {{
-                                                firstRepair(
-                                                update.machine
-                                                .common_repairs
-                                                )
-                                                }}
-                                            </span> -->
+                                        <li v-if="update.machine && update.machine.common_repairs">
                                             <span class="text-[#66B2ECFF] cursor-pointer" @click="goToClient(update)">
-                                                <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>&nbsp;{{
-                                                    update.gig.client_name }} {{ update.gig.client_last_name }} - {{
-                                                    capitalizeWords(update.gig.machine.machine_type) }} {{
-                                                    capitalizeWords(update.gig.machine.brand_name) }}</span>
+                                                <i class="fas fa-info-circle text-xl text-[#171A1FFF]"></i>&nbsp;
+                                                {{ update.gig.client_name }} {{ update.gig.client_last_name }} - {{
+                                                capitalizeWords(update.gig.machine.machine_type) }} {{
+                                                capitalizeWords(update.gig.machine.brand_name) }}
+                                            </span>
                                         </li>
                                         <li v-if="update.youtube_link" class="mt-2">
                                             <a :href="update.youtube_link" target="_blank"
@@ -131,12 +126,9 @@
                                             </a>
                                         </li>
                                         <li class="mt-2">
-                                            <button type="button" @click="
-                                                    goToModel(
-                                                        update.machine
-                                                            .model_number, update.gig_id
-                                                    )
-                                                " class="text-[#66B2ECFF]">
+                                            <button type="button"
+                                                @click="goToModel(update.machine.model_number, update.gig_id)"
+                                                class="text-[#66B2ECFF]">
                                                 <i class="fas fa-book text-xl text-[#171A1FFF]"></i>
                                                 Service Manual
                                             </button>
@@ -149,6 +141,7 @@
                 </div>
             </div>
         </div>
+
 
         <BottomNav />
     </div>
@@ -166,6 +159,8 @@ export default {
     name: "SchedulePage",
     data() {
         return {
+            loading: false,
+            dataLoaded: false,
             previewPhoto: "/images/avatar.png",
             user_id: null,
             total_jobs: 0,
@@ -388,6 +383,8 @@ export default {
         // },
 
         async gigHistory() {
+
+            this.loading = true; // start loading animation
             const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
             const token = import.meta.env.VITE_API_KEY;
 
@@ -553,6 +550,9 @@ export default {
                 console.log("Transformed latestUpdates:", this.latestUpdates);
             } catch (error) {
                 console.error("Error fetching gig history data:", error);
+            } finally {
+                this.loading = false; // stop loading animation after request is finished
+                this.dataLoaded = true;
             }
         },
 
