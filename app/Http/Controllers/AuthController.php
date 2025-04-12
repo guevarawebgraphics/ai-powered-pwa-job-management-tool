@@ -187,10 +187,13 @@ class AuthController extends Controller
         return response()->json([
             'files' => array_map(fn($file) => [
                 'file_name' => $file->getFilename(),
-                'url' => asset($request_path . $file->getFilename())
+                'url' => asset($request_path . $file->getFilename()),
+                'text_based_content'    =>  ''
             ], $files)
         ]);
+
     }
+
 
 
     

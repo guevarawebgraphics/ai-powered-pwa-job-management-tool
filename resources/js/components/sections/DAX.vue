@@ -75,7 +75,7 @@ export default {
             type: String,
             default: 'Guest'
         },
-        contentSelector: { type: String, default: 'body' }
+        contentSelector: { type: String, default: 'body' },
     },
     data() {
         return {
@@ -89,7 +89,7 @@ export default {
             localStream: null,
             dataChannel: null,
             speechRecognition: null,
-            userTranscript: '',
+            userTranscript: ''
         };
     },
     methods: {
@@ -278,6 +278,8 @@ export default {
             if (this.dataChannel && this.dataChannel.readyState === "open") {
 
                 const pageContent = document.querySelector(this.contentSelector)?.innerText || '';
+
+                console.log(`Appended files: `, this.$store.state.pdfFiles);
 
                 const event = {
                     type: "session.update",
