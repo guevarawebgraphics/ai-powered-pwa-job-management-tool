@@ -1,24 +1,23 @@
 <template>
     <div class="flex space-x-1 mt-3">
-        <template v-for="(rule, index) in rating_rules.slice(0, 5)" :key="index">
+        <template v-for="index in 5" :key="index">
             <div class="relative inline-block cursor-pointer">
-                <!-- Icon with hover/click detection -->
+                <!-- Star Icon -->
                 <i class="text-4xl" :class="[
-                    rule.stars <= Math.floor(calculatedStars)
+                    index <= Math.floor(current_rating)
                         ? 'fas fa-star text-[#232850FF]'
-                        : rule.stars <= calculatedStars
+                        : index - 0.5 === current_rating
                             ? 'fas fa-star-half-alt text-[#232850FF]'
                             : 'far fa-star text-gray-300'
                 ]" @mouseenter="hoveredIndex = index" @mouseleave="hoveredIndex = null"
-                    @click="activeTooltip = activeTooltip === index ? null : index"></i>
+                    @click="activeTooltip = activeTooltip === index ? null : index">
+                </i>
 
-                <!-- Tooltip -->
-                <div v-if="hoveredIndex === index || activeTooltip === index"
-                    class="absolute min-w-[100px] max-w-[180px] bottom-full mb-2 left-1/2 -translate-x-1/2 w-max px-3 py-2 text-xs text-white bg-gray-900 rounded-lg shadow-md transition-opacity duration-200 z-10 break-words">
-                    Earn ${{ rule.min_price.toLocaleString() }} - ${{ rule.max_price.toLocaleString() }}<br />
-                    for {{ rule.stars }} star(s).<br />
-                    Your earnings: ${{ total_gig_price.toLocaleString() }}
-                </div>
+                <!-- Optional Tooltip -->
+                <!-- <div v-if="hoveredIndex === index || activeTooltip === index"
+                    class="absolute min-w-[100px] max-w-[180px] bottom-full mb-2 left-1/2 -translate-x-1/2 px-3 py-2 text-xs text-white bg-gray-900 rounded-lg shadow-md z-10 text-center">
+                    Rated {{ index }} star{{ index > 1 ? 's' : '' }}
+                </div> -->
             </div>
         </template>
     </div>
@@ -48,7 +47,8 @@ export default {
             total_gig_price: 0.00,
             rating_rules: [],
             hoveredIndex: null,
-            activeTooltip: null
+            activeTooltip: null,
+            current_rating: 0
         };
     },
     mounted() {
@@ -96,6 +96,7 @@ export default {
                 });
 
                 this.user_id = response.data.user.id;
+                this.current_rating = response.data.user.user_rating;
                 // Remove division by 100 if total_gig_price is already in dollars.
                 this.total_gig_price = response.data.total_gig_price;
             } catch (error) {

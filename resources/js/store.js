@@ -5,7 +5,8 @@ const store = createStore({
     notificationData: [],
     chatMessages: [],
     unseenNotification: 0,
-    isLoading: false
+    isLoading: false,
+    pdfFiles: []
   },
   mutations: {
     setNotificationData(state, payload) {
@@ -23,6 +24,9 @@ const store = createStore({
     // Mutation to update loading state
     setLoading(state, payload) {
       state.isLoading = payload;
+    },
+    setPdfFiles(state, payload) {
+      state.pdfFiles = payload;
     }
   },
   actions: {
@@ -44,7 +48,10 @@ const store = createStore({
     },
     hideLoader({ commit }) {
       commit('setLoading', false);
-    }
+    },
+    setPdfFiles({ commit }, message) {
+      commit('setPdfFiles', message);
+    },
   }
 });
 

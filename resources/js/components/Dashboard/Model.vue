@@ -294,6 +294,7 @@ export default {
         if (this.gigId) {
             this.gigDetail(this.gigId);
         }
+
     },
     watch: {
         '$route.params.id'(modelID) {
@@ -356,6 +357,9 @@ export default {
                     }
                 }
 
+                const pdfFileAI = [];
+                this.$store.commit("setPdfFiles", []);
+
                 try {
                     const service_manual = await axios.get(
                         `${main_api_endpoint}/api/machine-files/${this.machineData.machine_type}/${this.machineData.brand_name}/${this.machineData.model_number}/TechSheet`,
@@ -368,6 +372,7 @@ export default {
                     } else {
                         this.serviceManual = service_manual.data.files;
                         this.noServiceManualMessage = ""; // Clear message if files exist
+                        pdfFileAI.push(this.serviceManual);
                     }
                 } catch (error) {
                     console.error("Error fetching Service Manual:", error);
@@ -387,6 +392,7 @@ export default {
                     } else {
                         this.partsDiagram = parts_diagram.data.files;
                         this.noPartsDiagramMessage = "";
+                        pdfFileAI.push(this.partsDiagram);
                     }
                 } catch (error) {
                     console.error("Error fetching Parts Diagram:", error);
@@ -406,6 +412,7 @@ export default {
                     } else {
                         this.servicePointers = service_pointers.data.files;
                         this.noServicePointersMessage = "";
+                        pdfFileAI.push(this.servicePointers);
                     }
                 } catch (error) {
                     console.error("Error fetching Service Pointers:", error);
@@ -413,7 +420,9 @@ export default {
                     this.noServicePointersMessage = "No files found for Service Pointers.";
                 }
 
+                this.$store.commit("setPdfFiles", pdfFileAI);
 
+                // console.log(`Appended files: `, this.$store.state.pdfFiles);
 
             } catch (error) {
                 console.error("Error fetching machine data:", error);

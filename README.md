@@ -27,3 +27,5 @@ TWILIO_ACCOUNT_SID=
 `composer require openai-php/client`
 
 `composer require openai-php/laravel`
+
+`composer require smalot/pdfparser`
