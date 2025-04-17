@@ -68,6 +68,8 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
     name: "DAX",
     props: {
@@ -91,6 +93,13 @@ export default {
             speechRecognition: null,
             userTranscript: ''
         };
+    },
+    async created() {
+        const fileIDs = await this.fetchFileIDs();
+        this.$store.commit("setPdfFiles", fileIDs);
+    },
+    watch: {
+
     },
     methods: {
         getPageContent() {
@@ -286,14 +295,18 @@ export default {
                     session: {
                         modalities: ["text", "audio"],
                         voice: "ash",
+
                         instructions: `
                             You are provided with additional context derived from the current webpage:
                             "${pageContent.trim()}"
 
+                            Additionally, you may reference the contents of the uploaded PDF files to support your answers.
+
                             And you are assisting trained appliance repair professionals in the field. These technicians are knowledgeable and experienced, often using tech sheets, wiring diagrams, and diagnostic tools. Respond to their questions with concise, technical, and accurate guidance focused on diagnostics, error codes, mechanical functions, and repairs. Assume they understand appliance mechanics and only need help narrowing down issues or verifying steps. Avoid oversimplifying or providing basic definitions unless asked.
                             
                             When responding to user queries, consider this context only if there is a clear, relevant connection. Otherwise, answer using your standard knowledge.
-                        `
+                        `,
+
 
                     },
                 };
@@ -335,6 +348,30 @@ export default {
                 const container = this.$refs.transcriptContainer;
                 if (container) container.scrollTop = container.scrollHeight;
             });
+        },
+        async fetchFileIDs() {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("No token found in localStorage");
+                return [];
+            }
+
+            try {
+                const response = await axios.get("/api/dax/openai/files", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                const fileIDs = response.data;
+                console.log("✅ Retrieved file IDs:", fileIDs);
+                return fileIDs;
+
+            } catch (error) {
+                console.error("❌ Error fetching file IDs:", error);
+                return [];
+            }
         }
     },
 };
