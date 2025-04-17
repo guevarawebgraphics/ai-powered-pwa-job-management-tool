@@ -1,6 +1,6 @@
 {
-    "name": "App",
-    "short_name": "App",
+    "name": "Appliance Repair American",
+    "short_name": "ARA",
     "start_url": "/",
     "display": "standalone",
     "background_color": "#ffffff",

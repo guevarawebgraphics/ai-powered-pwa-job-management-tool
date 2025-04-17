@@ -372,7 +372,47 @@ export default {
                 console.error("❌ Error fetching file IDs:", error);
                 return [];
             }
-        }
+        },
+        // async  runFileSearch(threadId, vectorStoreIds, query) {
+        //     try {
+        //         const response = await axios.post(
+        //             `https://api.openai.com/v1/threads/${threadId}/runs`,
+        //             {
+        //                 assistant_id: 'asst_2O1H0cl8RAG5P4wj2yw7rfph',
+        //                 instructions: `Search files for: ${query}`,
+        //                 tools: [
+        //                     {
+        //                         type: 'file_search',
+        //                         file_search: {
+        //                             max_num_results: 5,
+        //                             ranking_options: {
+        //                                 ranker: 'default_2024_08_21',
+        //                                 score_threshold: 0.0
+        //                             }
+        //                         }
+        //                     }
+        //                 ],
+        //                 tool_resources: {
+        //                     file_search: {
+        //                         vector_store_ids: ['vs_67fa7f0abec48191adc1594c4e2641dc']
+        //                     }
+        //                 }
+        //             },
+        //             {
+        //                 headers: {
+        //                     'Authorization': `Bearer ${import.meta.env.VITE_API_OPENAI_API_KEY}`,
+        //                     'Content-Type': 'application/json',
+        //                     'OpenAI-Beta': 'assistants=v2'
+        //                 }
+        //             }
+        //         );
+        //         console.log('File Search Results:', response.data);
+        //         return response.data;
+        //     } catch (error) {
+        //         console.error('Error running file search:', error.response?.data || error.message);
+        //         throw error;
+        //     }
+        // }
     },
 };
 </script>
