@@ -7,6 +7,7 @@ use OpenAI\Laravel\Facades\OpenAI;
 use OpenAI\Client;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
+USE App\Models\OpenAIFiles;
 
 class DaxController extends Controller
 {
@@ -115,5 +116,14 @@ class DaxController extends Controller
                 'trace' => $e->getTraceAsString(),
             ], 500);
         }
+    }
+    public function getFiles()
+    {
+        $fileIds = OpenAIFiles::whereNull('deleted_at')
+            ->whereNotNull('file_id') // make sure file_id exists
+            ->orderBy('created_at')
+            ->pluck('file_id'); // just the file_id column
+
+        return response()->json($fileIds->toArray());
     }
 }
