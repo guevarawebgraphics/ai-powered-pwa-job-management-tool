@@ -71,37 +71,54 @@ const router = createRouter({
 
 // Navigation Guard to show/hide pre-loader and perform auth checks
 router.beforeEach(async (to, from, next) => {
-    // Show the pre-loader on route change start
-    store.dispatch('showLoader');
-    
-    const token = localStorage.getItem('token');
-    
-    if (to.meta.requiresAuth) {
-        if (!token) {
-            store.dispatch('hideLoader');
-            return next('/login'); // Not authenticated → Redirect to Login
-        }
-        try {
-            // Check user verification status from API
-            const response = await axios.get('/api/user', {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            const user = response.data.user;
-            const isVerified = user.is_verified;
-            if (to.meta.requiresVerification && !isVerified) {
-                store.dispatch('hideLoader');
-                return next('/otp'); // Not verified → Redirect to OTP
-            }
-            next(); // Authenticated & verified → Allow access
-        } catch (error) {
-            console.error('Auth check failed:', error);
-            localStorage.removeItem('token');
-            store.dispatch('hideLoader');
-            return next('/login'); // Redirect to Login on error
-        }
-    } else {
-        next(); // Public routes
+  store.dispatch('showLoader');
+  const token = localStorage.getItem('token');
+  const authPages = ['/','/login', '/register', '/otp', '/forgot-password', '/reset-password'];
+
+  // 1. If we have a token, block access to login/register/etc.
+  if (token) {
+    if (authPages.includes(to.path)) {
+      store.dispatch('hideLoader');
+      return next('/dashboard');
     }
+
+    // 2. If route is protected, verify the token (and user)
+    if (to.meta.requiresAuth) {
+      try {
+        const { data } = await axios.get('/api/user', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const isVerified = data.user.is_verified;
+
+        if (to.meta.requiresVerification && !isVerified) {
+          store.dispatch('hideLoader');
+          return next('/otp');
+        }
+
+        store.dispatch('hideLoader');
+        return next();
+      } catch (err) {
+        console.error('Auth check failed:', err);
+        localStorage.removeItem('token');
+        store.dispatch('hideLoader');
+        return next('/login');
+      }
+    }
+
+    // 3. Token exists but this is not a protected route → just proceed
+    store.dispatch('hideLoader');
+    return next();
+  }
+
+  // 4. No token: if trying to hit a protected route, send to login
+  if (to.meta.requiresAuth) {
+    store.dispatch('hideLoader');
+    return next('/login');
+  }
+
+  // 5. No token + public route → proceed
+  store.dispatch('hideLoader');
+  next();
 });
 
 router.afterEach(() => {

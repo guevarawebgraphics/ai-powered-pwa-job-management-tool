@@ -30,9 +30,9 @@ import axios from "axios"; // Ensure axios is imported
 
 export default {
     name: "Home",
-    created() {
-        this.checkAuthAndRedirect();
-    },
+    // created() {
+    //     this.checkAuthAndRedirect();
+    // },
 
     methods: {
         redirectToRegister() {
@@ -41,30 +41,30 @@ export default {
         redirectToLogin() {
             this.$router.push("/login");
         },
-        async checkAuthAndRedirect() {
-            const token = localStorage.getItem('token');
-            if (token) {
-                try {
-                    const res = await axios.get('/api/user', {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-                    const user = res.data.user;
+        // async checkAuthAndRedirect() {
+        //     const token = localStorage.getItem('token');
+        //     if (token) {
+        //         try {
+        //             const res = await axios.get('/api/user', {
+        //                 headers: { Authorization: `Bearer ${token}` }
+        //             });
+        //             const user = res.data.user;
 
-                    if (user) {
-                        this.$router.replace("/dashboard");
-                    }
+        //             if (user) {
+        //                 this.$router.replace("/dashboard");
+        //             }
 
-                    console.log(`checkAuthAndRedirect: `, user);
-                } catch (error) {
+        //             console.log(`checkAuthAndRedirect: `, user);
+        //         } catch (error) {
 
-                    console.log(`checkAuthAndRedirect: `, error);
-                    this.$router.replace("/");
-                }
-            } else {
+        //             console.log(`checkAuthAndRedirect: `, error);
+        //             this.$router.replace("/");
+        //         }
+        //     } else {
 
-                this.$router.replace("/");
-            }
-        }
+        //         this.$router.replace("/");
+        //     }
+        // }
     }
 };
 </script>

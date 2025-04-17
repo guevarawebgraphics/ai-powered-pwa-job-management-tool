@@ -68,6 +68,9 @@ export default {
             loading: false, 
         };
     },
+    // created() {
+    //     this.checkAuthAndRedirect();
+    // },
     methods: {
         async login() {
 
@@ -118,7 +121,31 @@ export default {
         },
         redirectToForgot() {
             this.$router.push("/forgot-password");
-        }
+        },
+        // async checkAuthAndRedirect() {
+        //     const token = localStorage.getItem('token');
+        //     if (token) {
+        //         try {
+        //             const res = await axios.get('/api/user', {
+        //                 headers: { Authorization: `Bearer ${token}` }
+        //             });
+        //             const user = res.data.user;
+
+        //             if (user) {
+        //                 this.$router.replace("/dashboard");
+        //             }
+
+        //             console.log(`checkAuthAndRedirect: `, user);
+        //         } catch (error) {
+
+        //             console.log(`checkAuthAndRedirect: `, error);
+        //             this.$router.replace("/login");
+        //         }
+        //     } else {
+
+        //         this.$router.replace("/login");
+        //     }
+        // }
     }
 };
 </script>
