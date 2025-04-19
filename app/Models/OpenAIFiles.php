@@ -25,6 +25,7 @@ class OpenAIFiles extends Model
         'model_number',
         'file_id',
         'image',
-        'json_response'
+        'json_response',
+        'vector_id'
     ];
 }

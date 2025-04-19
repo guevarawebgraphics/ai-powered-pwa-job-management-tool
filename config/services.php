@@ -50,5 +50,6 @@ return [
     ],
     'openai' => [
         'api_key' => env('OPENAI_API_KEY'),
+        'vector_id' => env('OPENAI_VECTOR_ID'),
     ],
 ];

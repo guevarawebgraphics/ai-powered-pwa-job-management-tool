@@ -48,6 +48,8 @@ class Machine extends Model
         'extra_field1',
         'extra_field2',
         'display_type',
-        'is_active'
+        'is_active',
+        'vector_id',
+        'vector_files'
     ];
 }

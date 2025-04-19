@@ -6,6 +6,7 @@ const store = createStore({
     chatMessages: [],
     unseenNotification: 0,
     isLoading: false,
+    vectoreIDs: [],
     pdfFiles: []
   },
   mutations: {
@@ -24,6 +25,9 @@ const store = createStore({
     // Mutation to update loading state
     setLoading(state, payload) {
       state.isLoading = payload;
+    },
+    setVectorIDs(state, payload) {
+      state.vectoreIDs = payload;
     },
     setPdfFiles(state, payload) {
       state.pdfFiles = payload;
@@ -48,6 +52,9 @@ const store = createStore({
     },
     hideLoader({ commit }) {
       commit('setLoading', false);
+    },
+    setVectorIDs({ commit }, message) {
+      commit('setVectorIDs', message);
     },
     setPdfFiles({ commit }, message) {
       commit('setPdfFiles', message);

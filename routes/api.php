@@ -97,20 +97,25 @@ Route::middleware(['auth:sanctum', EnsureTokenIsNotExpired::class])->group(funct
     Route::prefix('machine')->group(function () {
         Route::get('/{modelNumber}', [App\Http\Controllers\GigController::class, 'getGigsPerMachine']);
     });
-
-
     
     Route::prefix('dax')->group(function () {
         Route::post('/chat', [App\Http\Controllers\DaxController::class, 'chat']);
         Route::post('/voice-chat', [App\Http\Controllers\DaxController::class, 'voiceChat']);
         Route::get('/openai/files', [App\Http\Controllers\DaxController::class, 'getFiles']);
+        Route::get('/sync/files/{modelNumber?}', [App\Http\Controllers\DaxController::class, 'syncMachineFiles']);
     });
 
+    Route::prefix('openai')->group(function () {
+        Route::get('/vector_stores', [App\Http\Controllers\DaxController::class, 'getVectorListings']);
+        Route::post('/vector_stores/{vectorID}', [App\Http\Controllers\DaxController::class, 'updateVectorID']);
+    });
 
     Route::prefix('analytics')->group(function () {
         Route::get('/report/{techId?}', [App\Http\Controllers\AnalyticsController::class, 'index']);
     });
 
+
+    
 
 
 });
