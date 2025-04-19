@@ -201,14 +201,6 @@ export default {
                                         };
 
                                         this.dataChannel.send(JSON.stringify(argument_event));
-
-
-                                        this.chatHistory.push({
-                                            role: "assistant",
-                                            content: outputText
-                                        });
-                                        this.typingReply = "";
-
                                     }
 
 
@@ -447,7 +439,7 @@ export default {
                         tools: [
                             {
                                 type: "file_search",
-                                vector_store_ids: ["vs_67fa7f0abec48191adc1594c4e2641dc"]
+                                vector_store_ids: [`${import.meta.env.VITE_API_OPENAI_VECTOR_ID}`]
                             }
                         ]
                     })
@@ -463,7 +455,6 @@ export default {
                 return null;
             }
         },
-
         async getVectorIds() {
             try {
                 const token = localStorage.getItem("token");
@@ -475,7 +466,13 @@ export default {
                     },
                 });
 
-                console.log("Vector Stores:", response);
+                const vectorStores = response.data || [];
+
+                // 👇 Extract only the "id" values
+                this.vectorIDs = vectorStores.map(store => store.id);
+
+                console.log("Vector IDs:", this.vectorIDs);
+
             } catch (err) {
                 console.error("Error fetching vector stores:", err.response?.data || err.message);
             }
