@@ -207,6 +207,25 @@ export default {
 
                     console.log(`Transcript: `, msg);
 
+                    if (response.type === 'response.function_call_arguments.done') {
+                    if (msg.name === "query_about_machine") {
+                    const args = JSON.parse(msg.arguments);
+                        console.log(args)
+                        callOpenAIResponseAPI(args)
+                            .then((data) => {
+                                console.log("API returned:", data);
+                                sendClientEvent({
+                                type: "response.create",
+                                response: {
+                                    instructions: `Tell the user the following information from the documents: ` + data.output[1].content[0].text
+                                    },
+                                });
+                            }).catch((err) => {
+                            console.error("❌ API error:", err);
+                            });
+                        }
+                    }
+
                     // 🔄 Live transcription while AI is speaking
                     if (msg.type === "response.audio_transcript.delta" && msg.delta) {
                         this.typingReply += msg.delta;
@@ -295,6 +314,26 @@ export default {
                     session: {
                         modalities: ["text", "audio"],
                         voice: "ash",
+
+                        tools: [
+                                {
+                                    type: "function",
+                                    name: "query_about_machine",
+                                    description: "call this function when the user is wanting to know information about the appliance",
+                                    parameters: {
+                                        type: "object",
+                                        strict: true,
+                                        properties: {
+                                            user_query: {
+                                                type: "string",
+                                                description: "Query from the user about what information they are looking for. Phrase it in a way that it forms a question and ends in a question mark.",
+                                            },
+                                        },
+                                        required: ["user_query"],
+                                    },
+                                },
+                            ],
+                        tool_choice: "auto",
 
                         instructions: `
                             You are provided with additional context derived from the current webpage:
@@ -414,6 +453,29 @@ export default {
         //     }
         // }
     },
+};
+async function callOpenAIResponseAPI({ user_query }) {
+    console.log("started fetch");
+    const response = await fetch("https://api.openai.com/v1/responses", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer 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`
+        },
+        body: JSON.stringify({
+            model: "gpt-4.1",
+            tools: [{
+                type: "file_search",
+                vector_store_ids: ["vs_6802f96ea5f881918a7fc2ed36d86af5"],
+                max_num_results: 20
+            }],
+            input: user_query + " Only use data from my documents"
+        })
+    });
+    console.log("ended fetch");
+    const data = await response.json();
+    console.log(data);
+    return data;
 };
 </script>
 
