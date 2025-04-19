@@ -39,9 +39,10 @@
                 </div>
             </div>
             <div class="relative">
+
                 <!-- Toggle Recording Button -->
                 <button @click="recording ? stopRecording() : startRecording()" :class="['absolute left-1/2 transform -translate-x-1/2 -translate-y-full w-20 h-20 rounded-full shadow-lg flex items-center justify-center text-white text-3xl transition',
-            recording ? 'bg-red-500 pulse-active' : 'bg-blue-500 hover:scale-110']">
+                    recording ? 'bg-red-500 pulse-active' : 'bg-blue-500 hover:scale-110']">
                     <i :class="recording ? 'fas fa-stop' : 'fas fa-microphone'"></i>
                 </button>
 
@@ -56,6 +57,7 @@
 
 import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
+import axios from "axios";
 
 export default {
 
@@ -66,7 +68,7 @@ export default {
             type: String,
             default: 'Guest'
         },
-        contentSelector: { type: String, default: 'body' }
+        contentSelector: { type: String, default: 'body' },
     },
     data() {
         return {
@@ -80,7 +82,12 @@ export default {
             dataChannel: null,
             speechRecognition: null,
             userTranscript: '',
+
         };
+    },
+    async created() {
+        const fileIDs = await this.fetchFileIDs();
+        this.$store.commit("setVectorIDs", fileIDs);
     },
     methods: {
         getPageContent() {
@@ -175,6 +182,59 @@ export default {
 
                     console.log(`Transcript: `, msg);
 
+                    if (msg.type === 'response.function_call_arguments.done') {
+                        if (msg.name === "query_about_machine") {
+                            const args = JSON.parse(msg.arguments);
+                            console.log(`🔍 Argument:`, args.user_query);
+                            this.runFileSearchTool(args.user_query)
+                                .then((data) => {
+                                    const outputText = data.output?.[1]?.content?.[0]?.text || "";
+
+                                    if (outputText) {
+                                        const argument_event = {
+                                            type: "response.create",
+                                            response: {
+                                                modalities: ["text", "audio"],
+                                                voice: "ash",
+                                                instructions: `Tell the user the following information from the documents: ${outputText}`
+                                            },
+                                        };
+
+                                        this.dataChannel.send(JSON.stringify(argument_event));
+
+
+                                        this.chatHistory.push({
+                                            role: "assistant",
+                                            content: outputText
+                                        });
+                                        this.typingReply = "";
+
+                                    }
+
+
+
+                                }).catch((err) => {
+                                    console.error("❌ API error:", err);
+
+                                    if (err.response) {
+                                        // HTTP error from the server
+                                        console.error("🔍 Response data:", err.response.data);
+                                        console.error("📦 Status code:", err.response.status);
+                                        console.error("📋 Headers:", err.response.headers);
+                                    } else if (err.request) {
+                                        // No response received
+                                        console.error("📭 No response received:", err.request);
+                                    } else {
+                                        // Other types of errors (e.g., bad syntax)
+                                        console.error("⚠️ Error message:", err.message);
+                                    }
+
+                                    // Optional: full stack trace
+                                    console.error("🧵 Stack trace:", err.stack);
+                                });
+                        }
+                    }
+
                     // 🔄 Live transcription while AI is speaking
                     if (msg.type === "response.audio_transcript.delta" && msg.delta) {
                         this.typingReply += msg.delta;
@@ -190,6 +250,19 @@ export default {
                         this.typingReply = "";
                     }
 
+                    if (msg.type === "tool_call" && msg.tool_name === "file_search") {
+                        const resultText = msg.result?.content?.[0]?.text;
+
+                        if (resultText) {
+                            this.chatHistory.push({
+                                role: "assistant",
+                                content: resultText
+                            });
+                            this.typingReply = '';
+                        }
+                    }
+
+
                     // ✅ Final user transcript (from your voice)
                     if (
                         msg.type === "response.item.done" &&
@@ -202,7 +275,6 @@ export default {
                             role: "user",
                             content: userText
                         });
-
                         this.scrollToBottom();
                     }
                 });
@@ -256,20 +328,44 @@ export default {
 
                 const pageContent = document.querySelector(this.contentSelector)?.innerText || '';
 
+                console.log(`Appended files: `, this.$store.state.vectoreIDs);
+
                 const event = {
                     type: "session.update",
                     session: {
                         modalities: ["text", "audio"],
                         voice: "ash",
+                        tools: [
+                            {
+                                type: "function",
+                                name: "query_about_machine",
+                                description: "call this function when the user is wanting to know information about the appliance",
+                                parameters: {
+                                    type: "object",
+                                    strict: true,
+                                    properties: {
+                                        user_query: {
+                                            type: "string",
+                                            description: "Query from the user about what information they are looking for. Phrase it in a way that it forms a question and ends in a question mark.",
+                                        },
+                                    },
+                                    required: ["user_query"],
+                                },
+                            },
+                        ],
+                        tool_choice: "auto",
                         instructions: `
                             You are provided with additional context derived from the current webpage:
                             "${pageContent.trim()}"
 
+                            Additionally, you may reference the contents of the uploaded PDF files to support your answers.
+
                             And you are assisting trained appliance repair professionals in the field. These technicians are knowledgeable and experienced, often using tech sheets, wiring diagrams, and diagnostic tools. Respond to their questions with concise, technical, and accurate guidance focused on diagnostics, error codes, mechanical functions, and repairs. Assume they understand appliance mechanics and only need help narrowing down issues or verifying steps. Avoid oversimplifying or providing basic definitions unless asked.
                             
                             When responding to user queries, consider this context only if there is a clear, relevant connection. Otherwise, answer using your standard knowledge.
-                        `
 
+                            If a question requires looking into documentation or PDFs, you may use the 'file_search' tool.
+                        `,
                     },
                 };
                 this.dataChannel.send(JSON.stringify(event));
@@ -310,11 +406,108 @@ export default {
                 const container = this.$refs.transcriptContainer;
                 if (container) container.scrollTop = container.scrollHeight;
             });
-        }
+        },
+        async fetchFileIDs() {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                console.error("No token found in localStorage");
+                return [];
+            }
+
+            try {
+                const response = await axios.get("/api/dax/openai/files", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                const fileIDs = response.data;
+                console.log("✅ Retrieved file IDs:", fileIDs);
+                return fileIDs;
+
+            } catch (error) {
+                console.error("❌ Error fetching file IDs:", error);
+                return [];
+            }
+        },
+        async runFileSearchTool(user_query) {
+            try {
+                const apiKey = import.meta.env.VITE_API_OPENAI_API_KEY;
+                const response = await fetch("https://api.openai.com/v1/responses", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${apiKey}`,
+                        "OpenAI-Beta": "assistants=v2"  // ✅ Required for file_search tools
+                    },
+                    body: JSON.stringify({
+                        model: "gpt-4o-mini",
+                        input: `${user_query} Only use data from my documents`,
+                        tools: [
+                            {
+                                type: "file_search",
+                                vector_store_ids: ["vs_67fa7f0abec48191adc1594c4e2641dc"]
+                            }
+                        ]
+                    })
+                });
+
+                console.log("ended fetch");
+                const data = await response.json();
+                console.log(`⚠️ responseAPI: `, data);
+                return data;
+
+            } catch (err) {
+                console.error("File search error:", err);
+                return null;
+            }
+        },
+
+        async getVectorIds() {
+            try {
+                const token = localStorage.getItem("token");
+
+                const response = await axios.get("/api/openai/vector_stores", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                console.log("Vector Stores:", response);
+            } catch (err) {
+                console.error("Error fetching vector stores:", err.response?.data || err.message);
+            }
+        },
+        async updateVectorName(vectorID, newName) {
+            const token = localStorage.getItem("token");
+
+            try {
+                const response = await axios.post(
+                    `/api/openai/vector_stores/${vectorID}`,
+                    {
+                        name: newName
+                    },
+                    {
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "OpenAI-Beta": "assistants=v2",
+                            "Content-Type": "application/json"
+                        }
+                    }
+                );
+
+                console.log("Updated Vector Store:", response.data);
+                return response.data;
+            } catch (error) {
+                console.error("Error updating vector store:", error.response?.data || error.message);
+            }
+        },
+
     },
 };
 </script>
-
 <style scoped>
 /* Add your component-specific styles here */
 #remoteAudio {

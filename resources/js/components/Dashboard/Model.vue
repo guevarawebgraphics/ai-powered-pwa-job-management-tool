@@ -289,6 +289,7 @@ export default {
 
         if (this.modelID) {
             this.modelDetail(this.modelID);
+            this.syncMachineFiles(this.modelID);
         }
 
         if (this.gigId) {
@@ -299,6 +300,7 @@ export default {
     watch: {
         '$route.params.id'(modelID) {
             this.modelDetail(modelID);
+            this.syncMachineFiles(modelID);
         },
         '$route.params.gigId'(gigId) {
             this.gigDetail(gigId);
@@ -358,7 +360,6 @@ export default {
                 }
 
                 const pdfFileAI = [];
-                this.$store.commit("setPdfFiles", []);
 
                 try {
                     const service_manual = await axios.get(
@@ -419,10 +420,8 @@ export default {
                     this.servicePointers = [];
                     this.noServicePointersMessage = "No files found for Service Pointers.";
                 }
-
-                this.$store.commit("setPdfFiles", pdfFileAI);
-
-                // console.log(`Appended files: `, this.$store.state.pdfFiles);
+                
+                // console.log(`Appended files: `, this.$store.state.vectoreIDs);
 
             } catch (error) {
                 console.error("Error fetching machine data:", error);
@@ -481,6 +480,21 @@ export default {
         transformToEmbedUrl(youtubeUrl) {
             return `https://www.youtube.com/embed/${youtubeUrl.videoId}`;
         },
+        async syncMachineFiles(modelNumber) {
+            const token = localStorage.getItem("token");
+            try {
+                const response = await axios.get(
+                    `/api/dax/sync/files/${modelNumber}`,
+                    {
+                        headers: { Authorization: `Bearer ${token}` },
+                    }
+                );
+                
+                console.log("Syncing successfully completed! ", response.data);
+            } catch (error) {
+                console.error("Error updating:", error);
+            }
+        }
    
     }
 };
