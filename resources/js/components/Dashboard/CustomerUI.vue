@@ -257,6 +257,7 @@ import BottomNav from "../sections/Bottombar.vue";
 import DAX from "../sections/DAX.vue";
 import axios from "axios";
 import Swal from "sweetalert2";
+import { bus } from '../sections/DAX.vue'; 
 
 export default {
     components: { NavBar, BottomNav, DAX },
@@ -281,6 +282,8 @@ export default {
         if (this.customerId) {
             this.clientData(this.customerId);
         }
+        bus.on("trigger-open-map", this.openGoogleMaps);
+        bus.on("trigger-send-status", this.sendMessageFromDAX);
 
     },
     watch: {
@@ -471,6 +474,14 @@ export default {
                 console.error('Error fetching travel time:', error);
                 this.timeOfArrival = 'Error fetching travel time';
             }
+        },
+        openGoogleMaps() {
+            const address = `${customerData.street_address}, ${customerData.city}, ${customerData.state}, ${customerData.country} ${customerData.zip_code}`;
+            const encodedAddress = encodeURIComponent(address);
+            window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, "_blank");
+        },
+        sendMessageFromDAX(status) {
+            this.sendMessage(status); // reuse existing function
         }
     },
 };

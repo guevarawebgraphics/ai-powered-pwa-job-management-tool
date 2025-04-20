@@ -292,7 +292,7 @@ export default {
                                 });
                         }
 
-                        if (msg.name === "call_client_by_voice" && this.page === "GigIndex") {
+                        if (msg.name === "call_client_by_voice" && (this.page === "GigIndex" || this.page === "CustomerUI")) {
                             const args = JSON.parse(msg.arguments);
 
                             if (args.confirm_call === true) {
@@ -337,7 +337,7 @@ export default {
                             }
                         }
 
-                        if (msg.name === "send_status_message" && this.page === "GigIndex") {
+                        if (msg.name === "send_status_message" && (this.page === "GigIndex" || this.page === "CustomerUI")) {
                             const args = JSON.parse(msg.arguments);
                             const status = args.status;
 
@@ -359,7 +359,7 @@ export default {
                             }
                         }
 
-                        if (msg.name === "open_google_map" && this.page === "GigIndex") {
+                        if (msg.name === "open_google_map" && (this.page === "GigIndex" || this.page === "CustomerUI" ) ) {
                             bus.emit("trigger-open-map");
 
                             const responseText = `Opening Google Maps to the client's address now.`;
@@ -682,8 +682,8 @@ export default {
                                 properties: {
                                     status: {
                                         type: "string",
-                                        enum: ["arriving-early", "on-time", "behind-schedule"],
-                                        description: "The status message to send. Options: 'arriving-early', 'on-time', 'behind-schedule'."
+                                        enum: ["arriving-early", "on-time", "behind-schedule","send-message"],
+                                        description: "The status message to send. Options: 'arriving-early', 'on-time', 'behind-schedule','send-message'."
                                     }
                                 },
                                 required: ["status"]
