@@ -69,6 +69,24 @@
 
 <script>
 import axios from "axios";
+import { reactive } from 'vue';
+
+// Define a shared reactive event bus (global, minimal)
+export const bus = reactive({
+    callbacks: {},
+    on(event, callback) {
+        this.callbacks[event] = this.callbacks[event] || [];
+        this.callbacks[event].push(callback);
+    },
+    emit(event, data) {
+        if (this.callbacks[event]) {
+            this.callbacks[event].forEach(cb => cb(data));
+        }
+    },
+    off(event, callback) {
+        this.callbacks[event] = (this.callbacks[event] || []).filter(cb => cb !== callback);
+    }
+});
 
 export default {
     name: "DAX",
@@ -101,6 +119,10 @@ export default {
     },
     created() {
         console.log(`Gig History VIA DAX: `, this.$store.state.gigHistory);
+        bus.on("open-dax", this.openModal);
+    },
+    beforeUnmount() {
+        bus.off("open-dax", this.openModal);
     },
     watch: {
 
@@ -212,7 +234,7 @@ export default {
                     console.log(`Transcript: `, msg);
 
                     if (msg.type === 'response.function_call_arguments.done') {
-                        
+
                         if (msg.name === "query_about_machine") {
                             const args = JSON.parse(msg.arguments);
                             console.log(`🔍 Argument:`, args.user_query);
@@ -446,7 +468,6 @@ export default {
                         }
                     }
 
-                    
                     // ✅ Final user transcript (from your voice)
                     if (
                         msg.type === "response.item.done" &&
