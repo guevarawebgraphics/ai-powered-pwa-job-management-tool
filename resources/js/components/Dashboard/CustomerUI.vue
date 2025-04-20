@@ -488,7 +488,9 @@ export default {
             window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, "_blank");
         },
         sendMessageFromDAX(status) {
-            this.sendMessage(status); // reuse existing function
+            if (status === "send-message") {
+                this.sendMessage("send-message");
+            }
         },
         sendEmailFromDAX() {
             const email = `${this.customerData.email}`;

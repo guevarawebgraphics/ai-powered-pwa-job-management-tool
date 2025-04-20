@@ -848,7 +848,9 @@ export default {
             }
         },
         sendMessageFromDAX(status) {
-            this.sendMessage(status); // reuse existing function
+            if (status != "send-message") {
+                this.sendMessage("send-message");
+            }
         },
         sendEmailFromDAX() {
             const email = `${this.gigData.client_email}`;
