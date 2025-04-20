@@ -28,17 +28,17 @@
     "src": "public/images/washing-machine.png"
   },
   "resources/css/app.css": {
-    "file": "assets/app-CIkF1GB2.css",
+    "file": "assets/app-CWtdqhm1.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-Dp4_poq0.js",
+    "file": "assets/app-2Fdezu-q.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
     "css": [
-      "assets/app-CkgdEEWy.css"
+      "assets/app-29U4sIQg.css"
     ],
     "assets": [
       "assets/logo-D_x7Z3el.png",

@@ -524,7 +524,9 @@ export default {
 
                 this.gigHistoryData = response.data.data || []; // Store fetched data
 
-                console.log(`Gig History`, response);
+                // Set this to allow DAX access all current & upcoming gigs
+                this.$store.commit("setGigHistory", this.gigHistoryData);
+                console.log(`Gig History via Homepage`, this.gigHistoryData);
 
                 this.loadingGigHistory = false; // Stop loading
 

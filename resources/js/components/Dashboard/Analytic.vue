@@ -1,5 +1,7 @@
 <template>
-    <div class="mt-20 mb-20 px-4 sm:px-6 lg:px-8" id="parentContainer">
+    <!-- <div class="mt-20 mb-20 px-4 sm:px-6 lg:px-8" id="parentContainer"> -->
+    <div class="mt-20 mb-20 pb-28 px-4 sm:px-6 lg:px-8" id="parentContainer">
+
         <NavBar />
 
         <!-- Guild Profile -->

@@ -41,7 +41,7 @@
                 </div> -->
 
 
-                <DAX :page="'GigIndex'" :user_id="techID" />
+                <DAX :page="'GigIndex'" :user_id="techID" :vector_id="this.gigData.machine.vector_id" />
 
 
                 <div @click="openGigPotentialEarning()"
@@ -202,7 +202,8 @@
                             #{{ repair.number }} {{ repair.repairName }}
                         </p>
                         <p class="text-gray-700 text-sm"><strong>Symptoms:&nbsp;</strong> {{ repair.symptoms }}</p>
-                        <p class="text-gray-500 text-xs mt-1" v-if="repair.partsNeeded"><strong>Parts Needed:&nbsp;</strong> {{
+                        <p class="text-gray-500 text-xs mt-1" v-if="repair.partsNeeded"><strong>Parts
+                                Needed:&nbsp;</strong> {{
                             repair.partsNeeded.join(", ")
                             }}
                         </p>

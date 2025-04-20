@@ -1,6 +1,6 @@
 <template>
     <!-- DAX Button to open the modal -->
-    <button type="button" @click="openModal" v-if="page !== 'Model'"
+    <button type="button" @click="openModal" v-if="page !== 'Model' && page !== 'GigReport'"
         class="bg-white min-h-[100px] rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-center justify-center text-center transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
 
         <div class="flex items-center justify-center space-x-2">
@@ -11,7 +11,15 @@
         </div>
     </button>
 
-    <div @click="openModal" class="bg-white shadow-md rounded-lg p-4 flex items-center justify-center mt-6" v-else>
+    <div v-else-if="page === 'GigReport'" @click="openModal"
+        class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start cursor-pointer
+           transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
+        <i class="fas fa-headset text-2xl text-gray-700"></i>
+        <p class="text-sm font-medium mt-2">DAX</p>
+    </div>
+
+    <div @click="openModal"
+        class="bg-white shadow-md rounded-lg p-4 flex items-center justify-center mt-6 cursor-pointer" v-else>
         <i class="fas fa-headset text-3xl text-gray-700"></i>
         <p class="text-sm font-medium ml-2">DAX</p>
     </div>
@@ -69,6 +77,24 @@
 
 <script>
 import axios from "axios";
+import { reactive } from 'vue';
+
+// Define a shared reactive event bus (global, minimal)
+export const bus = reactive({
+    callbacks: {},
+    on(event, callback) {
+        this.callbacks[event] = this.callbacks[event] || [];
+        this.callbacks[event].push(callback);
+    },
+    emit(event, data) {
+        if (this.callbacks[event]) {
+            this.callbacks[event].forEach(cb => cb(data));
+        }
+    },
+    off(event, callback) {
+        this.callbacks[event] = (this.callbacks[event] || []).filter(cb => cb !== callback);
+    }
+});
 
 export default {
     name: "DAX",
@@ -79,7 +105,11 @@ export default {
         },
         user_id: {
             type: [String, Number],
-            default: 'Guest'
+            default: ''
+        },
+        vector_id: {
+            type: [String, Number],
+            default: ''
         },
         contentSelector: { type: String, default: 'body' },
     },
@@ -100,13 +130,12 @@ export default {
         };
     },
     created() {
-
-        // const fileIDs = await this.fetchFileIDs();
-
-        // this.$store.commit("setVectorIDs", fileIDs);
-
-        // this.getVectorIds();
-
+        console.log(`Gig History VIA DAX: `, this.$store.state.gigHistory);
+        bus.on("open-dax", this.openModal);
+        console.log(`Current Vector ID: ${this.vector_id}`);
+    },
+    beforeUnmount() {
+        bus.off("open-dax", this.openModal);
     },
     watch: {
 
@@ -218,7 +247,9 @@ export default {
                     console.log(`Transcript: `, msg);
 
                     if (msg.type === 'response.function_call_arguments.done') {
-                        if (msg.name === "query_about_machine") {
+
+                        if (msg.name === "query_about_machine" && (this.page === "Model" || this.page === "GigIndex" || this.page === "GigReport")) {
+
                             const args = JSON.parse(msg.arguments);
                             console.log(`🔍 Argument:`, args.user_query);
                             this.runFileSearchTool(args.user_query)
@@ -260,6 +291,194 @@ export default {
                                     console.error("🧵 Stack trace:", err.stack);
                                 });
                         }
+
+                        if (msg.name === "call_client_by_voice" && this.page === "GigIndex") {
+                            const args = JSON.parse(msg.arguments);
+
+                            if (args.confirm_call === true && this.gigData?.client_phone_number) {
+                                const telLink = `tel:${this.gigData.client_phone_number}`;
+                                window.open(telLink, '_self'); // Trigger the phone dialer
+
+                                const message = `Sure, calling ${this.gigData.client_name} now.`;
+                                this.chatHistory.push({ role: "assistant", content: message });
+
+                                if (this.dataChannel?.readyState === "open") {
+                                    this.dataChannel.send(JSON.stringify({
+                                        type: "response.create",
+                                        response: {
+                                            modalities: ["text", "audio"],
+                                            voice: "ash",
+                                            instructions: message
+                                        }
+                                    }));
+                                }
+                            }
+                        }
+
+                        if (msg.name === "call_client_by_voice" && this.page === "GigIndex") {
+                            const args = JSON.parse(msg.arguments);
+
+                            if (args.confirm_call === true) {
+                                // 🧠 Match the gig based on current route or available gigID
+                                const currentGigId = this.$route?.params?.id;
+                                const matchedGig = this.$store.state.gigHistory.find(
+                                    (gig) => gig.gig_id == currentGigId
+                                );
+
+                                if (matchedGig && matchedGig.client_phone_number) {
+                                    const telLink = `tel:${matchedGig.client_phone_number}`;
+                                    window.open(telLink, '_self');
+
+                                    const message = `Sure, calling ${matchedGig.client_name} now.`;
+                                    this.chatHistory.push({ role: "assistant", content: message });
+
+                                    if (this.dataChannel?.readyState === "open") {
+                                        this.dataChannel.send(JSON.stringify({
+                                            type: "response.create",
+                                            response: {
+                                                modalities: ["text", "audio"],
+                                                voice: "ash",
+                                                instructions: message
+                                            }
+                                        }));
+                                    }
+                                } else {
+                                    const fallback = `Sorry, I couldn't find the client's phone number.`;
+                                    this.chatHistory.push({ role: "assistant", content: fallback });
+
+                                    if (this.dataChannel?.readyState === "open") {
+                                        this.dataChannel.send(JSON.stringify({
+                                            type: "response.create",
+                                            response: {
+                                                modalities: ["text", "audio"],
+                                                voice: "ash",
+                                                instructions: fallback
+                                            }
+                                        }));
+                                    }
+                                }
+                            }
+                        }
+
+
+                        if (msg.name === "navigate_to_page") {
+                            const args = JSON.parse(msg.arguments);
+                            const pageMap = {
+                                "profile": "/profile",
+                                "set-schedule": "/set-schedule",
+                                "guild-profile": "/guild-profile",
+                                "notification": "/notification",
+                                "dashboard": "/dashboard",
+                                "schedules": "/schedules",
+                                "analytics": "/analytics"
+                            };
+
+                            const path = pageMap[args.destination];
+
+                            if (path) {
+                                const message = `Navigating to your ${args.destination.replace('-', ' ')} page.`;
+                                this.chatHistory.push({ role: "assistant", content: message });
+                                this.$router.push(path);
+
+                                if (this.dataChannel?.readyState === "open") {
+                                    this.dataChannel.send(JSON.stringify({
+                                        type: "response.create",
+                                        response: {
+                                            modalities: ["text", "audio"],
+                                            voice: "ash",
+                                            instructions: message
+                                        }
+                                    }));
+                                }
+                            } else {
+                                const fallback = `Sorry, I don't recognize the page "${args.destination}"`;
+                                this.chatHistory.push({ role: "assistant", content: fallback });
+
+                                if (this.dataChannel?.readyState === "open") {
+                                    this.dataChannel.send(JSON.stringify({
+                                        type: "response.create",
+                                        response: {
+                                            modalities: ["text", "audio"],
+                                            voice: "ash",
+                                            instructions: fallback
+                                        }
+                                    }));
+                                }
+                            }
+                        }
+
+                        if (msg.name === "open_model_page") {
+                            const args = JSON.parse(msg.arguments);
+                            const gigList = this.$store.state.gigHistory || [];
+
+                            let matchedGig;
+
+                            if (args.gig_cryptic) {
+                                const spokenGig = args.gig_cryptic.toUpperCase();
+                                matchedGig = gigList.find(g => g.gig_cryptic.toUpperCase() === spokenGig);
+                            }
+
+                            if (!matchedGig && gigList.length > 0) {
+                                matchedGig = gigList[0];
+                            }
+
+                            if (matchedGig && matchedGig.machine) {
+                                const modelNumber = matchedGig.machine.model_number;
+                                const gigId = matchedGig.gig_id;
+
+                                // ✅ Validation: if no gig ID exists
+                                if (!gigId || gigId === null || gigId === undefined) {
+                                    const warning = `You don’t have a gig associated with this machine.`;
+                                    this.chatHistory.push({ role: "assistant", content: warning });
+
+                                    if (this.dataChannel?.readyState === "open") {
+                                        this.dataChannel.send(JSON.stringify({
+                                            type: "response.create",
+                                            response: {
+                                                modalities: ["text", "audio"],
+                                                voice: "ash",
+                                                instructions: warning
+                                            }
+                                        }));
+                                    }
+
+                                    return; // 🚫 Don't proceed to route
+                                }
+
+                                // ✅ Proceed with navigation
+                                const message = `Opening model page for ${modelNumber}`;
+                                this.chatHistory.push({ role: "assistant", content: message });
+
+                                this.$router.push(`/model/${modelNumber}/gig/${gigId}`);
+
+                                if (this.dataChannel?.readyState === "open") {
+                                    this.dataChannel.send(JSON.stringify({
+                                        type: "response.create",
+                                        response: {
+                                            modalities: ["text", "audio"],
+                                            voice: "ash",
+                                            instructions: message
+                                        }
+                                    }));
+                                }
+
+                            } else {
+                                const fallback = `I couldn't find a model page to open.`;
+                                this.chatHistory.push({ role: "assistant", content: fallback });
+
+                                if (this.dataChannel?.readyState === "open") {
+                                    this.dataChannel.send(JSON.stringify({
+                                        type: "response.create",
+                                        response: {
+                                            modalities: ["text", "audio"],
+                                            voice: "ash",
+                                            instructions: fallback
+                                        }
+                                    }));
+                                }
+                            }
+                        }
+
                     }
 
                     // 🔄 Live transcription while AI is speaking
@@ -289,7 +508,6 @@ export default {
                         }
                     }
 
-                    
                     // ✅ Final user transcript (from your voice)
                     if (
                         msg.type === "response.item.done" &&
@@ -357,29 +575,101 @@ export default {
 
                 console.log(`Appended files: `, this.$store.state.vectoreIDs);
 
+                const tools = [];
+
+                // ✅ Add only if page is "Model"
+                if (this.page === "Model" || this.page === "GigIndex" || this.page === "GigReport") {
+                    tools.push({
+                        type: "function",
+                        name: "query_about_machine",
+                        description: "Call this function when the user is wanting to know information about the appliance.",
+                        parameters: {
+                            type: "object",
+                            strict: true,
+                            properties: {
+                                user_query: {
+                                    type: "string",
+                                    description: "Query from the user about what information they are looking for. Phrase it as a question ending with a question mark."
+                                }
+                            },
+                            required: ["user_query"]
+                        }
+                    });
+                }
+
+                if (this.page === "GigIndex") {
+                    tools.push({
+                        type: "function",
+                        name: "call_client_by_voice",
+                        description: "Use this tool if the technician says they want to call the client.",
+                        parameters: {
+                            type: "object",
+                            properties: {
+                                confirm_call: {
+                                    type: "boolean",
+                                    description: "Whether the technician confirmed calling the client. Always true."
+                                }
+                            },
+                            required: ["confirm_call"]
+                        }
+                    });
+                }
+
+                // ✅ Add shared tools regardless of page
+                tools.push(
+                    {
+                        type: "function",
+                        name: "open_gig_from_voice",
+                        description: "Call this when the user asks to open a gig by number or cryptic code.",
+                        parameters: {
+                            type: "object",
+                            properties: {
+                                gig_cryptic: {
+                                    type: "string",
+                                    description: "The spoken gig code or number, like 'GIG12345' or '12345'."
+                                }
+                            },
+                            required: ["gig_cryptic"]
+                        }
+                    },
+                    {
+                        type: "function",
+                        name: "navigate_to_page",
+                        description: "Call this when the user wants to navigate to a specific technician page like profile, dashboard, schedules, guild-profile, notification, set-schedule etc.",
+                        parameters: {
+                            type: "object",
+                            properties: {
+                                destination: {
+                                    type: "string",
+                                    description: "The destination keyword like 'profile', 'analytics', 'dashboard', 'set-schedule', 'schedules', 'notification', 'guild-profile'"
+                                }
+                            },
+                            required: ["destination"]
+                        }
+                    },
+                    {
+                        type: "function",
+                        name: "open_model_page",
+                        description: "Call this when the technician wants to view the model or machine details for a gig. If no gig is provided, use the most recent one.",
+                        parameters: {
+                            type: "object",
+                            properties: {
+                                gig_cryptic: {
+                                    type: "string",
+                                    description: "The gig's cryptic code (optional)"
+                                }
+                            }
+                            // 🚫 No 'required' key — now it's optional
+                        }
+                    }
+                );
+
                 const event = {
                     type: "session.update",
                     session: {
                         modalities: ["text", "audio"],
                         voice: "ash",
-                        tools: [
-                            {
-                                type: "function",
-                                name: "query_about_machine",
-                                description: "call this function when the user is wanting to know information about the appliance",
-                                parameters: {
-                                    type: "object",
-                                    strict: true,
-                                    properties: {
-                                        user_query: {
-                                            type: "string",
-                                            description: "Query from the user about what information they are looking for. Phrase it in a way that it forms a question and ends in a question mark.",
-                                        },
-                                    },
-                                    required: ["user_query"],
-                                },
-                            },
-                        ],
+                        tools,
                         tool_choice: "auto",
                         instructions: `
                             You are provided with additional context derived from the current webpage:
@@ -474,7 +764,7 @@ export default {
                         tools: [
                             {
                                 type: "file_search",
-                                vector_store_ids: [`${import.meta.env.VITE_API_OPENAI_VECTOR_ID}`]
+                                vector_store_ids: [`${this.vector_id}`]
                             }
                         ]
                     })
@@ -536,7 +826,6 @@ export default {
                 console.error("Error updating vector store:", error.response?.data || error.message);
             }
         },
-
 
     },
 };

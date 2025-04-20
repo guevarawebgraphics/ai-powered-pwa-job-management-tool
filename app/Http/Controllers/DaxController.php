@@ -164,13 +164,11 @@ class DaxController extends Controller
 
     public function syncMachineFiles($modelNumber = null)
     {
-
         $files_uploaded = [];
+        $environment_type = config('app.env');
         $machines = Machine::when($modelNumber, fn($q) => $q->where('model_number', $modelNumber))
             ->orderBy('created_at')
             ->get();
-
-        $vectorId = config('services.openai.vector_id');
 
         foreach ($machines as $machine) {
             $current_folders = ['TechSheet', 'PartsList', 'ServicePointers'];
@@ -180,6 +178,23 @@ class DaxController extends Controller
 
             $newFilesToAttach = [];
             $allExpectedFilenames = [];
+
+
+            if (!$machine->vector_id) {
+                $create_response = Http::withHeaders([
+                    'Authorization' => 'Bearer ' . config('services.openai.api_key'),
+                    'OpenAI-Beta'   => 'assistants=v2',
+                    'Content-Type'  => 'application/json',
+                ])->post('https://api.openai.com/v1/vector_stores', [
+                    'name' => strtoupper($environment_type) . '-' . $machine->model_number,
+                ]);
+
+                // Step 3: Update Machine with dedicated Vector Store ID
+                $vectorId = $create_response->json('id');
+                $machine->update(['vector_id' => $vectorId]);
+            } else {
+                $vectorId = $machine->vector_id;
+            }
 
             foreach ($current_folders as $folder) {
                 $file_url = url(sprintf(
@@ -262,7 +277,6 @@ class DaxController extends Controller
 
             // Save to database
             $machine->update([
-                'vector_id' => $vectorId,
                 'vector_files' => json_encode($allFiles),
             ]);
         }
@@ -277,7 +291,6 @@ class DaxController extends Controller
             'status'  => true,
             'message' => 'Vector ID successfully created and assigned to machines.',
             'data'    => [
-                'vector_id'  =>  $vectorId,
                 'files_uploaded'    =>  $files_uploaded
             ],
         ]);

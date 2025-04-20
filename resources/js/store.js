@@ -7,7 +7,8 @@ const store = createStore({
     unseenNotification: 0,
     isLoading: false,
     vectoreIDs: [],
-    pdfFiles: []
+    pdfFiles: [],
+    gigHistory: []
   },
   mutations: {
     setNotificationData(state, payload) {
@@ -31,6 +32,9 @@ const store = createStore({
     },
     setPdfFiles(state, payload) {
       state.pdfFiles = payload;
+    },
+    setGigHistory(state, payload) {
+      state.gigHistory = payload;
     }
   },
   actions: {
@@ -58,6 +62,9 @@ const store = createStore({
     },
     setPdfFiles({ commit }, message) {
       commit('setPdfFiles', message);
+    },
+    setGigHistory({ commit }, message) {
+      commit('setGigHistory', message);
     },
   }
 });

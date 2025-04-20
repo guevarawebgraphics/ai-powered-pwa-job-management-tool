@@ -36,12 +36,16 @@
 
             <!-- Gig Stats -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div
+                <!-- <div
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start 
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
                     <i class="fas fa-headset text-2xl text-gray-700"></i>
                     <p class="text-sm font-medium mt-2">DAX</p>
-                </div>
+                </div> -->
+
+                <DAX :page="'GigReport'" :user_id="techID" :vector_id="this.gigData.machine.vector_id" />
+
+
                 <div @click="openGigPotentialEarning()"
                     class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start cursor-pointer
            transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
@@ -371,10 +375,11 @@ import axios from "axios"; // Ensure ax
 import Swal from 'sweetalert2'; // Import SweetAlert2
 import EmojiPicker from "vue3-emoji-picker";
 import "vue3-emoji-picker/css";
+import DAX from "../sections/DAX.vue";
 
 export default {
     // components: { NavBar, BottomNav, EmojiPicker },
-    components: { NavBar, BottomNav, EmojiPicker },
+    components: { NavBar, BottomNav, EmojiPicker, DAX },
     name: "GigReportPage",
     data() {
         return {
@@ -426,7 +431,8 @@ export default {
             showEmojiPicker: false,
             gigPotentialEarnings: [],
             potentialGigPrice: 0.00,
-            isGigPotentialOpen: false
+            isGigPotentialOpen: false,
+            techID: null
 
         };
     },
@@ -510,6 +516,7 @@ export default {
                 });
 
                 this.gigData = response.data.data[0];
+                this.techID = this.gigData.assigned_tech_id;
                 this.modelNumber = this.gigData.model_number;
                 this.machineDetail(this.modelNumber);
 
