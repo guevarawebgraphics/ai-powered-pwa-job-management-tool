@@ -323,6 +323,7 @@ import BottomNav from "../sections/Bottombar.vue";
 import axios from "axios"; // Ensure ax
 import Swal from 'sweetalert2'; // Import SweetAlert2
 import DAX from "../sections/DAX.vue";
+import { bus } from '../sections/DAX.vue'; 
 
 
 export default {
@@ -356,6 +357,15 @@ export default {
         if (this.gigID) {
             this.gigDetail(this.gigID);
         }
+
+        // 👇 Listen to DAX signal
+        bus.on("trigger-send-status", this.sendMessageFromDAX);
+        bus.on("trigger-open-map", this.openGoogleMaps);
+    },
+    beforeUnmount() {
+        bus.off("trigger-send-status", this.sendMessageFromDAX);
+        bus.off("trigger-open-map", this.openGoogleMaps);
+
     },
     watch: {
         // Watch for changes in route (if navigating to another customer)
@@ -834,6 +844,9 @@ export default {
                 console.error('Error fetching travel time:', error);
                 this.timeOfArrival = 'Error fetching travel time';
             }
+        },
+        sendMessageFromDAX(status) {
+            this.sendMessage(status); // reuse existing function
         }
     }
 };

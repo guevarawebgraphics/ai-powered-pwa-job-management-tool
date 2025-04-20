@@ -292,7 +292,6 @@ export default {
                                 });
                         }
 
-
                         if (msg.name === "call_client_by_voice" && this.page === "GigIndex") {
                             const args = JSON.parse(msg.arguments);
 
@@ -335,6 +334,46 @@ export default {
                                         }));
                                     }
                                 }
+                            }
+                        }
+
+                        if (msg.name === "send_status_message" && this.page === "GigIndex") {
+                            const args = JSON.parse(msg.arguments);
+                            const status = args.status;
+
+                            // Emit a custom event to GigIndex
+                            bus.emit("trigger-send-status", status);
+
+                            const confirmMessage = `Sending "${status.replace('-', ' ')}" message to the client now.`;
+                            this.chatHistory.push({ role: "assistant", content: confirmMessage });
+
+                            if (this.dataChannel?.readyState === "open") {
+                                this.dataChannel.send(JSON.stringify({
+                                    type: "response.create",
+                                    response: {
+                                        modalities: ["text", "audio"],
+                                        voice: "ash",
+                                        instructions: confirmMessage
+                                    }
+                                }));
+                            }
+                        }
+
+                        if (msg.name === "open_google_map" && this.page === "GigIndex") {
+                            bus.emit("trigger-open-map");
+
+                            const responseText = `Opening Google Maps to the client's address now.`;
+                            this.chatHistory.push({ role: "assistant", content: responseText });
+
+                            if (this.dataChannel?.readyState === "open") {
+                                this.dataChannel.send(JSON.stringify({
+                                    type: "response.create",
+                                    response: {
+                                        modalities: ["text", "audio"],
+                                        voice: "ash",
+                                        instructions: responseText
+                                    }
+                                }));
                             }
                         }
 
@@ -618,21 +657,49 @@ export default {
                 }
 
                 if (this.page === "GigIndex") {
-                    tools.push({
-                        type: "function",
-                        name: "call_client_by_voice",
-                        description: "Use this tool if the technician says they want to call the client.",
-                        parameters: {
-                            type: "object",
-                            properties: {
-                                confirm_call: {
-                                    type: "boolean",
-                                    description: "Whether the technician confirmed calling the client. Always true."
-                                }
-                            },
-                            required: ["confirm_call"]
+                    tools.push(
+                        {
+                            type: "function",
+                            name: "call_client_by_voice",
+                            description: "Use this tool if the technician says they want to call the client.",
+                            parameters: {
+                                type: "object",
+                                properties: {
+                                    confirm_call: {
+                                        type: "boolean",
+                                        description: "Whether the technician confirmed calling the client. Always true."
+                                    }
+                                },
+                                required: ["confirm_call"]
+                            }
+                        },
+                        {
+                            type: "function",
+                            name: "send_status_message",
+                            description: "Call this when the technician wants to send a message to the client, like arriving early, on time, or behind schedule.",
+                            parameters: {
+                                type: "object",
+                                properties: {
+                                    status: {
+                                        type: "string",
+                                        enum: ["arriving-early", "on-time", "behind-schedule"],
+                                        description: "The status message to send. Options: 'arriving-early', 'on-time', 'behind-schedule'."
+                                    }
+                                },
+                                required: ["status"]
+                            }
+                        },
+                        {
+                            type: "function",
+                            name: "open_google_map",
+                            description: "Call this when the technician asks for directions or wants to open the client location in Google Maps.",
+                            parameters: {
+                                type: "object",
+                                properties: {}
+                            }
                         }
-                    });
+
+                    );
                 }
 
                 // ✅ Add shared tools regardless of page
