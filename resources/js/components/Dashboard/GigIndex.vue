@@ -852,7 +852,7 @@ export default {
             }
         },
         sendMessageFromDAX(status) {
-            this.sendMessage("send-message");
+            this.sendMessage(status);
         },
         sendEmailFromDAX() {
             const email = `${this.gigData.client_email}`;
