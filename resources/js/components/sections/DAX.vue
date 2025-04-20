@@ -337,14 +337,36 @@ export default {
                             }
                         }
 
-                        if (msg.name === "send_status_message" && (this.page === "GigIndex" || this.page === "CustomerUI")) {
+                        if (msg.name === "send_status_message") {
                             const args = JSON.parse(msg.arguments);
                             const status = args.status;
 
-                            // Emit a custom event to GigIndex
+                            // 🔒 Only allow 'send-message' in CustomerUI
+                            if (status === "send-message" && this.page !== "CustomerUI") {
+                                const warning = `Messaging is only available on the Customer Page.`;
+                                this.chatHistory.push({ role: "assistant", content: warning });
+
+                                if (this.dataChannel?.readyState === "open") {
+                                    this.dataChannel.send(JSON.stringify({
+                                        type: "response.create",
+                                        response: {
+                                            modalities: ["text", "audio"],
+                                            voice: "ash",
+                                            instructions: warning
+                                        }
+                                    }));
+                                }
+
+                                return; // 🚫 Exit early
+                            }
+
+                            // ✅ Emit event to parent to send the correct message
                             bus.emit("trigger-send-status", status);
 
-                            const confirmMessage = `Sending "${status.replace('-', ' ')}" message to the client now.`;
+                            const confirmMessage = status === "send-message"
+                                ? `Opening your messaging app to contact the client.`
+                                : `Sending "${status.replace('-', ' ')}" message to the client now.`;
+
                             this.chatHistory.push({ role: "assistant", content: confirmMessage });
 
                             if (this.dataChannel?.readyState === "open") {
@@ -358,6 +380,7 @@ export default {
                                 }));
                             }
                         }
+
 
                         if (msg.name === "open_google_map" && (this.page === "GigIndex" || this.page === "CustomerUI" ) ) {
                             bus.emit("trigger-open-map");
