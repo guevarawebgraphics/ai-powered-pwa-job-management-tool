@@ -292,28 +292,6 @@ export default {
                                 });
                         }
 
-                        if (msg.name === "call_client_by_voice" && this.page === "GigIndex") {
-                            const args = JSON.parse(msg.arguments);
-
-                            if (args.confirm_call === true && this.gigData?.client_phone_number) {
-                                const telLink = `tel:${this.gigData.client_phone_number}`;
-                                window.open(telLink, '_self'); // Trigger the phone dialer
-
-                                const message = `Sure, calling ${this.gigData.client_name} now.`;
-                                this.chatHistory.push({ role: "assistant", content: message });
-
-                                if (this.dataChannel?.readyState === "open") {
-                                    this.dataChannel.send(JSON.stringify({
-                                        type: "response.create",
-                                        response: {
-                                            modalities: ["text", "audio"],
-                                            voice: "ash",
-                                            instructions: message
-                                        }
-                                    }));
-                                }
-                            }
-                        }
 
                         if (msg.name === "call_client_by_voice" && this.page === "GigIndex") {
                             const args = JSON.parse(msg.arguments);
@@ -360,6 +338,48 @@ export default {
                             }
                         }
 
+                        // ✅ NEW: Handle open_gig_from_voice
+                        if (msg.name === "open_gig_from_voice") {
+                            const args = JSON.parse(msg.arguments);
+                            const gigCryptic = args.gig_cryptic?.toUpperCase();
+
+                            const matchedGig = this.$store.state.gigHistory.find(
+                                (gig) => gig.gig_cryptic.toUpperCase() === gigCryptic
+                            );
+
+                            if (matchedGig) {
+                                const message = `Sure, opening Gig ${matchedGig.gig_cryptic}`;
+                                this.chatHistory.push({ role: "assistant", content: message });
+                                this.$router.push(`/gig/${matchedGig.gig_id}`);
+
+                                if (this.dataChannel && this.dataChannel.readyState === "open") {
+                                    const responseEvent = {
+                                        type: "response.create",
+                                        response: {
+                                            modalities: ["text", "audio"],
+                                            voice: "ash",
+                                            instructions: message
+                                        }
+                                    };
+                                    this.dataChannel.send(JSON.stringify(responseEvent));
+                                }
+                            } else {
+                                const message = `Sorry, I couldn't find a gig matching ${gigCryptic}`;
+                                this.chatHistory.push({ role: "assistant", content: message });
+
+                                if (this.dataChannel && this.dataChannel.readyState === "open") {
+                                    const responseEvent = {
+                                        type: "response.create",
+                                        response: {
+                                            modalities: ["text", "audio"],
+                                            voice: "ash",
+                                            instructions: message
+                                        }
+                                    };
+                                    this.dataChannel.send(JSON.stringify(responseEvent));
+                                }
+                            }
+                        }
 
                         if (msg.name === "navigate_to_page") {
                             const args = JSON.parse(msg.arguments);
@@ -635,7 +655,7 @@ export default {
                     {
                         type: "function",
                         name: "navigate_to_page",
-                        description: "Call this when the user wants to navigate to a specific technician page like profile, dashboard, schedules, guild-profile, notification, set-schedule etc.",
+                        description: "Call this when the user wants to navigate to a specific technician page like profile, dashboard (this is the same with home page), schedules, calendar(calendar is just the same with schedules page), guild-profile, notification, set-schedule etc.",
                         parameters: {
                             type: "object",
                             properties: {
@@ -669,7 +689,7 @@ export default {
                     session: {
                         modalities: ["text", "audio"],
                         voice: "ash",
-                        tools,
+                        tools: tools,
                         tool_choice: "auto",
                         instructions: `
                             You are provided with additional context derived from the current webpage:
