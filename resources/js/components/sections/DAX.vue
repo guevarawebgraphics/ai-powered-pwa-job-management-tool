@@ -100,13 +100,7 @@ export default {
         };
     },
     created() {
-
-        // const fileIDs = await this.fetchFileIDs();
-
-        // this.$store.commit("setVectorIDs", fileIDs);
-
-        // this.getVectorIds();
-
+        console.log(`Gig History VIA DAX: `, this.$store.state.gigHistory);
     },
     watch: {
 
@@ -218,6 +212,7 @@ export default {
                     console.log(`Transcript: `, msg);
 
                     if (msg.type === 'response.function_call_arguments.done') {
+                        
                         if (msg.name === "query_about_machine") {
                             const args = JSON.parse(msg.arguments);
                             console.log(`🔍 Argument:`, args.user_query);
@@ -260,6 +255,168 @@ export default {
                                     console.error("🧵 Stack trace:", err.stack);
                                 });
                         }
+
+                        if (msg.name === "open_gig_from_voice") {
+                            const args = JSON.parse(msg.arguments);
+                            const gigCryptic = args.gig_cryptic?.toUpperCase();
+
+                            const matchedGig = this.$store.state.gigHistory.find(
+                                (gig) => gig.gig_cryptic.toUpperCase() === gigCryptic
+                            );
+
+                            if (matchedGig) {
+                                const message = `Sure, opening Gig ${matchedGig.gig_cryptic}`;
+                                this.chatHistory.push({ role: "assistant", content: message });
+                                this.$router.push(`/gig/${matchedGig.gig_id}`);
+
+                                if (this.dataChannel && this.dataChannel.readyState === "open") {
+                                    const responseEvent = {
+                                        type: "response.create",
+                                        response: {
+                                            modalities: ["text", "audio"],
+                                            voice: "ash",
+                                            instructions: message
+                                        }
+                                    };
+                                    this.dataChannel.send(JSON.stringify(responseEvent));
+                                }
+                            } else {
+                                const message = `Sorry, I couldn't find a gig matching ${gigCryptic}`;
+                                this.chatHistory.push({ role: "assistant", content: message });
+
+                                if (this.dataChannel && this.dataChannel.readyState === "open") {
+                                    const responseEvent = {
+                                        type: "response.create",
+                                        response: {
+                                            modalities: ["text", "audio"],
+                                            voice: "ash",
+                                            instructions: message
+                                        }
+                                    };
+                                    this.dataChannel.send(JSON.stringify(responseEvent));
+                                }
+                            }
+
+                        }
+
+                        if (msg.name === "navigate_to_page") {
+                            const args = JSON.parse(msg.arguments);
+                            const pageMap = {
+                                "profile": "/profile",
+                                "set-schedule": "/set-schedule",
+                                "guild-profile": "/guild-profile",
+                                "notification": "/notification",
+                                "dashboard": "/dashboard",
+                                "schedules": "/schedules",
+                                "analytics": "/analytics"
+                            };
+
+                            const path = pageMap[args.destination];
+
+                            if (path) {
+                                const message = `Navigating to your ${args.destination.replace('-', ' ')} page.`;
+                                this.chatHistory.push({ role: "assistant", content: message });
+                                this.$router.push(path);
+
+                                if (this.dataChannel?.readyState === "open") {
+                                    this.dataChannel.send(JSON.stringify({
+                                        type: "response.create",
+                                        response: {
+                                            modalities: ["text", "audio"],
+                                            voice: "ash",
+                                            instructions: message
+                                        }
+                                    }));
+                                }
+                            } else {
+                                const fallback = `Sorry, I don't recognize the page "${args.destination}"`;
+                                this.chatHistory.push({ role: "assistant", content: fallback });
+
+                                if (this.dataChannel?.readyState === "open") {
+                                    this.dataChannel.send(JSON.stringify({
+                                        type: "response.create",
+                                        response: {
+                                            modalities: ["text", "audio"],
+                                            voice: "ash",
+                                            instructions: fallback
+                                        }
+                                    }));
+                                }
+                            }
+                        }
+
+                        if (msg.name === "open_model_page") {
+                            const args = JSON.parse(msg.arguments);
+                            const gigList = this.$store.state.gigHistory || [];
+
+                            let matchedGig;
+
+                            if (args.gig_cryptic) {
+                                const spokenGig = args.gig_cryptic.toUpperCase();
+                                matchedGig = gigList.find(g => g.gig_cryptic.toUpperCase() === spokenGig);
+                            }
+
+                            if (!matchedGig && gigList.length > 0) {
+                                matchedGig = gigList[0];
+                            }
+
+                            if (matchedGig && matchedGig.machine) {
+                                const modelNumber = matchedGig.machine.model_number;
+                                const gigId = matchedGig.gig_id;
+
+                                // ✅ Validation: if no gig ID exists
+                                if (!gigId || gigId === null || gigId === undefined) {
+                                    const warning = `You don’t have a gig associated with this machine.`;
+                                    this.chatHistory.push({ role: "assistant", content: warning });
+
+                                    if (this.dataChannel?.readyState === "open") {
+                                        this.dataChannel.send(JSON.stringify({
+                                            type: "response.create",
+                                            response: {
+                                                modalities: ["text", "audio"],
+                                                voice: "ash",
+                                                instructions: warning
+                                            }
+                                        }));
+                                    }
+
+                                    return; // 🚫 Don't proceed to route
+                                }
+
+                                // ✅ Proceed with navigation
+                                const message = `Opening model page for ${modelNumber}`;
+                                this.chatHistory.push({ role: "assistant", content: message });
+
+                                this.$router.push(`/model/${modelNumber}/gig/${gigId}`);
+
+                                if (this.dataChannel?.readyState === "open") {
+                                    this.dataChannel.send(JSON.stringify({
+                                        type: "response.create",
+                                        response: {
+                                            modalities: ["text", "audio"],
+                                            voice: "ash",
+                                            instructions: message
+                                        }
+                                    }));
+                                }
+
+                            } else {
+                                const fallback = `I couldn't find a model page to open.`;
+                                this.chatHistory.push({ role: "assistant", content: fallback });
+
+                                if (this.dataChannel?.readyState === "open") {
+                                    this.dataChannel.send(JSON.stringify({
+                                        type: "response.create",
+                                        response: {
+                                            modalities: ["text", "audio"],
+                                            voice: "ash",
+                                            instructions: fallback
+                                        }
+                                    }));
+                                }
+                            }
+                        }
+
                     }
 
                     // 🔄 Live transcription while AI is speaking
@@ -379,6 +536,52 @@ export default {
                                     required: ["user_query"],
                                 },
                             },
+                            {
+                                type: "function",
+                                name: "open_gig_from_voice",
+                                description: "Call this when the user asks to open a gig by number or cryptic code.",
+                                parameters: {
+                                    type: "object",
+                                    properties: {
+                                        gig_cryptic: {
+                                            type: "string",
+                                            description: "The spoken gig code or number, like 'GIG12345' or '12345'."
+                                        }
+                                    },
+                                    required: ["gig_cryptic"]
+                                }
+                            },
+                            {
+                                type: "function",
+                                name: "navigate_to_page",
+                                description: "Call this when the user wants to navigate to a specific technician page like profile, dashboard, schedules, guild-profile, notification, set-schedule etc.",
+                                parameters: {
+                                    type: "object",
+                                    properties: {
+                                        destination: {
+                                            type: "string",
+                                            description: "The destination keyword like 'profile', 'analytics', 'dashboard', 'set-schedule', 'schedules', 'notification', 'guild-profile'"
+                                        }
+                                    },
+                                    required: ["destination"]
+                                }
+                            },
+                            {
+                                type: "function",
+                                name: "open_model_page",
+                                description: "Call this when the technician wants to view the model or machine details for a gig. If no gig is provided, use the most recent one.",
+                                parameters: {
+                                    type: "object",
+                                    properties: {
+                                        gig_cryptic: {
+                                            type: "string",
+                                            description: "The gig's cryptic code (optional)"
+                                        }
+                                    }
+                                    // 🚫 No 'required' key — now it's optional
+                                }
+                            }
+
                         ],
                         tool_choice: "auto",
                         instructions: `
@@ -536,7 +739,6 @@ export default {
                 console.error("Error updating vector store:", error.response?.data || error.message);
             }
         },
-
 
     },
 };
