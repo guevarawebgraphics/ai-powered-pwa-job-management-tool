@@ -41,7 +41,7 @@
                 </div> -->
 
 
-                <DAX :page="'GigIndex'" :user_id="techID" :vector_id="this.gigData.machine.vector_id" />
+                <DAX :page="'GigIndex'" :user_id="techID" :vector_id="this.machineData.vector_id" />
 
 
                 <div @click="openGigPotentialEarning()"
