@@ -693,22 +693,6 @@ export default {
                         },
                         {
                             type: "function",
-                            name: "send_status_message",
-                            description: "Call this when the technician wants to send a message to the client, like arriving early, on time, or behind schedule.",
-                            parameters: {
-                                type: "object",
-                                properties: {
-                                    status: {
-                                        type: "string",
-                                        enum: ["arriving-early", "on-time", "behind-schedule","send-message"],
-                                        description: "The status message to send. Options: 'arriving-early', 'on-time', 'behind-schedule','send-message'. Only use enum 'send-message' if technician is on the CustomerUI or Client page."
-                                    }
-                                },
-                                required: ["status"]
-                            }
-                        },
-                        {
-                            type: "function",
                             name: "send_email",
                             description: "Call this when the technician wants to send an email to the client",
                             parameters: {
@@ -727,6 +711,34 @@ export default {
                         }
 
                     );
+
+                    const statusEnum =
+                        this.page === "GigIndex"
+                            ? ["arriving-early", "on-time", "behind-schedule"]
+                            : ["send-message"];
+
+                    tools.push({
+                        type: "function",
+                        name: "send_status_message",
+                        description:
+                            this.page === "CustomerUI"
+                                ? "Call this when the technician wants to send a message to the client from the client or customer page."
+                                : "Call this when the technician wants to send a status update to the client, like arriving early, on time, or behind schedule.",
+                        parameters: {
+                            type: "object",
+                            properties: {
+                                status: {
+                                    type: "string",
+                                    enum: statusEnum,
+                                    description:
+                                        this.page === "CustomerUI"
+                                            ? "Only use enum 'send-message' when on the Customer Page."
+                                            : "Status message options: 'arriving-early', 'on-time', or 'behind-schedule'."
+                                }
+                            },
+                            required: ["status"]
+                        }
+                    });
                 }
 
                 // ✅ Add shared tools regardless of page
