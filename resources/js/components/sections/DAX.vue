@@ -69,7 +69,11 @@
 
         <!-- Toggle Recording Button -->
         <button @click="recording ? stopRecording() : startRecording()" :class="['relative w-20 h-20 rounded-full shadow-lg flex items-center justify-center text-white text-3xl transition',
-            recording ? 'bg-red-500 pulse-active' : 'bg-blue-500 hover:scale-110']">
+            recording ? 'bg-red-500 pulse-active' : 'bg-blue-500 hover:scale-110']" :style="{
+                transform: recording
+                    ? `scale(${1 + volume * 1.5})`
+                    : 'scale(1)'
+            }">
             <i :class="recording ? 'fas fa-stop' : 'fas fa-microphone'"></i>
         </button>
     </div>
@@ -126,7 +130,11 @@ export default {
             dataChannel: null,
             speechRecognition: null,
             userTranscript: '',
-            vectorIDs: []
+            vectorIDs: [],
+            volume: 0,
+            audioContext: null,
+            analyser: null,
+            dataArray: null,
         };
     },
     created() {
@@ -631,6 +639,43 @@ export default {
                 this.localStream.getTracks().forEach(track => {
                     this.peerConnection.addTrack(track, this.localStream);
                 });
+
+
+
+                this.audioContext = this.audioContext || new AudioContext();
+
+                // 2. create analyser, hook up the mic stream
+                this.analyser = this.audioContext.createAnalyser();
+                this.analyser.fftSize = 256;
+                const source = this.audioContext.createMediaStreamSource(this.localStream);
+                source.connect(this.analyser);
+
+                // 3. prepare a buffer to read time‑domain data
+                this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+
+                // 4. start a loop to update `this.volume`
+                const updateVolume = () => {
+                    this.analyser.getByteTimeDomainData(this.dataArray);
+                    let sum = 0;
+                    for (let i = 0; i < this.dataArray.length; i++) {
+                        const v = (this.dataArray[i] - 128) / 128;
+                        sum += v * v;
+                    }
+                    const rms = Math.sqrt(sum / this.dataArray.length);
+                    this.volume = rms;    // roughly 0–1
+
+                    if (this.recording) {
+                        requestAnimationFrame(updateVolume);
+                    } else {
+                        this.volume = 0;
+                    }
+                };
+                updateVolume();
+
+
+
+
+
 
                 // 5. Create an SDP offer.
                 const offer = await this.peerConnection.createOffer();
