@@ -30,7 +30,7 @@
                 <p class="text-sm font-medium ml-2">DAX</p>
             </div> -->
 
-            <DAX :page="'Model'" :user_id="gigData.assigned_tech_id"/>
+            <DAX :page="'Model'" :user_id="gigData.assigned_tech_id" :vector_id="this.machineData.vector_id"/>
 
             <!-- Useful Links (Accordion) -->
             <div class="space-y-4 mt-6">
