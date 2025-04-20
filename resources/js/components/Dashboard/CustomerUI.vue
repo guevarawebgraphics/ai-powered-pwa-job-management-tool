@@ -488,12 +488,10 @@ export default {
             window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, "_blank");
         },
         sendMessageFromDAX(status) {
-            if (status === "send-message") {
-                this.sendMessage("send-message");
-            }
+            this.sendMessage("send-message");
         },
         sendEmailFromDAX() {
-            const email = `${this.customerData.email}`;
+            const email = `${this.customerData.client_email}`;
             const mailTo = `mailto:${email}`;
             window.location.href = mailTo;
         }
