@@ -284,6 +284,13 @@ export default {
         }
         bus.on("trigger-open-map", this.openGoogleMaps);
         bus.on("trigger-send-status", this.sendMessageFromDAX);
+        bus.on("trigger-send-email", this.sendEmailFromDAX);
+
+    },
+    beforeUnmount() {
+        bus.off("trigger-send-status", this.sendMessageFromDAX);
+        bus.off("trigger-open-map", this.openGoogleMaps);
+        bus.on("trigger-send-email", this.sendEmailFromDAX);
 
     },
     watch: {
@@ -476,12 +483,17 @@ export default {
             }
         },
         openGoogleMaps() {
-            const address = `${customerData.street_address}, ${customerData.city}, ${customerData.state}, ${customerData.country} ${customerData.zip_code}`;
+            const address = `${this.customerData.street_address}, ${this.customerData.city}, ${this.customerData.state}, ${this.customerData.country} ${this.customerData.zip_code}`;
             const encodedAddress = encodeURIComponent(address);
             window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, "_blank");
         },
         sendMessageFromDAX(status) {
             this.sendMessage(status); // reuse existing function
+        },
+        sendEmailFromDAX() {
+            const email = `${this.customerData.email}`;
+            const mailTo = `mailto:${email}`;
+            window.location.href = mailTo;
         }
     },
 };

@@ -361,10 +361,12 @@ export default {
         // 👇 Listen to DAX signal
         bus.on("trigger-send-status", this.sendMessageFromDAX);
         bus.on("trigger-open-map", this.openGoogleMaps);
+        bus.on("trigger-send-email", this.sendEmailFromDAX);
     },
     beforeUnmount() {
         bus.off("trigger-send-status", this.sendMessageFromDAX);
         bus.off("trigger-open-map", this.openGoogleMaps);
+        bus.on("trigger-send-email", this.sendEmailFromDAX);
 
     },
     watch: {
@@ -847,6 +849,11 @@ export default {
         },
         sendMessageFromDAX(status) {
             this.sendMessage(status); // reuse existing function
+        },
+        sendEmailFromDAX() {
+            const email = `${this.gigData.client_email}`;
+            const mailTo = `mailto:${email}`;
+            window.location.href = mailTo;
         }
     }
 };

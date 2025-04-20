@@ -377,6 +377,24 @@ export default {
                             }
                         }
 
+                        if (msg.name === "send_email" && (this.page === "GigIndex" || this.page === "CustomerUI")) {
+                            bus.emit("trigger-send-email");
+
+                            const responseText = `Opening your Mail App`;
+                            this.chatHistory.push({ role: "assistant", content: responseText });
+
+                            if (this.dataChannel?.readyState === "open") {
+                                this.dataChannel.send(JSON.stringify({
+                                    type: "response.create",
+                                    response: {
+                                        modalities: ["text", "audio"],
+                                        voice: "ash",
+                                        instructions: responseText
+                                    }
+                                }));
+                            }
+                        }
+
                         // ✅ NEW: Handle open_gig_from_voice
                         if (msg.name === "open_gig_from_voice") {
                             const args = JSON.parse(msg.arguments);
@@ -656,7 +674,7 @@ export default {
                     });
                 }
 
-                if (this.page === "GigIndex") {
+                if (this.page === "GigIndex" || this.page === "CustomerUI") {
                     tools.push(
                         {
                             type: "function",
@@ -683,10 +701,19 @@ export default {
                                     status: {
                                         type: "string",
                                         enum: ["arriving-early", "on-time", "behind-schedule","send-message"],
-                                        description: "The status message to send. Options: 'arriving-early', 'on-time', 'behind-schedule','send-message'."
+                                        description: "The status message to send. Options: 'arriving-early', 'on-time', 'behind-schedule','send-message'. Only use enum 'send-message' if technician is on the CustomerUI or Client page."
                                     }
                                 },
                                 required: ["status"]
+                            }
+                        },
+                        {
+                            type: "function",
+                            name: "send_email",
+                            description: "Call this when the technician wants to send an email to the client",
+                            parameters: {
+                                type: "object",
+                                properties: {}
                             }
                         },
                         {
