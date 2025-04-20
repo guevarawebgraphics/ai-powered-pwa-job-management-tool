@@ -347,7 +347,8 @@ export default {
             isGigPotentialOpen: false,
             timeOfArrival: '',
             destinationAddress: '',
-            techID: null
+            techID: null,
+            clientEmail: null
         };
     },
     created() {
@@ -502,6 +503,9 @@ export default {
                 });
 
                 this.gigData = response.data.data[0]; 
+                this.clientEmail = this.gigData.client_email;
+
+                console.log(`Client Email ${this.clientEmail}`);
                 this.modelNumber = this.gigData.model_number;
                 this.techID = this.gigData.assigned_tech_id;
                 console.log(`gig -> ${this.gigData.model_number}`);
@@ -848,9 +852,7 @@ export default {
             }
         },
         sendMessageFromDAX(status) {
-            if (status != "send-message") {
-                this.sendMessage("send-message");
-            }
+            this.sendMessage("send-message");
         },
         sendEmailFromDAX() {
             const email = `${this.gigData.client_email}`;
