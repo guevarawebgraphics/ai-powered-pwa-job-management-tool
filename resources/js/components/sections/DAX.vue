@@ -83,6 +83,9 @@
 import axios from "axios";
 import { reactive } from 'vue';
 
+
+
+
 // Define a shared reactive event bus (global, minimal)
 export const bus = reactive({
     callbacks: {},
@@ -243,7 +246,7 @@ export default {
                     this.configureData();
                 });
 
-                this.dataChannel.addEventListener("message", (ev) => {
+                this.dataChannel.addEventListener("message", async (ev) => {
                     let msg;
                     try {
                         msg = JSON.parse(ev.data);
@@ -256,336 +259,363 @@ export default {
 
                     if (msg.type === 'response.function_call_arguments.done') {
 
-                        if (msg.name === "query_about_machine" && (this.page === "Model" || this.page === "GigIndex" || this.page === "GigReport")) {
+                        const msg = JSON.parse(ev.data)
+                        const args = JSON.parse(msg.arguments)
 
-                            const args = JSON.parse(msg.arguments);
-                            console.log(`🔍 Argument:`, args.user_query);
-                            this.runFileSearchTool(args.user_query)
-                                .then((data) => {
-                                    const outputText = data.output?.[1]?.content?.[0]?.text || "";
+                        // Now this is fine:
+                        const result = await this.handleFunctionCall(msg.name, args);
 
-                                    if (outputText) {
-                                        const argument_event = {
-                                            type: "response.create",
-                                            response: {
-                                                modalities: ["text", "audio"],
-                                                voice: "ash",
-                                                instructions: `Tell the user the following information from the documents: ${outputText}`
-                                            },
-                                        };
-
-                                        this.dataChannel.send(JSON.stringify(argument_event));
-                                    }
-
-
-
-                                }).catch((err) => {
-                                    console.error("❌ API error:", err);
-
-                                    if (err.response) {
-                                        // HTTP error from the server
-                                        console.error("🔍 Response data:", err.response.data);
-                                        console.error("📦 Status code:", err.response.status);
-                                        console.error("📋 Headers:", err.response.headers);
-                                    } else if (err.request) {
-                                        // No response received
-                                        console.error("📭 No response received:", err.request);
-                                    } else {
-                                        // Other types of errors (e.g., bad syntax)
-                                        console.error("⚠️ Error message:", err.message);
-                                    }
-
-                                    // Optional: full stack trace
-                                    console.error("🧵 Stack trace:", err.stack);
-                                });
-                        }
-
-                        if (msg.name === "call_client_by_voice" && (this.page === "GigIndex" || this.page === "CustomerUI")) {
-                            const args = JSON.parse(msg.arguments);
-
-                            if (args.confirm_call === true) {
-                                // 🧠 Match the gig based on current route or available gigID
-                                const currentGigId = this.$route?.params?.id;
-                                const matchedGig = this.$store.state.gigHistory.find(
-                                    (gig) => gig.gig_id == currentGigId
-                                );
-
-                                if (matchedGig && matchedGig.client_phone_number) {
-                                    const telLink = `tel:${matchedGig.client_phone_number}`;
-                                    window.open(telLink, '_self');
-
-                                    const message = `Sure, calling ${matchedGig.client_name} now.`;
-                                    this.chatHistory.push({ role: "assistant", content: message });
-
-                                    if (this.dataChannel?.readyState === "open") {
-                                        this.dataChannel.send(JSON.stringify({
-                                            type: "response.create",
-                                            response: {
-                                                modalities: ["text", "audio"],
-                                                voice: "ash",
-                                                instructions: message
-                                            }
-                                        }));
-                                    }
-                                } else {
-                                    const fallback = `Sorry, I couldn't find the client's phone number.`;
-                                    this.chatHistory.push({ role: "assistant", content: fallback });
-
-                                    if (this.dataChannel?.readyState === "open") {
-                                        this.dataChannel.send(JSON.stringify({
-                                            type: "response.create",
-                                            response: {
-                                                modalities: ["text", "audio"],
-                                                voice: "ash",
-                                                instructions: fallback
-                                            }
-                                        }));
-                                    }
-                                }
+                        // 1) send function_call_output
+                        this.dataChannel.send(JSON.stringify({
+                            type: 'conversation.item.create',
+                            item: {
+                                type: 'function_call_output',
+                                call_id: msg.call_id,
+                                output: JSON.stringify(result)
                             }
-                        }
+                        }));
 
-                        if (msg.name === "send_status_message") {
-                            const args = JSON.parse(msg.arguments);
-                            const status = args.status;
-
-                            // 🔒 Only allow 'send-message' in CustomerUI
-                            if (status === "send-message" && this.page !== "CustomerUI") {
-                                const warning = `Messaging is only available on the Customer Page.`;
-                                this.chatHistory.push({ role: "assistant", content: warning });
-
-                                if (this.dataChannel?.readyState === "open") {
-                                    this.dataChannel.send(JSON.stringify({
-                                        type: "response.create",
-                                        response: {
-                                            modalities: ["text", "audio"],
-                                            voice: "ash",
-                                            instructions: warning
-                                        }
-                                    }));
-                                }
-
-                                return; // 🚫 Exit early
+                        // 2) send response.create
+                        this.dataChannel.send(JSON.stringify({
+                            type: 'response.create',
+                            response: {
+                                modalities: ['text', 'audio'],
+                                voice: 'ash',
+                                instructions: result
                             }
+                        }));
 
-                            // ✅ Emit event to parent to send the correct message
-                            bus.emit("trigger-send-status", status);
+                        // Manual Function Call
+                        // if (msg.name === "query_about_machine" && (this.page === "Model" || this.page === "GigIndex" || this.page === "GigReport")) {
 
-                            const confirmMessage = status === "send-message"
-                                ? `Opening your messaging app to contact the client.`
-                                : `Sending "${status.replace('-', ' ')}" message to the client now.`;
+                        //     const args = JSON.parse(msg.arguments);
+                        //     console.log(`🔍 Argument:`, args.user_query);
+                        //     this.runFileSearchTool(args.user_query)
+                        //         .then((data) => {
+                        //             const outputText = data.output?.[1]?.content?.[0]?.text || "";
 
-                            this.chatHistory.push({ role: "assistant", content: confirmMessage });
+                        //             if (outputText) {
+                        //                 const argument_event = {
+                        //                     type: "response.create",
+                        //                     response: {
+                        //                         modalities: ["text", "audio"],
+                        //                         voice: "ash",
+                        //                         instructions: `Tell the user the following information from the documents: ${outputText}`
+                        //                     },
+                        //                 };
 
-                            if (this.dataChannel?.readyState === "open") {
-                                this.dataChannel.send(JSON.stringify({
-                                    type: "response.create",
-                                    response: {
-                                        modalities: ["text", "audio"],
-                                        voice: "ash",
-                                        instructions: confirmMessage
-                                    }
-                                }));
-                            }
-                        }
+                        //                 this.dataChannel.send(JSON.stringify(argument_event));
+                        //             }
 
 
-                        if (msg.name === "open_google_map" && (this.page === "GigIndex" || this.page === "CustomerUI" ) ) {
-                            bus.emit("trigger-open-map");
 
-                            const responseText = `Opening Google Maps to the client's address now.`;
-                            this.chatHistory.push({ role: "assistant", content: responseText });
+                        //         }).catch((err) => {
+                        //             console.error("❌ API error:", err);
 
-                            if (this.dataChannel?.readyState === "open") {
-                                this.dataChannel.send(JSON.stringify({
-                                    type: "response.create",
-                                    response: {
-                                        modalities: ["text", "audio"],
-                                        voice: "ash",
-                                        instructions: responseText
-                                    }
-                                }));
-                            }
-                        }
+                        //             if (err.response) {
+                        //                 // HTTP error from the server
+                        //                 console.error("🔍 Response data:", err.response.data);
+                        //                 console.error("📦 Status code:", err.response.status);
+                        //                 console.error("📋 Headers:", err.response.headers);
+                        //             } else if (err.request) {
+                        //                 // No response received
+                        //                 console.error("📭 No response received:", err.request);
+                        //             } else {
+                        //                 // Other types of errors (e.g., bad syntax)
+                        //                 console.error("⚠️ Error message:", err.message);
+                        //             }
 
-                        if (msg.name === "send_email" && (this.page === "GigIndex" || this.page === "CustomerUI")) {
-                            bus.emit("trigger-send-email");
+                        //             // Optional: full stack trace
+                        //             console.error("🧵 Stack trace:", err.stack);
+                        //         });
+                        // }
 
-                            const responseText = `Opening your Mail App`;
-                            this.chatHistory.push({ role: "assistant", content: responseText });
+                        // if (msg.name === "call_client_by_voice" && (this.page === "GigIndex" || this.page === "CustomerUI")) {
+                        //     const args = JSON.parse(msg.arguments);
 
-                            if (this.dataChannel?.readyState === "open") {
-                                this.dataChannel.send(JSON.stringify({
-                                    type: "response.create",
-                                    response: {
-                                        modalities: ["text", "audio"],
-                                        voice: "ash",
-                                        instructions: responseText
-                                    }
-                                }));
-                            }
-                        }
+                        //     if (args.confirm_call === true) {
+                        //         // 🧠 Match the gig based on current route or available gigID
+                        //         const currentGigId = this.$route?.params?.id;
+                        //         const matchedGig = this.$store.state.gigHistory.find(
+                        //             (gig) => gig.gig_id == currentGigId
+                        //         );
 
-                        // ✅ NEW: Handle open_gig_from_voice
-                        if (msg.name === "open_gig_from_voice") {
-                            const args = JSON.parse(msg.arguments);
-                            const gigCryptic = args.gig_cryptic?.toUpperCase();
+                        //         if (matchedGig && matchedGig.client_phone_number) {
+                        //             const telLink = `tel:${matchedGig.client_phone_number}`;
+                        //             window.open(telLink, '_self');
 
-                            const matchedGig = this.$store.state.gigHistory.find(
-                                (gig) => gig.gig_cryptic.toUpperCase() === gigCryptic
-                            );
+                        //             const message = `Sure, calling ${matchedGig.client_name} now.`;
+                        //             this.chatHistory.push({ role: "assistant", content: message });
 
-                            if (matchedGig) {
-                                const message = `Sure, opening Gig ${matchedGig.gig_cryptic}`;
-                                this.chatHistory.push({ role: "assistant", content: message });
-                                this.$router.push(`/gig/${matchedGig.gig_id}`);
+                        //             if (this.dataChannel?.readyState === "open") {
+                        //                 this.dataChannel.send(JSON.stringify({
+                        //                     type: "response.create",
+                        //                     response: {
+                        //                         modalities: ["text", "audio"],
+                        //                         voice: "ash",
+                        //                         instructions: message
+                        //                     }
+                        //                 }));
+                        //             }
+                        //         } else {
+                        //             const fallback = `Sorry, I couldn't find the client's phone number.`;
+                        //             this.chatHistory.push({ role: "assistant", content: fallback });
 
-                                if (this.dataChannel && this.dataChannel.readyState === "open") {
-                                    const responseEvent = {
-                                        type: "response.create",
-                                        response: {
-                                            modalities: ["text", "audio"],
-                                            voice: "ash",
-                                            instructions: message
-                                        }
-                                    };
-                                    this.dataChannel.send(JSON.stringify(responseEvent));
-                                }
-                            } else {
-                                const message = `Sorry, I couldn't find a gig matching ${gigCryptic}`;
-                                this.chatHistory.push({ role: "assistant", content: message });
+                        //             if (this.dataChannel?.readyState === "open") {
+                        //                 this.dataChannel.send(JSON.stringify({
+                        //                     type: "response.create",
+                        //                     response: {
+                        //                         modalities: ["text", "audio"],
+                        //                         voice: "ash",
+                        //                         instructions: fallback
+                        //                     }
+                        //                 }));
+                        //             }
+                        //         }
+                        //     }
+                        // }
 
-                                if (this.dataChannel && this.dataChannel.readyState === "open") {
-                                    const responseEvent = {
-                                        type: "response.create",
-                                        response: {
-                                            modalities: ["text", "audio"],
-                                            voice: "ash",
-                                            instructions: message
-                                        }
-                                    };
-                                    this.dataChannel.send(JSON.stringify(responseEvent));
-                                }
-                            }
-                        }
+                        // if (msg.name === "send_status_message") {
+                        //     const args = JSON.parse(msg.arguments);
+                        //     const status = args.status;
 
-                        if (msg.name === "navigate_to_page") {
-                            const args = JSON.parse(msg.arguments);
-                            const pageMap = {
-                                "profile": "/profile",
-                                "set-schedule": "/set-schedule",
-                                "guild-profile": "/guild-profile",
-                                "notification": "/notification",
-                                "dashboard": "/dashboard",
-                                "schedules": "/schedules",
-                                "analytics": "/analytics"
-                            };
+                        //     // 🔒 Only allow 'send-message' in CustomerUI
+                        //     if (status === "send-message" && this.page !== "CustomerUI") {
+                        //         const warning = `Messaging is only available on the Customer Page.`;
+                        //         this.chatHistory.push({ role: "assistant", content: warning });
 
-                            const path = pageMap[args.destination];
+                        //         if (this.dataChannel?.readyState === "open") {
+                        //             this.dataChannel.send(JSON.stringify({
+                        //                 type: "response.create",
+                        //                 response: {
+                        //                     modalities: ["text", "audio"],
+                        //                     voice: "ash",
+                        //                     instructions: warning
+                        //                 }
+                        //             }));
+                        //         }
 
-                            if (path) {
-                                const message = `Navigating to your ${args.destination.replace('-', ' ')} page.`;
-                                this.chatHistory.push({ role: "assistant", content: message });
-                                this.$router.push(path);
+                        //         return; // 🚫 Exit early
+                        //     }
 
-                                if (this.dataChannel?.readyState === "open") {
-                                    this.dataChannel.send(JSON.stringify({
-                                        type: "response.create",
-                                        response: {
-                                            modalities: ["text", "audio"],
-                                            voice: "ash",
-                                            instructions: message
-                                        }
-                                    }));
-                                }
-                            } else {
-                                const fallback = `Sorry, I don't recognize the page "${args.destination}"`;
-                                this.chatHistory.push({ role: "assistant", content: fallback });
+                        //     // ✅ Emit event to parent to send the correct message
+                        //     bus.emit("trigger-send-status", status);
 
-                                if (this.dataChannel?.readyState === "open") {
-                                    this.dataChannel.send(JSON.stringify({
-                                        type: "response.create",
-                                        response: {
-                                            modalities: ["text", "audio"],
-                                            voice: "ash",
-                                            instructions: fallback
-                                        }
-                                    }));
-                                }
-                            }
-                        }
+                        //     const confirmMessage = status === "send-message"
+                        //         ? `Opening your messaging app to contact the client.`
+                        //         : `Sending "${status.replace('-', ' ')}" message to the client now.`;
 
-                        if (msg.name === "open_model_page") {
-                            const args = JSON.parse(msg.arguments);
-                            const gigList = this.$store.state.gigHistory || [];
+                        //     this.chatHistory.push({ role: "assistant", content: confirmMessage });
 
-                            let matchedGig;
+                        //     if (this.dataChannel?.readyState === "open") {
+                        //         this.dataChannel.send(JSON.stringify({
+                        //             type: "response.create",
+                        //             response: {
+                        //                 modalities: ["text", "audio"],
+                        //                 voice: "ash",
+                        //                 instructions: confirmMessage
+                        //             }
+                        //         }));
+                        //     }
+                        // }
 
-                            if (args.gig_cryptic) {
-                                const spokenGig = args.gig_cryptic.toUpperCase();
-                                matchedGig = gigList.find(g => g.gig_cryptic.toUpperCase() === spokenGig);
-                            }
 
-                            if (!matchedGig && gigList.length > 0) {
-                                matchedGig = gigList[0];
-                            }
+                        // if (msg.name === "open_google_map" && (this.page === "GigIndex" || this.page === "CustomerUI" ) ) {
+                        //     bus.emit("trigger-open-map");
 
-                            if (matchedGig && matchedGig.machine) {
-                                const modelNumber = matchedGig.machine.model_number;
-                                const gigId = matchedGig.gig_id;
+                        //     const responseText = `Opening Google Maps to the client's address now.`;
+                        //     this.chatHistory.push({ role: "assistant", content: responseText });
 
-                                // ✅ Validation: if no gig ID exists
-                                if (!gigId || gigId === null || gigId === undefined) {
-                                    const warning = `You don’t have a gig associated with this machine.`;
-                                    this.chatHistory.push({ role: "assistant", content: warning });
+                        //     if (this.dataChannel?.readyState === "open") {
+                        //         this.dataChannel.send(JSON.stringify({
+                        //             type: "response.create",
+                        //             response: {
+                        //                 modalities: ["text", "audio"],
+                        //                 voice: "ash",
+                        //                 instructions: responseText
+                        //             }
+                        //         }));
+                        //     }
+                        // }
 
-                                    if (this.dataChannel?.readyState === "open") {
-                                        this.dataChannel.send(JSON.stringify({
-                                            type: "response.create",
-                                            response: {
-                                                modalities: ["text", "audio"],
-                                                voice: "ash",
-                                                instructions: warning
-                                            }
-                                        }));
-                                    }
+                        // if (msg.name === "send_email" && (this.page === "GigIndex" || this.page === "CustomerUI")) {
+                        //     bus.emit("trigger-send-email");
 
-                                    return; // 🚫 Don't proceed to route
-                                }
+                        //     const responseText = `Opening your Mail App`;
+                        //     this.chatHistory.push({ role: "assistant", content: responseText });
 
-                                // ✅ Proceed with navigation
-                                const message = `Opening model page for ${modelNumber}`;
-                                this.chatHistory.push({ role: "assistant", content: message });
+                        //     if (this.dataChannel?.readyState === "open") {
+                        //         this.dataChannel.send(JSON.stringify({
+                        //             type: "response.create",
+                        //             response: {
+                        //                 modalities: ["text", "audio"],
+                        //                 voice: "ash",
+                        //                 instructions: responseText
+                        //             }
+                        //         }));
+                        //     }
+                        // }
 
-                                this.$router.push(`/model/${modelNumber}/gig/${gigId}`);
+                        // // ✅ NEW: Handle open_gig_from_voice
+                        // if (msg.name === "open_gig_from_voice") {
+                        //     const args = JSON.parse(msg.arguments);
+                        //     const gigCryptic = args.gig_cryptic?.toUpperCase();
 
-                                if (this.dataChannel?.readyState === "open") {
-                                    this.dataChannel.send(JSON.stringify({
-                                        type: "response.create",
-                                        response: {
-                                            modalities: ["text", "audio"],
-                                            voice: "ash",
-                                            instructions: message
-                                        }
-                                    }));
-                                }
+                        //     const matchedGig = this.$store.state.gigHistory.find(
+                        //         (gig) => gig.gig_cryptic.toUpperCase() === gigCryptic
+                        //     );
 
-                            } else {
-                                const fallback = `I couldn't find a model page to open.`;
-                                this.chatHistory.push({ role: "assistant", content: fallback });
+                        //     if (matchedGig) {
+                        //         const message = `Sure, opening Gig ${matchedGig.gig_cryptic}`;
+                        //         this.chatHistory.push({ role: "assistant", content: message });
+                        //         this.$router.push(`/gig/${matchedGig.gig_id}`);
 
-                                if (this.dataChannel?.readyState === "open") {
-                                    this.dataChannel.send(JSON.stringify({
-                                        type: "response.create",
-                                        response: {
-                                            modalities: ["text", "audio"],
-                                            voice: "ash",
-                                            instructions: fallback
-                                        }
-                                    }));
-                                }
-                            }
-                        }
+                        //         if (this.dataChannel && this.dataChannel.readyState === "open") {
+                        //             const responseEvent = {
+                        //                 type: "response.create",
+                        //                 response: {
+                        //                     modalities: ["text", "audio"],
+                        //                     voice: "ash",
+                        //                     instructions: message
+                        //                 }
+                        //             };
+                        //             this.dataChannel.send(JSON.stringify(responseEvent));
+                        //         }
+                        //     } else {
+                        //         const message = `Sorry, I couldn't find a gig matching ${gigCryptic}`;
+                        //         this.chatHistory.push({ role: "assistant", content: message });
+
+                        //         if (this.dataChannel && this.dataChannel.readyState === "open") {
+                        //             const responseEvent = {
+                        //                 type: "response.create",
+                        //                 response: {
+                        //                     modalities: ["text", "audio"],
+                        //                     voice: "ash",
+                        //                     instructions: message
+                        //                 }
+                        //             };
+                        //             this.dataChannel.send(JSON.stringify(responseEvent));
+                        //         }
+                        //     }
+                        // }
+
+                        // if (msg.name === "navigate_to_page") {
+                        //     const args = JSON.parse(msg.arguments);
+                        //     const pageMap = {
+                        //         "profile": "/profile",
+                        //         "set-schedule": "/set-schedule",
+                        //         "guild-profile": "/guild-profile",
+                        //         "notification": "/notification",
+                        //         "dashboard": "/dashboard",
+                        //         "schedules": "/schedules",
+                        //         "analytics": "/analytics"
+                        //     };
+
+                        //     const path = pageMap[args.destination];
+
+                        //     if (path) {
+                        //         const message = `Navigating to your ${args.destination.replace('-', ' ')} page.`;
+                        //         this.chatHistory.push({ role: "assistant", content: message });
+                        //         this.$router.push(path);
+
+                        //         if (this.dataChannel?.readyState === "open") {
+                        //             this.dataChannel.send(JSON.stringify({
+                        //                 type: "response.create",
+                        //                 response: {
+                        //                     modalities: ["text", "audio"],
+                        //                     voice: "ash",
+                        //                     instructions: message
+                        //                 }
+                        //             }));
+                        //         }
+                        //     } else {
+                        //         const fallback = `Sorry, I don't recognize the page "${args.destination}"`;
+                        //         this.chatHistory.push({ role: "assistant", content: fallback });
+
+                        //         if (this.dataChannel?.readyState === "open") {
+                        //             this.dataChannel.send(JSON.stringify({
+                        //                 type: "response.create",
+                        //                 response: {
+                        //                     modalities: ["text", "audio"],
+                        //                     voice: "ash",
+                        //                     instructions: fallback
+                        //                 }
+                        //             }));
+                        //         }
+                        //     }
+                        // }
+
+                        // if (msg.name === "open_model_page") {
+                        //     const args = JSON.parse(msg.arguments);
+                        //     const gigList = this.$store.state.gigHistory || [];
+
+                        //     let matchedGig;
+
+                        //     if (args.gig_cryptic) {
+                        //         const spokenGig = args.gig_cryptic.toUpperCase();
+                        //         matchedGig = gigList.find(g => g.gig_cryptic.toUpperCase() === spokenGig);
+                        //     }
+
+                        //     if (!matchedGig && gigList.length > 0) {
+                        //         matchedGig = gigList[0];
+                        //     }
+
+                        //     if (matchedGig && matchedGig.machine) {
+                        //         const modelNumber = matchedGig.machine.model_number;
+                        //         const gigId = matchedGig.gig_id;
+
+                        //         // ✅ Validation: if no gig ID exists
+                        //         if (!gigId || gigId === null || gigId === undefined) {
+                        //             const warning = `You don’t have a gig associated with this machine.`;
+                        //             this.chatHistory.push({ role: "assistant", content: warning });
+
+                        //             if (this.dataChannel?.readyState === "open") {
+                        //                 this.dataChannel.send(JSON.stringify({
+                        //                     type: "response.create",
+                        //                     response: {
+                        //                         modalities: ["text", "audio"],
+                        //                         voice: "ash",
+                        //                         instructions: warning
+                        //                     }
+                        //                 }));
+                        //             }
+
+                        //             return; // 🚫 Don't proceed to route
+                        //         }
+
+                        //         // ✅ Proceed with navigation
+                        //         const message = `Opening model page for ${modelNumber}`;
+                        //         this.chatHistory.push({ role: "assistant", content: message });
+
+                        //         this.$router.push(`/model/${modelNumber}/gig/${gigId}`);
+
+                        //         if (this.dataChannel?.readyState === "open") {
+                        //             this.dataChannel.send(JSON.stringify({
+                        //                 type: "response.create",
+                        //                 response: {
+                        //                     modalities: ["text", "audio"],
+                        //                     voice: "ash",
+                        //                     instructions: message
+                        //                 }
+                        //             }));
+                        //         }
+
+                        //     } else {
+                        //         const fallback = `I couldn't find a model page to open.`;
+                        //         this.chatHistory.push({ role: "assistant", content: fallback });
+
+                        //         if (this.dataChannel?.readyState === "open") {
+                        //             this.dataChannel.send(JSON.stringify({
+                        //                 type: "response.create",
+                        //                 response: {
+                        //                     modalities: ["text", "audio"],
+                        //                     voice: "ash",
+                        //                     instructions: fallback
+                        //                 }
+                        //             }));
+                        //         }
+                        //     }
+                        // }
 
                     }
 
@@ -1020,6 +1050,85 @@ export default {
                 console.error("Error updating vector store:", error.response?.data || error.message);
             }
         },
+
+        async handleFunctionCall(name, args) {
+            switch (name) {
+                case 'query_about_machine': {
+                    const data = await this.runFileSearchTool(args.user_query)
+                    const snippet = data.output?.[1]?.content?.[0]?.text || ''
+                    return snippet
+                        ? `Here’s what I found in the docs: ${snippet}`
+                        : `Sorry, I couldn't find anything on that.`
+                }
+
+                case 'call_client_by_voice': {
+                    if (!args.confirm_call) return "";
+                    const gigId = this.$route?.params?.id;
+                    const gig = this.$store.state.gigHistory.find(g => g.gig_id == gigId);
+                    if (gig?.client_phone_number) {
+                        window.open(`tel:${gig.client_phone_number}`, "_self");
+                        return `Sure, calling ${gig.client_name} now.`;
+                    } else {
+                        return `Sorry, I couldn't find the client's phone number.`;
+                    }
+                }
+
+                case 'send_status_message': {
+                    bus.emit("trigger-send-status", args.status);
+                    return `Sending "${args.status.replace(/-/g, ' ')}" message to the client now.`;
+                }
+
+                case 'open_google_map': {
+                    bus.emit("trigger-open-map");
+                    return `Opening Google Maps to the client's address now.`;
+                }
+
+                case 'send_email': {
+                    bus.emit("trigger-send-email");
+                    return `Opening your Mail App`;
+                }
+
+                case 'open_gig_from_voice': {
+                    const code = args.gig_cryptic?.toUpperCase();
+                    const gig = this.$store.state.gigHistory.find(g => g.gig_cryptic.toUpperCase() === code);
+                    if (!gig) return `Sorry, I couldn't find a gig matching ${code}`;
+                    this.$router.push(`/gig/${gig.gig_id}`);
+                    return `Sure, opening Gig ${gig.gig_cryptic}`;
+                }
+
+                case 'navigate_to_page': {
+                    const map = {
+                        profile: "/profile",
+                        "set-schedule": "/set-schedule",
+                        "guild-profile": "/guild-profile",
+                        notification: "/notification",
+                        dashboard: "/dashboard",
+                        schedules: "/schedules",
+                        analytics: "/analytics",
+                    };
+                    const path = map[args.destination];
+                    if (!path) return `Sorry, I don't recognize the page "${args.destination}"`;
+                    this.$router.push(path);
+                    return `Navigating to your ${args.destination.replace(/-/g, ' ')} page.`;
+                }
+
+                case 'open_model_page': {
+                    const gigs = this.$store.state.gigHistory || [];
+                    let gig = args.gig_cryptic
+                        ? gigs.find(g => g.gig_cryptic.toUpperCase() === args.gig_cryptic.toUpperCase())
+                        : gigs[0];
+                    if (!gig || !gig.machine) return `I couldn't find a model page to open.`;
+                    const { model_number } = gig.machine;
+                    const id = gig.gig_id;
+                    if (!id) return `You don’t have a gig associated with this machine.`;
+                    this.$router.push(`/model/${model_number}/gig/${id}`);
+                    return `Opening model page for ${model_number}`;
+                }
+
+                default:
+                    return `Sorry, I don't recognize the action "${name}"`;
+            }
+        }
 
     },
 };
