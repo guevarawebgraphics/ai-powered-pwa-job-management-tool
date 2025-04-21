@@ -776,7 +776,14 @@ export default {
         openGoogleMaps() {
             const address = `${this.gigData.street_address}, ${this.gigData.city}, ${this.gigData.state}, ${this.gigData.country} ${this.gigData.zip_code}`;
             const encodedAddress = encodeURIComponent(address);
-            window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, "_blank");
+            const mapUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
+
+            const newTab = window.open(mapUrl, "_blank");
+
+            if (!newTab || newTab.closed || typeof newTab.closed === "undefined") {
+                // Detected blocked popup
+                bus.emit("dax-map-popup-blocked");
+            }
         },
         transformToEmbedUrl(youtubeUrl) {
             return `https://www.youtube.com/embed/${youtubeUrl.videoId}`;
