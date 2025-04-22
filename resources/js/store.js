@@ -9,6 +9,7 @@ const store = createStore({
     vectoreIDs: [],
     pdfFiles: [],
     gigHistory: [],
+    gigData: [],
     isDaxActive: false
   },
   mutations: {
@@ -36,6 +37,9 @@ const store = createStore({
     },
     setGigHistory(state, payload) {
       state.gigHistory = payload;
+    },
+    setGigData(state, payload) {
+      state.gigData = payload;
     },
     setDaxActive(state, payload) {
       state.isDaxActive = payload;
@@ -69,6 +73,9 @@ const store = createStore({
     },
     setGigHistory({ commit }, message) {
       commit('setGigHistory', message);
+    },
+    setGigData({ commit }, message) {
+      commit('setGigData', message);
     },
     setDaxActive({ commit }, message) {
       commit('setDaxActive', message);
