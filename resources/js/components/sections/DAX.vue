@@ -596,32 +596,71 @@ export default {
                 // --- Consolidated Navigation Tool ---
                 tools.push({
                     type: "function",
-                    name: "navigate",
-                    description: `Handles navigation within the technician app. Use this tool to go to:
-                    1.  **Global Pages:** Use page names like 'Home', 'Calendar' (or 'Schedule', 'Upcoming jobs'), 'Analytics' (or 'Stats', Notification, 'Guild' (or 'Forum'), 'Profile' (or 'Settings').
-                    2.  **Specific Gigs:** Use identifiers like cryptic codes (e.g., 'GIG123') or time references (e.g., 'my 2 o'clock job', 'the job at 11 AM'). Requires context like Home or Calendar page.
-                    3.  **Gig-Specific Views:** When inside a gig context, use targets like 'Client Page' or 'Machine Page'.
-                    4.  **Machine Documents:** When inside a gig/machine context, specify document types like 'Tech Sheet', 'Service Manual', 'Parts List', or 'Service Pointer'. You can include a query for specific document content.`,
+                    name: "navigate_to_global_page",
+                    description: `Use this tool to navigate to a main page in the technician app.
+
+Supported global destinations include:
+- 'dashboard' → Home page (main landing screen)
+- 'calendar' or 'schedules' → Schedule view (same destination)
+- 'set-schedule' → Availability setup
+- 'analytics' or 'stats' → Gig performance dashboard
+- 'profile' or 'settings' → Technician's profile page
+- 'notification' → Alerts and status updates
+- 'guild-profile' or 'forum' → Guild achievements and community page
+
+Use either the main keyword or its synonym.`,
+                    parameters: {
+                        type: "object",
+                        properties: {
+                            destination: {
+                                type: "string",
+                                description: "Destination keyword (e.g., 'calendar', 'dashboard', 'profile', 'guild-profile')"
+                            }
+                        },
+                        required: ["destination"]
+                    }
+                });
+
+                tools.push({
+                    type: "function",
+                    name: "navigate_to_gig_context",
+                    description: `Use this tool to navigate within gig-related contexts.
+
+Supported destinations:
+1. **Gigs:** Use job identifiers like:
+   - Cryptic codes (e.g., 'GIG123')
+   - Time-based references (e.g., 'the 2 PM job', 'my 11 AM gig')
+
+2. **Gig Views** (requires active gig context):
+   - 'Client Page' → View client details
+   - 'Machine Page' → View appliance information
+
+3. **Machine Documents** (requires gig + machine context):
+   - Document types: 'tech sheet', 'service manual', 'parts list', 'service pointer'
+   - Optional query (e.g., 'noisy operation') for narrowing results.`,
                     parameters: {
                         type: "object",
                         properties: {
                             target_type: {
                                 type: "string",
-                                enum: ["global_page", "gig", "gig_client_page", "gig_machine_page", "machine_document"],
-                                description: "The type of destination: a main app page, a specific gig, the client page within a gig, the machine page within a gig, or a specific document related to the machine."
+                                enum: ["gig", "gig_client_page", "gig_machine_page", "machine_document"],
+                                description: "Type of navigation: a gig, its client page, its machine page, or a specific document"
                             },
                             identifier: {
                                 type: "string",
-                                description: "Identifier for the target. For 'global_page', use page name (e.g., 'calendar', 'profile'). For 'gig', use cryptic code (e.g., 'GIG123') or time reference (e.g., '2 PM job', '11 o'clock'). For 'machine_document', use document type/name (e.g., 'tech sheet', 'parts list'). Can be omitted for client/machine pages if context is clear."
+                                description: "Gig code (e.g., 'GIG123'), time reference (e.g., '2 PM job'), or document type"
                             },
                             document_query: {
                                 type: "string",
-                                description: "Optional specific query for machine documents, e.g., 'noisy operation' when asking for a 'service pointer'."
+                                description: "Optional. Search term for filtering document content (e.g., 'leaking issue')"
                             }
                         },
-                        required: ["target_type"] // Identifier might be handled via context lookups (e.g., time) or required based on target_type in handling logic.
+                        required: ["target_type"]
                     }
                 });
+
+
+
 
                 // --- Consolidated Action Tool ---
                 // This tool might be primarily useful within a Gig context, but we define it globally.
@@ -855,33 +894,240 @@ export default {
 
 
         // Revised by Richard using case switch
+        // async handleFunctionCall(name, args) {
+        //     console.log(`Handling function call: ${name}`, args);
+        //     let result = { success: false, message: "Action could not be completed." };
+
+        //     try {
+        //         switch (name) {
+        //             case 'navigate': {
+        //                 const { target_type, identifier, document_query } = args;
+        //                 switch (target_type) {
+        //                     case 'global_page': {
+        //                         const map = {
+        //                             profile: "/profile",
+        //                             "set-schedule": "/set-schedule",
+        //                             "guild-profile": "/guild-profile",
+        //                             notification: "/notification",
+        //                             dashboard: "/dashboard",
+        //                             calendar: "/schedules",
+        //                             home: "/dashboard",
+        //                             schedules: "/schedules",
+        //                             analytics: "/analytics",
+        //                         };
+        //                         const path = map[identifier];
+        //                         result = path
+        //                             ? (this.$router.push(path), { success: true, message: `Navigating to your \"${identifier}\"` })
+        //                             : { success: false, message: `Sorry, I don't recognize the page \"${identifier}\"` };
+        //                         break;
+        //                     }
+        //                     case 'gig': {
+        //                         const gigs = this.$store.state.gigHistory || [];
+        //                         const isCryptic = /^[A-Z0-9]{3,}$/.test(identifier.trim());
+        //                         let matchedGigs = [];
+
+        //                         if (isCryptic) {
+        //                             const gig = gigs.find(g => g.gig_cryptic.toUpperCase() === identifier.trim().toUpperCase());
+        //                             if (gig) matchedGigs = [gig];
+        //                         } else {
+        //                             const parsed = this.parseTimeReference(identifier);
+        //                             const now = new Date();
+        //                             if (parsed) {
+        //                                 const referenceTime = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), parsed.hour, parsed.minute || 0));
+        //                                 matchedGigs = gigs.filter(g => {
+        //                                     let rawTime = g.start_datetime;
+        //                                     if (rawTime.indexOf("T") === -1) rawTime = rawTime.replace(" ", "T") + "Z";
+        //                                     const gigTime = new Date(rawTime);
+        //                                     if (gigTime <= now) return false;
+        //                                     return Math.abs(gigTime - referenceTime) <= 30 * 60 * 1000;
+        //                                 });
+        //                                 matchedGigs.sort((a, b) => new Date(a.start_datetime.replace(" ", "T") + "Z") - new Date(b.start_datetime.replace(" ", "T") + "Z"));
+        //                             }
+        //                         }
+
+        //                         if (matchedGigs.length === 0) {
+        //                             const now = new Date();
+        //                             const upcoming = gigs.filter(g => new Date(g.start_datetime.replace(" ", "T") + "Z") > now)
+        //                                 .sort((a, b) => new Date(a.start_datetime.replace(" ", "T") + "Z") - new Date(b.start_datetime.replace(" ", "T") + "Z"));
+        //                             if (upcoming.length === 0) {
+        //                                 result = { success: false, message: `No upcoming gigs were found at all.` };
+        //                             } else {
+        //                                 const list = upcoming.slice(0, 5).map(g => this.formatGigInfo(g)).join('\n');
+        //                                 result = { success: false, message: `I couldn't find a gig at that time, but here are your upcoming gigs:\n${list}` };
+        //                             }
+        //                         } else if (matchedGigs.length > 1) {
+        //                             const list = matchedGigs.slice(0, 3).map(g => this.formatGigInfo(g)).join('\n');
+        //                             result = { success: false, message: `I found multiple upcoming gigs around that time:\n${list}\nCan you specify the job or model?` };
+        //                         } else {
+        //                             const gig = matchedGigs[0];
+        //                             this.$router.push(`/gig/${gig.gig_id}`);
+        //                             result = { success: true, message: `Sure, opening Gig ${gig.gig_cryptic}` };
+        //                         }
+        //                         break;
+        //                     }
+        //                     case 'gig_client_page': {
+        //                         // console.log(`Navigating to client page for current gig.`);
+        //                         // result = { success: true, message: `Opening client page.` };
+
+        //                         const gigId = this.$route?.params?.id;
+
+        //                         const gig = this.$store.state.gigData;
+
+        //                         if (gig?.client_id) {
+
+        //                             result = { success: true, message: `Opening client page.` };
+
+        //                             this.$router.push(`/customer/${gig.client_id}/gig/${gig.gig_id}`);
+        //                         } else {
+        //                             result = { success: false, message: `Sorry, I couldn't find the client's page.` };
+        //                         }
+
+        //                         break;
+        //                     }
+        //                     case 'gig_machine_page': {
+
+        //                         const gigId = this.$route?.params?.id;
+
+        //                         const gig = this.$store.state.gigData;
+
+        //                         if (!gig || !gig.machine || !gig.machine.model_number) {
+        //                             result = { success: false, message: `I couldn't find a matching machine page.` };
+        //                         } else {
+        //                             this.$router.push(`/model/${gig.machine.model_number}/gig/${gig.gig_id}`);
+        //                             result = { success: true, message: `Opening model page for ${gig.machine.model_number}` };
+        //                         }
+
+        //                         // const gigs = this.$store.state.gigHistory || [];
+        //                         // let matchedGigs = [];
+        //                         // if (args.gig_cryptic) {
+        //                         //     matchedGigs = gigs.filter(g => g.gig_cryptic?.toUpperCase() === args.gig_cryptic.toUpperCase());
+        //                         // } else if (args.identifier) {
+        //                         //     const id = args.identifier.toLowerCase();
+        //                         //     matchedGigs = gigs.filter(g => g.machine?.model_name?.toLowerCase().includes(id) || g.machine?.model_number?.toLowerCase().includes(id));
+        //                         // }
+        //                         // matchedGigs.sort((a, b) => new Date(b.scheduled_time) - new Date(a.scheduled_time));
+        //                         // const gig = matchedGigs[0] || gigs.sort((a, b) => new Date(b.scheduled_time) - new Date(a.scheduled_time))[0];
+        //                         // if (!gig || !gig.machine || !gig.machine.model_number) {
+        //                         //     result = { success: false, message: `I couldn't find a matching machine page.` };
+        //                         // } else {
+        //                         //     this.$router.push(`/model/${gig.machine.model_number}/gig/${gig.gig_id}`);
+        //                         //     result = { success: true, message: `Opening model page for ${gig.machine.model_number}` };
+        //                         // }
+        //                         break;
+        //                     }
+        //                 }
+        //                 break;
+        //             }
+
+        //             case 'perform_action': {
+        //                 const { action_type, sms_type, sms_template, query_text } = args;
+        //                 switch (action_type) {
+        //                     case 'call_client': {
+        //                         if (!args.confirm_call) return "";
+        //                         const gigId = this.$route?.params?.id;
+        //                         const gig = this.$store.state.gigData;
+        //                         if (gig?.client_phone_number) {
+        //                             window.open(`tel:${gig.client_phone_number}`, "_self");
+        //                             result = { success: true, message: `Sure, calling ${gig.client_name} now.` };
+        //                         } else {
+        //                             result = { success: false, message: `Sorry, I couldn't find the client's phone number.` };
+        //                         }
+        //                         break;
+        //                     }
+        //                     case 'send_sms': {
+        //                         bus.emit("trigger-send-status", sms_type);
+        //                         result = { success: true, message: `Sending \"${sms_type.replace(/-/g, ' ')}\" message to the client now.` };
+        //                         break;
+        //                     }
+        //                     case 'open_map': {
+        //                         bus.emit("trigger-open-map");
+        //                         result = { success: true, message: `Opening map directions.` };
+        //                         break;
+        //                     }
+        //                     case 'query_machine_info': {
+        //                         result = { success: true, message: `Looking up information for: ${query_text}` };
+        //                         await this.speak(result.message);
+
+        //                         const data = await this.runFileSearchTool(query_text);
+        //                         const snippet = data.output?.[1]?.content?.[0]?.text || "No relevant document content found.";
+
+        //                         // this.speak(snippet);
+        //                         // 🧠 Let OpenAI handle speaking and history
+        //                         result.message = snippet;
+
+
+        //                         break;
+        //                     }
+        //                     default:
+        //                         result.message = `Unknown action type: ${action_type}`;
+        //                 }
+        //                 break;
+        //             }
+
+        //             case 'file_search_tool': {
+        //                 const { search_query } = args;
+        //                 result = { success: true, message: `Searching documents for: ${search_query}. I will provide the results shortly.` };
+        //                 await this.speak(result.message);
+
+        //                 const data = await this.runFileSearchTool(search_query);
+        //                 const snippet = data.output?.[1]?.content?.[0]?.text || "No relevant document content found.";
+
+        //                 // 🧠 Let OpenAI handle speaking and history
+        //                 result.message = snippet;
+        //                 // this.speak(snippet);
+
+        //                 break;
+        //             }
+
+        //             default: {
+        //                 console.warn(`Function call received for unknown tool: ${name}`);
+        //                 result.message = `Tool '${name}' is not implemented.`;
+        //             }
+        //         }
+        //     } catch (error) {
+        //         console.error(`Error handling function call ${name}:`, error);
+        //         result.message = `An error occurred while trying to ${name}.`;
+        //     }
+
+        //     return result;
+        // },
+
         async handleFunctionCall(name, args) {
             console.log(`Handling function call: ${name}`, args);
             let result = { success: false, message: "Action could not be completed." };
 
             try {
                 switch (name) {
-                    case 'navigate': {
+
+                    // 🎯 Global Page Navigation
+                    case 'navigate_to_global_page': {
+                        const { destination } = args;
+                        const map = {
+                            profile: "/profile",
+                            settings: "/profile",
+                            "set-schedule": "/set-schedule",
+                            "guild-profile": "/guild-profile",
+                            forum: "/guild-profile",
+                            notification: "/notification",
+                            dashboard: "/dashboard",
+                            home: "/dashboard",
+                            calendar: "/schedules",
+                            schedules: "/schedules",
+                            analytics: "/analytics",
+                            stats: "/analytics"
+                        };
+                        const path = map[destination.toLowerCase()];
+                        result = path
+                            ? (this.$router.push(path), { success: true, message: `Navigating to "${destination}"` })
+                            : { success: false, message: `Sorry, I don't recognize the page "${destination}"` };
+                        break;
+                    }
+
+                    // 🧭 Gig-related Navigation (including gig views and documents)
+                    case 'navigate_to_gig_context': {
                         const { target_type, identifier, document_query } = args;
+
                         switch (target_type) {
-                            case 'global_page': {
-                                const map = {
-                                    profile: "/profile",
-                                    "set-schedule": "/set-schedule",
-                                    "guild-profile": "/guild-profile",
-                                    notification: "/notification",
-                                    dashboard: "/dashboard",
-                                    calendar: "/schedules",
-                                    home: "/dashboard",
-                                    schedules: "/schedules",
-                                    analytics: "/analytics",
-                                };
-                                const path = map[identifier];
-                                result = path
-                                    ? (this.$router.push(path), { success: true, message: `Navigating to your \"${identifier}\"` })
-                                    : { success: false, message: `Sorry, I don't recognize the page \"${identifier}\"` };
-                                break;
-                            }
                             case 'gig': {
                                 const gigs = this.$store.state.gigHistory || [];
                                 const isCryptic = /^[A-Z0-9]{3,}$/.test(identifier.trim());
@@ -897,10 +1143,9 @@ export default {
                                         const referenceTime = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), parsed.hour, parsed.minute || 0));
                                         matchedGigs = gigs.filter(g => {
                                             let rawTime = g.start_datetime;
-                                            if (rawTime.indexOf("T") === -1) rawTime = rawTime.replace(" ", "T") + "Z";
+                                            if (!rawTime.includes("T")) rawTime = rawTime.replace(" ", "T") + "Z";
                                             const gigTime = new Date(rawTime);
-                                            if (gigTime <= now) return false;
-                                            return Math.abs(gigTime - referenceTime) <= 30 * 60 * 1000;
+                                            return gigTime > now && Math.abs(gigTime - referenceTime) <= 30 * 60 * 1000;
                                         });
                                         matchedGigs.sort((a, b) => new Date(a.start_datetime.replace(" ", "T") + "Z") - new Date(b.start_datetime.replace(" ", "T") + "Z"));
                                     }
@@ -918,7 +1163,7 @@ export default {
                                     }
                                 } else if (matchedGigs.length > 1) {
                                     const list = matchedGigs.slice(0, 3).map(g => this.formatGigInfo(g)).join('\n');
-                                    result = { success: false, message: `I found multiple upcoming gigs around that time:\n${list}\nCan you specify the job or model?` };
+                                    result = { success: false, message: `I found multiple gigs around that time:\n${list}\nCan you specify the job or model?` };
                                 } else {
                                     const gig = matchedGigs[0];
                                     this.$router.push(`/gig/${gig.gig_id}`);
@@ -926,66 +1171,50 @@ export default {
                                 }
                                 break;
                             }
+
                             case 'gig_client_page': {
-                                // console.log(`Navigating to client page for current gig.`);
-                                // result = { success: true, message: `Opening client page.` };
-
-                                const gigId = this.$route?.params?.id;
-
                                 const gig = this.$store.state.gigData;
-
                                 if (gig?.client_id) {
-
-                                    result = { success: true, message: `Opening client page.` };
-
                                     this.$router.push(`/customer/${gig.client_id}/gig/${gig.gig_id}`);
+                                    result = { success: true, message: `Opening client page.` };
                                 } else {
                                     result = { success: false, message: `Sorry, I couldn't find the client's page.` };
                                 }
-
                                 break;
                             }
+
                             case 'gig_machine_page': {
-
-                                const gigId = this.$route?.params?.id;
-
                                 const gig = this.$store.state.gigData;
-
-                                if (!gig || !gig.machine || !gig.machine.model_number) {
-                                    result = { success: false, message: `I couldn't find a matching machine page.` };
-                                } else {
+                                if (gig?.machine?.model_number) {
                                     this.$router.push(`/model/${gig.machine.model_number}/gig/${gig.gig_id}`);
                                     result = { success: true, message: `Opening model page for ${gig.machine.model_number}` };
+                                } else {
+                                    result = { success: false, message: `I couldn't find a matching machine page.` };
                                 }
-                                
-                                // const gigs = this.$store.state.gigHistory || [];
-                                // let matchedGigs = [];
-                                // if (args.gig_cryptic) {
-                                //     matchedGigs = gigs.filter(g => g.gig_cryptic?.toUpperCase() === args.gig_cryptic.toUpperCase());
-                                // } else if (args.identifier) {
-                                //     const id = args.identifier.toLowerCase();
-                                //     matchedGigs = gigs.filter(g => g.machine?.model_name?.toLowerCase().includes(id) || g.machine?.model_number?.toLowerCase().includes(id));
-                                // }
-                                // matchedGigs.sort((a, b) => new Date(b.scheduled_time) - new Date(a.scheduled_time));
-                                // const gig = matchedGigs[0] || gigs.sort((a, b) => new Date(b.scheduled_time) - new Date(a.scheduled_time))[0];
-                                // if (!gig || !gig.machine || !gig.machine.model_number) {
-                                //     result = { success: false, message: `I couldn't find a matching machine page.` };
-                                // } else {
-                                //     this.$router.push(`/model/${gig.machine.model_number}/gig/${gig.gig_id}`);
-                                //     result = { success: true, message: `Opening model page for ${gig.machine.model_number}` };
-                                // }
                                 break;
                             }
+
+                            case 'machine_document': {
+                                result = { success: true, message: `Searching documents for: ${identifier}` };
+                                await this.speak(result.message);
+                                const data = await this.runFileSearchTool(document_query || identifier);
+                                const snippet = data.output?.[1]?.content?.[0]?.text || "No relevant document content found.";
+                                result.message = snippet;
+                                break;
+                            }
+
+                            default:
+                                result.message = `Unknown gig context target: ${target_type}`;
                         }
                         break;
                     }
 
+                    // 🛠️ Other Actions
                     case 'perform_action': {
                         const { action_type, sms_type, sms_template, query_text } = args;
                         switch (action_type) {
                             case 'call_client': {
                                 if (!args.confirm_call) return "";
-                                const gigId = this.$route?.params?.id;
                                 const gig = this.$store.state.gigData;
                                 if (gig?.client_phone_number) {
                                     window.open(`tel:${gig.client_phone_number}`, "_self");
@@ -1008,15 +1237,9 @@ export default {
                             case 'query_machine_info': {
                                 result = { success: true, message: `Looking up information for: ${query_text}` };
                                 await this.speak(result.message);
-
                                 const data = await this.runFileSearchTool(query_text);
                                 const snippet = data.output?.[1]?.content?.[0]?.text || "No relevant document content found.";
-
-                                // this.speak(snippet);
-                                // 🧠 Let OpenAI handle speaking and history
                                 result.message = snippet;
-
-
                                 break;
                             }
                             default:
@@ -1025,18 +1248,14 @@ export default {
                         break;
                     }
 
+                    // 🗂️ File Search Tool (fallback)
                     case 'file_search_tool': {
                         const { search_query } = args;
                         result = { success: true, message: `Searching documents for: ${search_query}. I will provide the results shortly.` };
                         await this.speak(result.message);
-
                         const data = await this.runFileSearchTool(search_query);
                         const snippet = data.output?.[1]?.content?.[0]?.text || "No relevant document content found.";
-
-                        // 🧠 Let OpenAI handle speaking and history
                         result.message = snippet;
-                        // this.speak(snippet);
-
                         break;
                     }
 
@@ -1053,299 +1272,8 @@ export default {
             return result;
         },
 
-        // Jacob Suggested Unified function
-        // async handleFunctionCall(name, args) {
-        //     console.log(`Handling function call: ${name}`, args);
-        //     let result = { success: false, message: "Action could not be completed." }; // Default result
 
-        //     try {
-        //         if (name === 'navigate') {
-        //             // --- Logic for the 'navigate' tool ---
-        //             const { target_type, identifier, document_query } = args;
-
-        //             // TODO: Implement navigation based on target_type
-        //             if (target_type === 'global_page') {
-
-        //                 const map = {
-        //                     profile: "/profile",
-        //                     "set-schedule": "/set-schedule",
-        //                     "guild-profile": "/guild-profile",
-        //                     notification: "/notification",
-        //                     dashboard: "/dashboard",
-        //                     calendar: "/schedules",
-        //                     home: "/dashboard",
-        //                     schedules: "/schedules",
-        //                     analytics: "/analytics",
-        //                 };
-
-        //                 const path = map[identifier]
-        //                 if (!path) {
-        //                     result = { success: false, message: `Sorry, I don't recognize the page "${identifier}"` };
-        //                 } else {
-        //                     result = { success: true, message: `Navigating to your "${identifier}"` };
-        //                     this.$router.push(path);
-        //                 }
-
-        //             } else if (target_type === 'gig') {
-        //                 const gigs = this.$store.state.gigHistory || [];
-        //                 let matchedGigs = [];
-
-        //                 const isCryptic = /^[A-Z0-9]{3,}$/.test(identifier.trim());
-
-        //                 if (isCryptic) {
-        //                     const gig = gigs.find(g => g.gig_cryptic.toUpperCase() === identifier.trim().toUpperCase());
-        //                     if (gig) matchedGigs = [gig];
-        //                 } else {
-        //                     const parsed = this.parseTimeReference(identifier); // returns { hour, minute }
-        //                     const now = new Date();
-
-        //                     if (parsed) {
-        //                         const referenceTime = new Date(
-        //                             Date.UTC(
-        //                                 now.getUTCFullYear(),
-        //                                 now.getUTCMonth(),
-        //                                 now.getUTCDate(),
-        //                                 parsed.hour,
-        //                                 parsed.minute || 0,
-        //                                 0
-        //                             )
-        //                         );
-
-        //                         matchedGigs = gigs.filter(g => {
-        //                             let rawTime = g.start_datetime;
-        //                             if (rawTime.indexOf("T") === -1) {
-        //                                 rawTime = rawTime.replace(" ", "T") + "Z";
-        //                             }
-
-        //                             const gigTime = new Date(rawTime);
-        //                             if (gigTime <= now) return false;
-
-        //                             const gigMs = gigTime.getTime();
-        //                             const refMs = referenceTime.getTime();
-
-        //                             return Math.abs(gigMs - refMs) <= 30 * 60 * 1000;
-        //                         });
-
-        //                         matchedGigs.sort((a, b) => {
-        //                             let t1 = a.start_datetime;
-        //                             let t2 = b.start_datetime;
-        //                             if (t1.indexOf("T") === -1) t1 = t1.replace(" ", "T") + "Z";
-        //                             if (t2.indexOf("T") === -1) t2 = t2.replace(" ", "T") + "Z";
-        //                             return new Date(t1) - new Date(t2);
-        //                         });
-
-        //                         if (matchedGigs.length === 0) {
-        //                             const todayUTC = now.toISOString().slice(0, 10);
-        //                             matchedGigs = gigs.filter(g => {
-        //                                 let raw = g.start_datetime;
-        //                                 if (raw.indexOf("T") === -1) raw = raw.replace(" ", "T") + "Z";
-        //                                 return raw.startsWith(todayUTC);
-        //                             });
-
-        //                             matchedGigs.sort((a, b) => {
-        //                                 let t1 = a.start_datetime;
-        //                                 let t2 = b.start_datetime;
-        //                                 if (t1.indexOf("T") === -1) t1 = t1.replace(" ", "T") + "Z";
-        //                                 if (t2.indexOf("T") === -1) t2 = t2.replace(" ", "T") + "Z";
-        //                                 return new Date(t1) - new Date(t2);
-        //                             });
-        //                         }
-        //                     }
-        //                 }
-
-        //                 if (matchedGigs.length === 0) {
-        //                     const now = new Date();
-        //                     const upcomingGigs = gigs
-        //                         .filter(g => {
-        //                             let t = g.start_datetime;
-        //                             if (t.indexOf("T") === -1) t = t.replace(" ", "T") + "Z";
-        //                             return new Date(t) > now;
-        //                         })
-        //                         .sort((a, b) => {
-        //                             let t1 = a.start_datetime;
-        //                             let t2 = b.start_datetime;
-        //                             if (t1.indexOf("T") === -1) t1 = t1.replace(" ", "T") + "Z";
-        //                             if (t2.indexOf("T") === -1) t2 = t2.replace(" ", "T") + "Z";
-        //                             return new Date(t1) - new Date(t2);
-        //                         });
-
-        //                     if (upcomingGigs.length === 0) {
-        //                         result = { success: false, message: `No upcoming gigs were found at all.` };
-        //                     } else {
-        //                         const list = upcomingGigs.slice(0, 5).map(g => {
-        //                             let t = g.start_datetime;
-        //                             if (t.indexOf("T") === -1) t = t.replace(" ", "T") + "Z";
-        //                             const gigTime = new Date(t);
-
-        //                             const time = gigTime.toLocaleTimeString('en-US', {
-        //                                 hour: '2-digit',
-        //                                 minute: '2-digit',
-        //                                 hour12: true,
-        //                                 timeZone: 'UTC'
-        //                             });
-        //                             const date = gigTime.toLocaleDateString('en-US', { timeZone: 'UTC' });
-        //                             const model = g.machine?.model_number || 'unknown model';
-        //                             const mtype = g.machine?.machine_type || 'unknown machine type';
-        //                             const mbrand = g.machine?.brand_name || 'unknown brand';
-        //                             const modelv = `${model} ${mtype} ${mbrand}`;
-        //                             return `• ${date} ${time} – ${modelv}`;
-        //                         }).join('\n');
-
-        //                         result = {
-        //                             success: false,
-        //                             message: `I couldn't find a gig at that time, but here are your upcoming gigs:\n${list}`
-        //                         };
-        //                     }
-        //                 } else if (matchedGigs.length > 1) {
-        //                     const list = matchedGigs.slice(0, 3).map(g => {
-        //                         let t = g.start_datetime;
-        //                         if (t.indexOf("T") === -1) t = t.replace(" ", "T") + "Z";
-        //                         const gigTime = new Date(t);
-
-        //                         const time = gigTime.toLocaleTimeString('en-US', {
-        //                             hour: '2-digit',
-        //                             minute: '2-digit',
-        //                             hour12: true,
-        //                             timeZone: 'UTC'
-        //                         });
-        //                         const date = gigTime.toLocaleDateString('en-US', { timeZone: 'UTC' });
-        //                         const model = g.machine?.model_number || 'unknown model';
-        //                         const mtype = g.machine?.machine_type || 'unknown machine type';
-        //                         const mbrand = g.machine?.brand_name || 'unknown brand';
-        //                         const modelv = `${model} ${mtype} ${mbrand}`;
-        //                         return `• ${date} ${time} – ${modelv}`;
-        //                     }).join('\n');
-
-        //                     result = {
-        //                         success: false,
-        //                         message: `I found multiple upcoming gigs around that time:\n${list}\nCan you specify the job or model?`
-        //                     };
-        //                 } else {
-        //                     const gig = matchedGigs[0];
-        //                     result = { success: true, message: `Sure, opening Gig ${gig.gig_cryptic}` };
-        //                     this.$router.push(`/gig/${gig.gig_id}`);
-        //                 }
-
-
-
-
-
-        //             } else if (target_type === 'gig_client_page') {
-        //                 // TODO: Ensure in gig context, navigate to client sub-page
-        //                 console.log(`Navigating to client page for current gig.`);
-        //                 result = { success: true, message: `Opening client page.` };
-
-        //             } else if (target_type === 'gig_machine_page') {
-        //                 // TODO: Ensure in gig context, navigate to machine sub-page
-
-        //                 const gigs = this.$store.state.gigHistory || [];
-        //                 let matchedGigs = [];
-
-        //                 // Try to match based on gig_cryptic code
-        //                 if (args.gig_cryptic) {
-        //                     matchedGigs = gigs.filter(g => g.gig_cryptic?.toUpperCase() === args.gig_cryptic.toUpperCase());
-        //                 } else if (args.identifier) {
-        //                     // Match based on machine model name or number
-        //                     const identifier = args.identifier.toLowerCase();
-        //                     matchedGigs = gigs.filter(g =>
-        //                         g.machine &&
-        //                         (
-        //                             g.machine.model_name?.toLowerCase().includes(identifier) ||
-        //                             g.machine.model_number?.toLowerCase().includes(identifier)
-        //                         )
-        //                     );
-        //                 }
-
-        //                 // Sort matched gigs by latest schedule time (descending)
-        //                 if (matchedGigs.length > 0) {
-        //                     matchedGigs.sort((a, b) => new Date(b.scheduled_time) - new Date(a.scheduled_time));
-        //                 }
-
-        //                 // Use most recent matching gig or fallback to the most recent gig overall
-        //                 let gig = matchedGigs[0] || gigs.sort((a, b) => new Date(b.scheduled_time) - new Date(a.scheduled_time))[0];
-
-        //                 console.log(`Navigating to machine page for gig:`, gig);
-
-        //                 if (!gig || !gig.machine || !gig.machine.model_number) {
-        //                     result = { success: false, message: `I couldn't find a matching machine page.` };
-        //                 } else {
-        //                     const { model_number } = gig.machine;
-        //                     const id = gig.gig_id;
-
-        //                     if (!id) {
-        //                         result = { success: false, message: `There’s no gig associated with this machine.` };
-        //                     } else {
-        //                         result = { success: true, message: `Opening model page for ${model_number}` };
-        //                         this.$router.push(`/model/${model_number}/gig/${id}`);
-        //                     }
-        //                 }
-        //             }
-
-        //         } else if (name === 'perform_action') {
-        //             // --- Logic for the 'perform_action' tool ---
-        //             const { action_type, sms_type, sms_template, query_text } = args;
-
-        //             // TODO: Implement action based on action_type
-        //             if (action_type === 'call_client') {
-        //                 console.log(`Initiating call to client...`);
-
-        //                 if (!args.confirm_call) return "";
-        //                     const gigId = this.$route?.params?.id;
-        //                     const gig = this.$store.state.gigHistory.find(g => g.gig_id == gigId);
-                            
-        //                 if (gig?.client_phone_number) {
-        //                     window.open(`tel:${gig.client_phone_number}`, "_self");
-        //                     result = { success: true, message: `Sure, calling ${gig.client_name} now.` };
-        //                 } else {
-        //                     result = { success: false, message: `Sorry, I couldn't find the client's phone number.` };
-        //                 }
-
-
-
-        //             } else if (action_type === 'send_sms') {
-        //                 console.log(`Sending SMS. Type: ${sms_type}`, `Template: ${sms_template || 'N/A'}`);
-
-        //                 bus.emit("trigger-send-status", sms_type);
-        //                 result = { success: true, message: `Sending "${sms_type.replace(/-/g, ' ')}" message to the client now.` };
-
-        //             } else if (action_type === 'open_map') {
-        //                 console.log(`Opening map for client address...`);
-        //                 // Example: bus.emit('open-map', currentGigAddress);
-
-        //                 bus.emit("trigger-open-map");
-        //                 result = { success: true, message: `Opening map directions.` };
-        //                 // Handle potential popup blocker feedback
-        //                 // You might need a way for the map component to signal back if blocked
-        //             } else if (action_type === 'query_machine_info') {
-
-
-        //                 console.log(`Querying machine info: ${query_text}`);
-        //                 result = { success: true, message: `Looking up information for: ${query_text}` };
-        //                 await this.runFileSearchTool(query_text);
-        //             } else {
-        //                 result.message = `Unknown action type: ${action_type}`;
-        //             }
-
-        //         }
-
-        //         else if (name === 'file_search_tool') {
-        //             // --- Logic for file search (if kept separate) ---
-        //             const { search_query } = args;
-        //             result = { success: true, message: `Searching documents for: ${search_query}. I will provide the results shortly.` };
-        //             await this.runFileSearchTool(search_query);
-        //         } else {
-        //             console.warn(`Function call received for unknown tool: ${name}`);
-        //             result.message = `Tool '${name}' is not implemented.`;
-        //         }
-
-        //     } catch (error) {
-        //         console.error(`Error handling function call ${name}:`, error);
-        //         result.message = `An error occurred while trying to ${name}.`;
-        //     }
-
-        //     // Return the result to be sent back to OpenAI
-        //     return result;
-        // },
+      
 
 
         // Original Version
