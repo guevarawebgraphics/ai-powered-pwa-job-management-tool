@@ -282,6 +282,9 @@ export default {
         if (this.customerId) {
             this.clientData(this.customerId);
         }
+        if (this.gigId) {
+            this.gigDetail(this.gigId);
+        }
         bus.on("trigger-open-map", this.openGoogleMaps);
         bus.on("trigger-send-status", this.sendMessageFromDAX);
         bus.on("trigger-send-email", this.sendEmailFromDAX);
@@ -302,6 +305,7 @@ export default {
         "$route.params.gigId"(gigId) {
 
             this.gigId = gigId;
+            this.gigDetail(this.gigId);
         }
     },
     methods: {
@@ -499,7 +503,23 @@ export default {
             const email = `${this.customerData.client_email}`;
             const mailTo = `mailto:${email}`;
             window.location.href = mailTo;
-        }
+        },
+        async gigDetail(gigID) {
+            try {
+                const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
+                const token = import.meta.env.VITE_API_KEY;
+
+                const response = await axios.get(`${api_endpoint}/gigs/retrieveGigByGigID.php?gig_id=${gigID}`, {
+                    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
+                });
+
+                this.gigData = response.data.data[0];
+                this.$store.commit("setGigData", this.gigData);
+
+            } catch (error) {
+                console.error("Error fetching gig history data:", error);
+            }
+        },
     },
 };
 </script>

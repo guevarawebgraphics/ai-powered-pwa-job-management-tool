@@ -358,7 +358,6 @@ export default {
         if (this.gigID) {
             this.gigDetail(this.gigID);
         }
-
         // 👇 Listen to DAX signal
         bus.on("trigger-send-status", this.sendMessageFromDAX);
         bus.on("trigger-open-map", this.openGoogleMaps);
@@ -504,6 +503,9 @@ export default {
 
                 this.gigData = response.data.data[0]; 
                 this.clientEmail = this.gigData.client_email;
+
+
+                this.$store.commit("setGigData", this.gigData);
 
                 console.log(`Client Email ${this.clientEmail}`);
                 this.modelNumber = this.gigData.model_number;

@@ -438,6 +438,8 @@ export default {
 
                 this.gigData = response.data.data[0];
 
+                this.$store.commit("setGigData", this.gigData);
+
                 if (this.gigData.top_recommended_repairs) {
                     try {
                         const parsedData = JSON.parse(this.gigData.top_recommended_repairs);
