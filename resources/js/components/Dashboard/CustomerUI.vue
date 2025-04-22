@@ -235,7 +235,7 @@
                 </div>
             </a>
             <!-- Message Button -->
-            <div @click="sendMessage('send-message')" class="card flex items-center p-3 border rounded-lg mt-3">
+            <div @click="sendMessage('blank')" class="card flex items-center p-3 border rounded-lg mt-3">
                 <i class="fa-regular fa-message text-gray-500 text-3xl"></i>
                 <div class="ml-4">
                     <p class="font-medium">Send Message</p>
@@ -400,7 +400,12 @@ export default {
         async sendMessage(type) {
 
             const messages = {
-                "send-message": [
+                "blank": [
+                    `Hi ${this.customerData.client_name}, it’s ${this.techData.first_name} with Appliance Repair American.`,
+                    `Hello ${this.customerData.client_name}! This is ${this.techData.first_name}.`,
+                    `Greetings ${this.customerData.client_name}, this is ${this.techData.first_name} with Appliance Repair American.`,
+                ],
+                "template": [
                     `Hi ${this.customerData.client_name}, it’s ${this.techData.first_name} with Appliance Repair American.`,
                     `Hello ${this.customerData.client_name}! This is ${this.techData.first_name}.`,
                     `Greetings ${this.customerData.client_name}, this is ${this.techData.first_name} with Appliance Repair American.`,
@@ -488,7 +493,7 @@ export default {
             window.open(`https://www.google.com/maps/search/?api=1&query=${encodedAddress}`, "_blank");
         },
         sendMessageFromDAX(status) {
-            this.sendMessage("send-message");
+            this.sendMessage("blank");
         },
         sendEmailFromDAX() {
             const email = `${this.customerData.client_email}`;
