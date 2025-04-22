@@ -138,6 +138,8 @@ export default {
             audioContext: null,
             analyser: null,
             dataArray: null,
+            speakQueue: [],
+            isSpeaking: false,
         };
     },
     created() {
@@ -796,20 +798,6 @@ export default {
                 console.log("ended fetch");
                 const data = await response.json();
                 console.log(`⚠️ responseAPI: `, data);
-
-
-                const snippet = data.output?.[1]?.content?.[0]?.text ?? 'Function call received for unknown tool';
-
-                this.dataChannel.send(JSON.stringify({
-                    type: 'response.create',
-                    response: {
-                        modalities: ['text', 'audio'],
-                        voice: 'ash',
-                        instructions: snippet
-                    }
-                }));
-
-
                 return data;
 
             } catch (err) {
@@ -1018,8 +1006,17 @@ export default {
                                 break;
                             }
                             case 'query_machine_info': {
-                                await this.runFileSearchTool(query_text);
                                 result = { success: true, message: `Looking up information for: ${query_text}` };
+                                await this.speak(result.message);
+
+                                const data = await this.runFileSearchTool(query_text);
+                                const snippet = data.output?.[1]?.content?.[0]?.text || "No relevant document content found.";
+
+                                // this.speak(snippet);
+                                // 🧠 Let OpenAI handle speaking and history
+                                result.message = snippet;
+
+
                                 break;
                             }
                             default:
@@ -1030,8 +1027,16 @@ export default {
 
                     case 'file_search_tool': {
                         const { search_query } = args;
-                        await this.runFileSearchTool(search_query);
                         result = { success: true, message: `Searching documents for: ${search_query}. I will provide the results shortly.` };
+                        await this.speak(result.message);
+
+                        const data = await this.runFileSearchTool(search_query);
+                        const snippet = data.output?.[1]?.content?.[0]?.text || "No relevant document content found.";
+
+                        // 🧠 Let OpenAI handle speaking and history
+                        result.message = snippet;
+                        // this.speak(snippet);
+
                         break;
                     }
 
@@ -1481,7 +1486,44 @@ export default {
             const modelv = `${model} ${mtype} ${mbrand}`;
 
             return `• ${date} ${time} – ${modelv}`;
+        },
+        speak(text, delayMs = null) {
+            return new Promise(resolve => {
+                this.speakQueue.push({ text, delayMs, resolve });
+                this.processSpeakQueue();
+            });
+        },
+
+
+        processSpeakQueue() {
+            if (this.isSpeaking || !this.speakQueue.length) return;
+
+            const { text, delayMs, resolve } = this.speakQueue.shift();
+            this.isSpeaking = true;
+
+            this.dataChannel?.send(JSON.stringify({
+                type: 'response.create',
+                response: {
+                    modalities: ['text', 'audio'],
+                    voice: 'ash',
+                    instructions: text
+                }
+            }));
+
+            const estimatedDelay = delayMs || this.estimateSpeechTime(text);
+
+            setTimeout(() => {
+                this.isSpeaking = false;
+                resolve(); // ✅ Now this resolves the promise
+                this.processSpeakQueue();
+            }, estimatedDelay);
+        },
+
+        estimateSpeechTime(text) {
+            const words = text.trim().split(/\s+/).length;
+            return words * 250;
         }
+
 
     },
 };
