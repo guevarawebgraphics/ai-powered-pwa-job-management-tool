@@ -689,6 +689,16 @@ export default {
                     `Hello ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸, just a quick update — I’m arriving later than expected. Sorry for the inconvenience, and I appreciate your patience.`,
                     `Hey ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸. I’m running a bit behind and will be there later than originally planned. Sorry for the change.`,
                 ],
+                "blank": [
+                    `Hi ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸.`,
+                    `Hello ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸`,
+                    `Hey ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸.`,
+                ],
+                "template": [
+                    `Hi ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸.`,
+                    `Hello ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸`,
+                    `Hey ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸.`,
+                ],
             };
 
             // const messages = {
