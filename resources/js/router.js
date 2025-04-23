@@ -35,33 +35,33 @@ import store from './store';
 
 const routes = [
     // Public Routes
-    { path: '/', component: Home },
-    { path: '/login', component: Login },
-    { path: '/register', component: Register },
-    { path: '/otp-error', component: OTPError },
-    { path: '/otp-success', component: OTPSuccess },
-    { path: '/otp', component: OTP },
-    { path: '/forgot-password', component: Forget },
-    { path: '/reset-password', component: ResetPassword },
+    { path: '/', name: 'Index' , component: Home },
+    { path: '/login', name: 'Login', component: Login },
+    { path: '/register', name: 'Register', component: Register },
+    { path: '/otp-error', name: 'OTPError', component: OTPError },
+    { path: '/otp-success', name: 'OTPSuccess', component: OTPSuccess },
+    { path: '/otp', name: 'OTP', component: OTP },
+    { path: '/forgot-password', name: 'Forgot', component: Forget },
+    { path: '/reset-password', name: 'Reset', component: ResetPassword },
     
     // Protected Routes (Require Authentication)
-    { path: '/profile', component: Profile, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/set-schedule', component: SetSchedule, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/guild-profile', component: GuildProfile, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/notification', component: Notification, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/dashboard', component: Dashboard, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/schedules', component: Schedules, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/gig/:id', component: GigIndex, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/gig-start', component: GigStart, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/gig-end', component: GigEnd, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/gig-report/:id', component: GigReport, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/gig/:gigId/repair/:repairId', component: GigRepair, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/model/:id/gig/:gigId?', component: ModelPage, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/customer/:id/gig/:gigId', component: Customer, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/model2/:id/gig/:gigId?', component: Model2, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/analytics', component: Analytics, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/analytics/type/:type?', component: AnalyticType, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/dax', component: DAX, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/set-schedule', name: 'SetSchedule', component: SetSchedule, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/guild-profile', name: 'Guild', component: GuildProfile, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/notification', name: 'Notification', component: Notification, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/dashboard', name: 'Dashboard', component: Dashboard, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/schedules', name: 'Schedules', component: Schedules, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/gig/:id', name: 'GigPage', component: GigIndex, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/gig-start', name: 'GigStart', component: GigStart, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/gig-end', name: 'GigEnd', component: GigEnd, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/gig-report/:id', name: 'GigReport', component: GigReport, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/gig/:gigId/repair/:repairId', name: 'Repair', component: GigRepair, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/model/:id/gig/:gigId?', name: 'Model', component: ModelPage, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/customer/:id/gig/:gigId', name: 'Customer', component: Customer, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/model2/:id/gig/:gigId?', name: 'Model2', component: Model2, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/analytics', name: 'Analytics', component: Analytics, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/analytics/type/:type?', name: 'AnalyticType', component: AnalyticType, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/dax', name: 'Dax', component: DAX, meta: { requiresAuth: true, requiresVerification: true } },
 ];
 
 const router = createRouter({
@@ -73,11 +73,11 @@ const router = createRouter({
 router.beforeEach(async (to, from, next) => {
   store.dispatch('showLoader');
   const token = localStorage.getItem('token');
-  const authPages = ['/','/login', '/register', '/otp', '/forgot-password', '/reset-password'];
+  const authPages = ['Login', 'Register', 'Home', 'OTP', 'Forget', 'ResetPassword'];
 
   // 1. If we have a token, block access to login/register/etc.
   if (token) {
-    if (authPages.includes(to.path)) {
+    if ( authPages.includes(to.name)) {
       store.dispatch('hideLoader');
       return next('/dashboard');
     }

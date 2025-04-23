@@ -283,25 +283,27 @@ export default {
                         // Now this is fine:
                         const result = await this.handleFunctionCall(msg.name, args);
 
-                        // 1) send function_call_output
-                        this.dataChannel.send(JSON.stringify({
-                            type: 'conversation.item.create',
-                            item: {
-                                type: 'function_call_output',
-                                call_id: msg.call_id,
-                                output: JSON.stringify(result.message)
-                            }
-                        }));
+                        if (result.message) {
+                            // 1) send function_call_output
+                            this.dataChannel.send(JSON.stringify({
+                                type: 'conversation.item.create',
+                                item: {
+                                    type: 'function_call_output',
+                                    call_id: msg.call_id,
+                                    output: JSON.stringify(result.message)
+                                }
+                            }));
 
-                        // 2) send response.create
-                        this.dataChannel.send(JSON.stringify({
-                            type: 'response.create',
-                            response: {
-                                modalities: ['text', 'audio'],
-                                voice: 'ash',
-                                instructions: result.message
-                            }
-                        }));
+                            // 2) send response.create
+                            this.dataChannel.send(JSON.stringify({
+                                type: 'response.create',
+                                response: {
+                                    modalities: ['text', 'audio'],
+                                    voice: 'ash',
+                                    instructions: result.message
+                                }
+                            }));
+                        }
 
 
                     }
@@ -886,7 +888,8 @@ Use either the main keyword or its synonym.`,
                                 const gig = this.$store.state.gigData;
                                 if (gig?.client_phone_number) {
                                     window.open(`tel:${gig.client_phone_number}`, "_blank");
-                                    result = { success: true, message: `Sure, calling ${gig.client_name} now.` };
+                                    // result = { success: true, message: `Sure, calling ${gig.client_name} now.` };
+                                    result = { success: true, message: `` };
                                 } else {
                                     result = { success: false, message: `Sorry, I couldn't find the client's phone number.` };
                                 }
@@ -904,14 +907,16 @@ Use either the main keyword or its synonym.`,
                                         bus.emit("trigger-send-status", sms_template); // Send the exact template
                                         result = {
                                             success: true,
-                                            message: `Sending "${sms_template.replace(/-/g, ' ')}" message to the client now.`
+                                            // message: `Sending "${sms_template.replace(/-/g, ' ')}" message to the client now.`
+                                            message: ``
                                         };
                                     }
                                 } else if (sms_type === 'blank') {
                                     bus.emit("trigger-send-status", "blank");
                                     result = {
                                         success: true,
-                                        message: `Opening a custom message composer for the client.`
+                                        // message: `Opening a custom message composer for the client.`
+                                        message: ``
                                     };
                                 } else {
                                     result = {
@@ -923,7 +928,7 @@ Use either the main keyword or its synonym.`,
                             }
                             case 'open_map': {
                                 bus.emit("trigger-open-map");
-                                result = { success: true, message: `Opening map directions.` };
+                                result = { success: true, message: `` };
                                 break;
                             }
                             case 'query_machine_info': {
