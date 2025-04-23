@@ -534,10 +534,10 @@ export default {
                     
                     this.totalJobBookedToday = this.gigHistoryData.length;
 
+                    const gigOpenAIObject = [];
+
                     // Transform data for latestUpdates
                     this.latestUpdates = this.gigHistoryData.map((gig) => {
-
-
                         // Adjust rawTime if needed. For example, convert "YYYY-MM-DD HH:mm:ss" to ISO "YYYY-MM-DDTHH:mm:ssZ"
                         let rawTime = gig.start_datetime;
                         if (rawTime && rawTime.indexOf("T") === -1) {
@@ -585,6 +585,16 @@ export default {
                             potentialGigPrice = Math.max(...this.gigPotentialEarnings.map(item => item.amount));
                         }
 
+
+
+                        // {gigID: 11, gigTime: 1:30pm, gigID: ja5-unk, gigClient: Client Name} from Jacob
+                        gigOpenAIObject.push({
+                            gigID: gig.gig_id,
+                            gigTime: this.formatTo12Hour(gig.start_datetime),
+                            gigCryptic: gig.gig_cryptic,
+                            gigClient: `${gig.client_name} ${gig.client_last_name}`
+                        });
+
                         return {
                             gig_id: gig.gig_id, 
                             rawTime: rawTime, // Save the raw datetime in ISO UTC format
@@ -606,6 +616,12 @@ export default {
                         (sum, gig) => sum + parseFloat(gig.potentialGigPrice || 0.00),
                         0.0
                     );
+
+
+                    this.$store.commit("setGigOpenAIObject", gigOpenAIObject);
+
+
+                    console.log(`gigOpenAIObject: `, this.$store.state.gigOpenAIObject);
 
                 } else {
                     this.latestUpdates = []; // Set to empty array if no data
@@ -689,6 +705,15 @@ export default {
         goToClient(data) {
             this.$router.push(`/customer/${data.gig.client_id}/gig/${data.gig_id}`);
         },
+
+        formatTo12Hour(timeString) {
+            const date = new Date(timeString.replace(" ", "T")); // Local time
+            return date.toLocaleTimeString("en-US", {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            }).toLowerCase();
+        }
     },
 };
 </script>
