@@ -71,7 +71,6 @@ export default {
     },
     created() {
         this.fetchUserData().then(() => {
-            console.log("User ID after fetchUserData:", this.user_id);
             this.getRatingRules();
         });
     },

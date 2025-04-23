@@ -412,7 +412,7 @@ export default {
                         this.repairHelp = parsedData;
                         this.repairVideo = []; // Initialize the array
 
-                        console.log(`videos: `, parsedData);
+                        // console.log(`videos: `, parsedData);
 
                         // // Loop through each repair object
                         parsedData.forEach(repair => {
@@ -431,7 +431,7 @@ export default {
                 }
 
 
-                console.log(`Total Client Price`, response);
+                // console.log(`Total Client Price`, response);
 
             } catch (error) {
                 console.error("Error fetching gig history data:", error);

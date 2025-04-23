@@ -169,7 +169,7 @@ export default {
                     }
                 });
 
-                console.log('response: ' , response);
+                // console.log('response: ' , response);
 
                 Swal.fire({
                     icon: 'success',

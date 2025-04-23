@@ -186,7 +186,6 @@ export default {
         async fetchUnseenCount() {
             try {
                 const userId = this.user_data.id; // Replace with dynamic user ID if needed
-                console.log(`user_id_to_view ${userId}`);
                 const response = await axios.get(
                     `/api/notify/get/${userId}/unseen`
                 );
@@ -197,7 +196,6 @@ export default {
 
                 this.$store.commit("setUnseenNotification", this.unseenCount);
 
-                console.log(`New Unseen: `, this.unseenCount);
             } catch (error) {
                 console.error(
                     "❌ Failed to fetch unseen notification count:",
