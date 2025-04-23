@@ -678,29 +678,29 @@ export default {
 
             const messages = {
                 "arriving-early": [
-                    `Hi ${this.gigData.client_name}, it’s ${this.gigData.tech_name} with Appliance Repair American 🇺🇸. I’m running a bit ahead of schedule and could arrive earlier than ${formattedTime}. Would that be okay?`,
-                    `Hello ${this.gigData.client_name}! This is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸. I’m ahead of schedule and can get to you earlier than planned. Let me know if that works for you.`,
-                    `Greetings ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸. I’m running early—would you be available before ${formattedTime}?`,
+                    `Hi ${this.gigData.client_name}, it’s ${this.gigData.tech_first_name} ${this.gigData.tech_last_name} with Appliance Repair American 🇺🇸. I’m running a bit ahead of schedule and could arrive earlier than ${formattedTime}. Would that be okay?`,
+                    `Hello ${this.gigData.client_name}! This is ${this.gigData.tech_first_name} ${this.gigData.tech_last_name} with Appliance Repair American 🇺🇸. I’m ahead of schedule and can get to you earlier than planned. Let me know if that works for you.`,
+                    `Greetings ${this.gigData.client_name}, this is ${this.gigData.tech_first_name} ${this.gigData.tech_last_name} with Appliance Repair American 🇺🇸. I’m running early—would you be available before ${formattedTime}?`,
                 ],
                 "on-time": [
-                    `Hello ${this.gigData.client_name} 🌞. This is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸. I am on time to see you for ${formattedTime}. Does this still work for you?`,
-                    `Hi ${this.gigData.client_name}! ${this.gigData.tech_name} from Appliance Repair American 🇺🇸. I’m scheduled to arrive approx. ${formattedTime}. Just checking if we’re still good for that time.`,
-                    `Good day ${this.gigData.client_name}, this is ${this.gigData.tech_name} from Appliance Repair American 🇺🇸. I’ll be arriving close to ${formattedTime} as planned. Is that still okay with you?`,
+                    `Hello ${this.gigData.client_name} 🌞. This is ${this.gigData.tech_first_name} ${this.gigData.tech_last_name} with Appliance Repair American 🇺🇸. I am on time to see you for ${formattedTime}. Does this still work for you?`,
+                    `Hi ${this.gigData.client_name}! ${this.gigData.tech_first_name} ${this.gigData.tech_last_name} from Appliance Repair American 🇺🇸. I’m scheduled to arrive approx. ${formattedTime}. Just checking if we’re still good for that time.`,
+                    `Good day ${this.gigData.client_name}, this is ${this.gigData.tech_first_name} ${this.gigData.tech_last_name} from Appliance Repair American 🇺🇸. I’ll be arriving close to ${formattedTime} as planned. Is that still okay with you?`,
                 ],
                 "behind-schedule": [
-                    `Hi ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸. I’m running behind some and will be arriving later than scheduled. Sorry for the delay.`,
-                    `Hello ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸, just a quick update — I’m arriving later than expected. Sorry for the inconvenience, and I appreciate your patience.`,
-                    `Hey ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸. I’m running a bit behind and will be there later than originally planned. Sorry for the change.`,
+                    `Hi ${this.gigData.client_name}, this is ${this.gigData.tech_first_name} ${this.gigData.tech_last_name} with Appliance Repair American 🇺🇸. I’m running behind some and will be arriving later than scheduled. Sorry for the delay.`,
+                    `Hello ${this.gigData.client_name}, this is ${this.gigData.tech_first_name} ${this.gigData.tech_last_name} with Appliance Repair American 🇺🇸, just a quick update — I’m arriving later than expected. Sorry for the inconvenience, and I appreciate your patience.`,
+                    `Hey ${this.gigData.client_name}, this is ${this.gigData.tech_first_name} ${this.gigData.tech_last_name} with Appliance Repair American 🇺🇸. I’m running a bit behind and will be there later than originally planned. Sorry for the change.`,
                 ],
                 "blank": [
-                    `Hi ${this.gigData.client_name}, it’s ${this.gigData.tech_name} with Appliance Repair American. 👋`,
-                    `Hello ${this.gigData.client_name}! This is ${this.gigData.tech_name}. 😊`,
-                    `Greetings ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American. 🔧`,
+                    `Hi ${this.gigData.client_name}, it’s ${this.gigData.tech_first_name} ${this.gigData.tech_last_name} with Appliance Repair American. 👋`,
+                    `Hello ${this.gigData.client_name}! This is ${this.gigData.tech_first_name} ${this.gigData.tech_last_name}. 😊`,
+                    `Greetings ${this.gigData.client_name}, this is ${this.gigData.tech_first_name} ${this.gigData.tech_last_name} with Appliance Repair American. 🔧`,
                 ],
                 "template": [
-                    `Hi ${this.gigData.client_name}, it’s ${this.gigData.tech_name} with Appliance Repair American. 👋`,
-                    `Hello ${this.gigData.client_name}! This is ${this.gigData.tech_name}. 😊`,
-                    `Greetings ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American. 🔧`,
+                    `Hi ${this.gigData.client_name}, it’s ${this.gigData.tech_first_name} ${this.gigData.tech_last_name} with Appliance Repair American. 👋`,
+                    `Hello ${this.gigData.client_name}! This is ${this.gigData.tech_first_name} ${this.gigData.tech_last_name}. 😊`,
+                    `Greetings ${this.gigData.client_name}, this is ${this.gigData.tech_first_name} ${this.gigData.tech_last_name} with Appliance Repair American. 🔧`,
                 ],
             };
 

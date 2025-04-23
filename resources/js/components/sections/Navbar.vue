@@ -324,7 +324,7 @@ export default {
                                 }
                             )
                             .then((response) => {
-                                
+
                             })
                             .catch((error) => {
                                 console.error("Failed to store token:", error);
@@ -393,7 +393,6 @@ export default {
                 }
 
                 this.$store.commit("setUnseenNotification", this.unseenCount);
-                console.log(`New Unseen: `, this.unseenCount);
             } catch (error) {
                 console.error(
                     "❌ Failed to fetch unseen notification count:",
