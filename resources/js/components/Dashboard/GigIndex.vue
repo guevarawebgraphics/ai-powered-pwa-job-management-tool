@@ -99,12 +99,12 @@
                     <!-- Toggle Arrow -->
                     <i @click="toggleExpand(index)"
                         class="fas fa-chevron-down text-xl text-gray-500 cursor-pointer transition-transform duration-300"
-                        :class="{ 'rotate-180': expandedIndex === index }"></i>
+                        :class="{ 'rotate-180': isExpanded }"></i>
                 </div>
 
 
                 <!-- Expanded Content -->
-                <div v-if="expandedIndex === index" class="mt-2 p-2 rounded-md">
+                <div v-if="isExpanded" class="mt-2 p-2 rounded-md">
                     <!-- <ul v-for="quick in gigQuickHistory" :key="quick.gig_cryptic">
                         <li>
                             <button type="button" @click="goToGig(quick.gig_id)" class="text-gray-500 mt-1">Gig #{{
@@ -348,7 +348,8 @@ export default {
             timeOfArrival: '',
             destinationAddress: '',
             techID: null,
-            clientEmail: null
+            clientEmail: null,
+            isExpanded: false
         };
     },
     created() {
@@ -405,7 +406,7 @@ export default {
         },
         buttonText() {
 
-            console.log(`gig_complete = ${this.gigData.gig_complete}`);
+            // console.log(`gig_complete = ${this.gigData.gig_complete}`);
 
             if (this.gigData.gig_complete == 0) {
                 return "Start";
@@ -432,8 +433,8 @@ export default {
         }
     },
     methods: {
-        toggleExpand(index) {
-            this.expandedIndex = this.expandedIndex === index ? null : index;
+        toggleExpand() {
+            this.isExpanded = !this.isExpanded;
         },
         capitalizeWords(str) {
             if (!str) return ''; // Return an empty string if str is undefined/null
@@ -507,13 +508,13 @@ export default {
 
                 this.$store.commit("setGigData", this.gigData);
 
-                console.log(`Client Email ${this.clientEmail}`);
+                // console.log(`Client Email ${this.clientEmail}`);
                 this.modelNumber = this.gigData.model_number;
                 this.techID = this.gigData.assigned_tech_id;
-                console.log(`gig -> ${this.gigData.model_number}`);
+                // console.log(`gig -> ${this.gigData.model_number}`);
                 this.machineDetail(this.modelNumber);
                 this.getQuickGigHistory(this.gigData.client_id);
-                console.log(`Gig Data: `, this.gigData);
+                // console.log(`Gig Data: `, this.gigData);
                 this.destinationAddress = `${this.gigData.street_address} ${this.gigData.city} ${this.gigData.state} ${this.gigData.country} ${this.gigData.zip_code}`;
 
                 // if (this.gigData.top_recommended_repairs) {
@@ -533,7 +534,7 @@ export default {
                         this.repairHelp = parsedData;
                         this.repairVideo = []; // Initialize the array
 
-                        console.log(`videos: `, parsedData);
+                        // console.log(`videos: `, parsedData);
 
                         // // Loop through each repair object
                         parsedData.forEach(repair => {
@@ -603,7 +604,7 @@ export default {
 
                 this.calculateETA();
 
-                console.log(`Total Client Price`, response);
+                // console.log(`Total Client Price`, response);
 
             } catch (error) {
                 console.error("Error fetching gig history data:", error);
@@ -636,8 +637,8 @@ export default {
                 // }
                 
 
-                console.log(`response machine data: `, response);
-                console.log('Machine Repairs:', this.repairHelp);
+                // console.log(`response machine data: `, response);
+                // console.log('Machine Repairs:', this.repairHelp);
             } catch (error) {
                 console.error("Error fetching repair history data:", error);
             }
@@ -649,7 +650,7 @@ export default {
                 headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
             });
             this.gigQuickHistory = response.data.data;
-            console.log(`quick: `, response);
+            // console.log(`quick: `, response);
         },
         openModal() {
             this.isOpen = true;
@@ -692,14 +693,14 @@ export default {
                     `Hey ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸. I’m running a bit behind and will be there later than originally planned. Sorry for the change.`,
                 ],
                 "blank": [
-                    `Hi ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸.`,
-                    `Hello ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸`,
-                    `Hey ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸.`,
+                    `Hi ${this.gigData.client_name}, it’s ${this.gigData.tech_name} with Appliance Repair American. 👋`,
+                    `Hello ${this.gigData.client_name}! This is ${this.gigData.tech_name}. 😊`,
+                    `Greetings ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American. 🔧`,
                 ],
                 "template": [
-                    `Hi ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸.`,
-                    `Hello ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸`,
-                    `Hey ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American 🇺🇸.`,
+                    `Hi ${this.gigData.client_name}, it’s ${this.gigData.tech_name} with Appliance Repair American. 👋`,
+                    `Hello ${this.gigData.client_name}! This is ${this.gigData.tech_name}. 😊`,
+                    `Greetings ${this.gigData.client_name}, this is ${this.gigData.tech_name} with Appliance Repair American. 🔧`,
                 ],
             };
 
@@ -833,7 +834,7 @@ export default {
 
                 // Log the full URL for debugging:
                 const url = `https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=${origins}&destinations=${destinationEncoded}&key=${apiKey}`;
-                console.log('Google API URL:', url);
+                // console.log('Google API URL:', url);
                 
                 const token = localStorage.getItem("token");
 
@@ -843,13 +844,13 @@ export default {
                     destination: address,
                 }
 
-                console.log(`payload `, payload);
+                // console.log(`payload `, payload);
 
                 const response = await axios.post(`/api/gig/travel-time`, payload , {
                     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" }
                 });
 
-                console.log(`google map : `, response.data.rows[0].elements[0]);
+                // console.log(`google map : `, response.data.rows[0].elements[0]);
 
 
                 // Assuming the response structure is similar to the API response:

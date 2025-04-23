@@ -343,7 +343,7 @@ export default {
     mounted() {
         const date = new Date();
         const options = { month: "long", day: "numeric" };
-        this.formattedDate = date.toLocaleDateString("en-US", options);
+        // this.formattedDate = date.toLocaleDateString("en-US", options);
     },
     computed: {
 
@@ -435,7 +435,6 @@ export default {
     },
     created() {
         this.fetchUserData().then(() => {
-            console.log("User ID after fetchUserData:", this.user_id);
             this.gigHistory(); // Now it will have the correct user_id
         });
     },
@@ -481,9 +480,9 @@ export default {
                 const api_endpoint = import.meta.env.VITE_API_ENDPOINT;
                 const token = import.meta.env.VITE_API_KEY;
 
-                console.log("Fetching Gig History...");
+                // console.log("Fetching Gig History...");
 
-                console.log("User ID: " + this.user_id);
+                // console.log("User ID: " + this.user_id);
 
                 const payload = {
                     techID: this.user_id, // Replace with dynamic techID if needed
@@ -508,8 +507,6 @@ export default {
                 //     payload.time = this.selectedTime;
                 // }
 
-                console.log(`Selected Date: ${this.selectedDate}`);
-                console.log(`Selected Time: ${this.selectedTime}`);
 
                 const response = await axios.post(
                     `${api_endpoint}/gigs/retrieveGigByTechID.php`,
@@ -526,7 +523,6 @@ export default {
 
                 // Set this to allow DAX access all current & upcoming gigs
                 this.$store.commit("setGigHistory", this.gigHistoryData);
-                console.log(`Gig History via Homepage`, this.gigHistoryData);
 
                 this.loadingGigHistory = false; // Stop loading
 
@@ -621,14 +617,11 @@ export default {
                     this.$store.commit("setGigOpenAIObject", gigOpenAIObject);
 
 
-                    console.log(`gigOpenAIObject: `, this.$store.state.gigOpenAIObject);
-
                 } else {
                     this.latestUpdates = []; // Set to empty array if no data
                 }
 
 
-                console.log("Transformed latestUpdates:", this.latestUpdates);
             } catch (error) {
                 console.error("Error fetching gig history data:", error);
                 this.loadingGigHistory = false;
@@ -673,7 +666,6 @@ export default {
                 this.user_id = userData.id;
                 this.total_jobs = response.data.total_jobs_booked;
                 this.latestNotif = response.data.latest_notif;
-                console.log(`latest notif: `, this.latestNotif);
             } catch (error) {
                 console.error("Error fetching user data:", error);
             }

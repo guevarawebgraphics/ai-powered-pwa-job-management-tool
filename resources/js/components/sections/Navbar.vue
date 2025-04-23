@@ -324,10 +324,7 @@ export default {
                                 }
                             )
                             .then((response) => {
-                                console.log(
-                                    "Token stored successfully:",
-                                    response
-                                );
+                                
                             })
                             .catch((error) => {
                                 console.error("Failed to store token:", error);
@@ -387,7 +384,6 @@ export default {
         async fetchUnseenCount() {
             try {
                 const userId = this.userData.id; // Replace with dynamic user ID if needed
-                console.log(`user_id_to_view ${userId}`);
                 const response = await axios.get(
                     `/api/notify/get/${userId}/unseen`
                 );
@@ -426,7 +422,6 @@ export default {
             } finally {
                 this.loading = false;
             }
-            console.log(`setNotificationData: `, this.notification_listings);
             this.$store.commit(
                 "setNotificationData",
                 this.notification_listings

@@ -204,7 +204,7 @@ export default {
             ],
             gigHistoryData: [],
             latestUpdates: [],
-            formattedDate: "",
+            // formattedDate: "",
             totalGigPrice: 0.0,
             gigPotentialEarnings : []
 
@@ -279,11 +279,10 @@ export default {
     mounted() {
         const date = new Date();
         const options = { month: "long", day: "numeric" };
-        this.formattedDate = date.toLocaleDateString("en-US", options);
+        // this.formattedDate = date.toLocaleDateString("en-US", options);
     },
     created() {
         this.fetchUserData().then(() => {
-            console.log("User ID after fetchUserData:", this.user_id);
             this.gigHistory(); // Now it will have the correct user_id
         });
     },
@@ -415,7 +414,7 @@ export default {
                 );
 
                 this.gigHistoryData = response.data.data || [];
-                console.log("Response:", response);
+                // console.log("Response:", response);
 
                 if (this.gigHistoryData.length > 0) {
 
@@ -562,7 +561,6 @@ export default {
                     this.totalGigPrice = 0;
                     this.latestUpdates = [];
                 }
-                console.log("Transformed latestUpdates:", this.latestUpdates);
             } catch (error) {
                 console.error("Error fetching gig history data:", error);
             } finally {

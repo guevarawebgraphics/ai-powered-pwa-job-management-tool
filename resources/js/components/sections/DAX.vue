@@ -152,10 +152,19 @@ export default {
         bus.off("dax-map-popup-blocked", this.notifyMapPopupBlocked);
     },
     mounted() {
+        
     },
     watch: {
         $route() {
             this.restoreDaxState();
+
+            if (this.recording && this.dataChannel?.readyState === "open") {
+                // Just reconfigure tools and instructions
+                this.configureData();
+            } else if (this.$store.state.isDaxActive) {
+                // If recording was lost during route change, recover it
+                this.startRecording();
+            }
         }
     },
     methods: {
@@ -179,6 +188,7 @@ export default {
             // this.stopRecording();
         },
         async startRecording() {
+            if (this.recording) return; // ✅ Don't re-init if already active
             this.recording = true;
             this.$store.commit("setDaxActive", true);
 
@@ -264,8 +274,6 @@ export default {
                         console.error("Unable to parse message data:", ev.data);
                         return;
                     }
-
-                    console.log(`Transcript: `, msg);
 
                     if (msg.type === 'response.function_call_arguments.done') {
 
@@ -433,165 +441,6 @@ export default {
 
                 const tools = [];
 
-                // // ✅ Add only if page is "Model"
-                // if (this.page === "Model" || this.page === "GigIndex" || this.page === "GigReport") {
-                //     tools.push({
-                //         type: "function",
-                //         name: "query_about_machine",
-                //         description: "Call this function when the user is wanting to know information about the appliance.",
-                //         parameters: {
-                //             type: "object",
-                //             strict: true,
-                //             properties: {
-                //                 user_query: {
-                //                     type: "string",
-                //                     description: "Query from the user about what information they are looking for. Phrase it as a question ending with a question mark."
-                //                 }
-                //             },
-                //             required: ["user_query"]
-                //         }
-                //     });
-                // }
-
-                // if (this.page === "GigIndex" || this.page === "CustomerUI") {
-                //     tools.push(
-                //         {
-                //             type: "function",
-                //             name: "call_client_by_voice",
-                //             description: "Use this tool if the technician says they want to call the client.",
-                //             parameters: {
-                //                 type: "object",
-                //                 properties: {
-                //                     confirm_call: {
-                //                         type: "boolean",
-                //                         description: "Whether the technician confirmed calling the client. Always true."
-                //                     }
-                //                 },
-                //                 required: ["confirm_call"]
-                //             }
-                //         },
-                //         {
-                //             type: "function",
-                //             name: "send_email",
-                //             description: "Call this when the technician wants to send an email to the client",
-                //             parameters: {
-                //                 type: "object",
-                //                 properties: {}
-                //             }
-                //         },
-                //         {
-                //             type: "function",
-                //             name: "open_google_map",
-                //             description: "Call this when the technician asks for directions or wants to open the client location in Google Maps.",
-                //             parameters: {
-                //                 type: "object",
-                //                 properties: {}
-                //             }
-                //         }
-
-                //     );
-
-                //     const statusEnum =
-                //         this.page === "GigIndex"
-                //             ? ["arriving-early", "on-time", "behind-schedule"]
-                //             : ["send-message"];
-
-                //     tools.push({
-                //         type: "function",
-                //         name: "send_status_message",
-                //         description:
-                //             this.page === "CustomerUI"
-                //                 ? "Call this when the technician wants to send a message to the client from the client or customer page."
-                //                 : "Call this when the technician wants to send a status update to the client, like arriving early, on time, or behind schedule.",
-                //         parameters: {
-                //             type: "object",
-                //             properties: {
-                //                 status: {
-                //                     type: "string",
-                //                     enum: statusEnum,
-                //                     description:
-                //                         this.page === "CustomerUI"
-                //                             ? "Only use enum 'send-message' when on the Customer Page."
-                //                             : "Status message options: 'arriving-early', 'on-time', or 'behind-schedule'."
-                //                 }
-                //             },
-                //             required: ["status"]
-                //         }
-                //     });
-                // }
-
-                // // ✅ Add shared tools regardless of page
-                // tools.push(
-                //     {
-                //         type: "function",
-                //         name: "open_gig_from_voice",
-                //         description: "Call this when the user asks to open a gig by number or cryptic code.",
-                //         parameters: {
-                //             type: "object",
-                //             properties: {
-                //                 gig_cryptic: {
-                //                     type: "string",
-                //                     description: "The spoken gig code or number, like 'GIG12345' or '12345'."
-                //                 }
-                //             },
-                //             required: ["gig_cryptic"]
-                //         }
-                //     },
-                //     {
-                //         type: "function",
-                //         name: "navigate_to_page",
-                //         description: "Call this when the user wants to navigate to a specific technician page like profile, dashboard (this is the same with home page), schedules, calendar(calendar is just the same with schedules page), guild-profile, notification, set-schedule etc.",
-                //         parameters: {
-                //             type: "object",
-                //             properties: {
-                //                 destination: {
-                //                     type: "string",
-                //                     description: "The destination keyword like 'profile', 'analytics', 'dashboard', 'set-schedule', 'schedules', 'notification', 'guild-profile'"
-                //                 }
-                //             },
-                //             required: ["destination"]
-                //         }
-                //     },
-                //     {
-                //         type: "function",
-                //         name: "open_model_page",
-                //         description: "Call this when the technician wants to view the model or machine details for a gig. If no gig is provided, use the most recent one.",
-                //         parameters: {
-                //             type: "object",
-                //             properties: {
-                //                 gig_cryptic: {
-                //                     type: "string",
-                //                     description: "The gig's cryptic code (optional)"
-                //                 }
-                //             }
-                //             // 🚫 No 'required' key — now it's optional
-                //         }
-                //     }
-                // );
-
-                // const event = {
-                //     type: "session.update",
-                //     session: {
-                //         modalities: ["text", "audio"],
-                //         voice: "ash",
-                //         tools: tools,
-                //         tool_choice: "auto",
-                //         instructions: `
-                //             You are provided with additional context derived from the current webpage:
-                //             "${pageContent.trim()}"
-
-                //             Additionally, you may reference the contents of the uploaded PDF files to support your answers.
-
-                //             And you are assisting trained appliance repair professionals in the field. These technicians are knowledgeable and experienced, often using tech sheets, wiring diagrams, and diagnostic tools. Respond to their questions with concise, technical, and accurate guidance focused on diagnostics, error codes, mechanical functions, and repairs. Assume they understand appliance mechanics and only need help narrowing down issues or verifying steps. Avoid oversimplifying or providing basic definitions unless asked.
-
-                //             When responding to user queries, consider this context only if there is a clear, relevant connection. Otherwise, answer using your standard knowledge.
-
-                //             If a question requires looking into documentation or PDFs, you may use the 'file_search' tool.
-                //         `,
-                //     },
-                // };
-
-
                 // --- Consolidated Navigation Tool ---
                 tools.push({
                     type: "function",
@@ -726,7 +575,7 @@ Use either the main keyword or its synonym.`,
                     }
                 });
 
-                console.log(`DAX Gigs: ${JSON.stringify(this.$store.state.gigOpenAIObject) }`);
+                // console.log(`DAX Gigs: ${JSON.stringify(this.$store.state.gigOpenAIObject) }`);
                 // --- Session Update Event ---
                 const event = {
                     type: "session.update",
@@ -855,6 +704,7 @@ Use either the main keyword or its synonym.`,
                 return null;
             }
         },
+
         async getVectorIds() {
             try {
                 const token = localStorage.getItem("token");
@@ -877,6 +727,7 @@ Use either the main keyword or its synonym.`,
                 console.error("Error fetching vector stores:", err.response?.data || err.message);
             }
         },
+
         async updateVectorName(vectorID, newName) {
             const token = localStorage.getItem("token");
 
@@ -901,207 +752,6 @@ Use either the main keyword or its synonym.`,
                 console.error("Error updating vector store:", error.response?.data || error.message);
             }
         },
-
-
-
-        // Revised by Richard using case switch
-        // async handleFunctionCall(name, args) {
-        //     console.log(`Handling function call: ${name}`, args);
-        //     let result = { success: false, message: "Action could not be completed." };
-
-        //     try {
-        //         switch (name) {
-        //             case 'navigate': {
-        //                 const { target_type, identifier, document_query } = args;
-        //                 switch (target_type) {
-        //                     case 'global_page': {
-        //                         const map = {
-        //                             profile: "/profile",
-        //                             "set-schedule": "/set-schedule",
-        //                             "guild-profile": "/guild-profile",
-        //                             notification: "/notification",
-        //                             dashboard: "/dashboard",
-        //                             calendar: "/schedules",
-        //                             home: "/dashboard",
-        //                             schedules: "/schedules",
-        //                             analytics: "/analytics",
-        //                         };
-        //                         const path = map[identifier];
-        //                         result = path
-        //                             ? (this.$router.push(path), { success: true, message: `Navigating to your \"${identifier}\"` })
-        //                             : { success: false, message: `Sorry, I don't recognize the page \"${identifier}\"` };
-        //                         break;
-        //                     }
-        //                     case 'gig': {
-        //                         const gigs = this.$store.state.gigHistory || [];
-        //                         const isCryptic = /^[A-Z0-9]{3,}$/.test(identifier.trim());
-        //                         let matchedGigs = [];
-
-        //                         if (isCryptic) {
-        //                             const gig = gigs.find(g => g.gig_cryptic.toUpperCase() === identifier.trim().toUpperCase());
-        //                             if (gig) matchedGigs = [gig];
-        //                         } else {
-        //                             const parsed = this.parseTimeReference(identifier);
-        //                             const now = new Date();
-        //                             if (parsed) {
-        //                                 const referenceTime = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), parsed.hour, parsed.minute || 0));
-        //                                 matchedGigs = gigs.filter(g => {
-        //                                     let rawTime = g.start_datetime;
-        //                                     if (rawTime.indexOf("T") === -1) rawTime = rawTime.replace(" ", "T") + "Z";
-        //                                     const gigTime = new Date(rawTime);
-        //                                     if (gigTime <= now) return false;
-        //                                     return Math.abs(gigTime - referenceTime) <= 30 * 60 * 1000;
-        //                                 });
-        //                                 matchedGigs.sort((a, b) => new Date(a.start_datetime.replace(" ", "T") + "Z") - new Date(b.start_datetime.replace(" ", "T") + "Z"));
-        //                             }
-        //                         }
-
-        //                         if (matchedGigs.length === 0) {
-        //                             const now = new Date();
-        //                             const upcoming = gigs.filter(g => new Date(g.start_datetime.replace(" ", "T") + "Z") > now)
-        //                                 .sort((a, b) => new Date(a.start_datetime.replace(" ", "T") + "Z") - new Date(b.start_datetime.replace(" ", "T") + "Z"));
-        //                             if (upcoming.length === 0) {
-        //                                 result = { success: false, message: `No upcoming gigs were found at all.` };
-        //                             } else {
-        //                                 const list = upcoming.slice(0, 5).map(g => this.formatGigInfo(g)).join('\n');
-        //                                 result = { success: false, message: `I couldn't find a gig at that time, but here are your upcoming gigs:\n${list}` };
-        //                             }
-        //                         } else if (matchedGigs.length > 1) {
-        //                             const list = matchedGigs.slice(0, 3).map(g => this.formatGigInfo(g)).join('\n');
-        //                             result = { success: false, message: `I found multiple upcoming gigs around that time:\n${list}\nCan you specify the job or model?` };
-        //                         } else {
-        //                             const gig = matchedGigs[0];
-        //                             this.$router.push(`/gig/${gig.gig_id}`);
-        //                             result = { success: true, message: `Sure, opening Gig ${gig.gig_cryptic}` };
-        //                         }
-        //                         break;
-        //                     }
-        //                     case 'gig_client_page': {
-        //                         // console.log(`Navigating to client page for current gig.`);
-        //                         // result = { success: true, message: `Opening client page.` };
-
-        //                         const gigId = this.$route?.params?.id;
-
-        //                         const gig = this.$store.state.gigData;
-
-        //                         if (gig?.client_id) {
-
-        //                             result = { success: true, message: `Opening client page.` };
-
-        //                             this.$router.push(`/customer/${gig.client_id}/gig/${gig.gig_id}`);
-        //                         } else {
-        //                             result = { success: false, message: `Sorry, I couldn't find the client's page.` };
-        //                         }
-
-        //                         break;
-        //                     }
-        //                     case 'gig_machine_page': {
-
-        //                         const gigId = this.$route?.params?.id;
-
-        //                         const gig = this.$store.state.gigData;
-
-        //                         if (!gig || !gig.machine || !gig.machine.model_number) {
-        //                             result = { success: false, message: `I couldn't find a matching machine page.` };
-        //                         } else {
-        //                             this.$router.push(`/model/${gig.machine.model_number}/gig/${gig.gig_id}`);
-        //                             result = { success: true, message: `Opening model page for ${gig.machine.model_number}` };
-        //                         }
-
-        //                         // const gigs = this.$store.state.gigHistory || [];
-        //                         // let matchedGigs = [];
-        //                         // if (args.gig_cryptic) {
-        //                         //     matchedGigs = gigs.filter(g => g.gig_cryptic?.toUpperCase() === args.gig_cryptic.toUpperCase());
-        //                         // } else if (args.identifier) {
-        //                         //     const id = args.identifier.toLowerCase();
-        //                         //     matchedGigs = gigs.filter(g => g.machine?.model_name?.toLowerCase().includes(id) || g.machine?.model_number?.toLowerCase().includes(id));
-        //                         // }
-        //                         // matchedGigs.sort((a, b) => new Date(b.scheduled_time) - new Date(a.scheduled_time));
-        //                         // const gig = matchedGigs[0] || gigs.sort((a, b) => new Date(b.scheduled_time) - new Date(a.scheduled_time))[0];
-        //                         // if (!gig || !gig.machine || !gig.machine.model_number) {
-        //                         //     result = { success: false, message: `I couldn't find a matching machine page.` };
-        //                         // } else {
-        //                         //     this.$router.push(`/model/${gig.machine.model_number}/gig/${gig.gig_id}`);
-        //                         //     result = { success: true, message: `Opening model page for ${gig.machine.model_number}` };
-        //                         // }
-        //                         break;
-        //                     }
-        //                 }
-        //                 break;
-        //             }
-
-        //             case 'perform_action': {
-        //                 const { action_type, sms_type, sms_template, query_text } = args;
-        //                 switch (action_type) {
-        //                     case 'call_client': {
-        //                         if (!args.confirm_call) return "";
-        //                         const gigId = this.$route?.params?.id;
-        //                         const gig = this.$store.state.gigData;
-        //                         if (gig?.client_phone_number) {
-        //                             window.open(`tel:${gig.client_phone_number}`, "_self");
-        //                             result = { success: true, message: `Sure, calling ${gig.client_name} now.` };
-        //                         } else {
-        //                             result = { success: false, message: `Sorry, I couldn't find the client's phone number.` };
-        //                         }
-        //                         break;
-        //                     }
-        //                     case 'send_sms': {
-        //                         bus.emit("trigger-send-status", sms_type);
-        //                         result = { success: true, message: `Sending \"${sms_type.replace(/-/g, ' ')}\" message to the client now.` };
-        //                         break;
-        //                     }
-        //                     case 'open_map': {
-        //                         bus.emit("trigger-open-map");
-        //                         result = { success: true, message: `Opening map directions.` };
-        //                         break;
-        //                     }
-        //                     case 'query_machine_info': {
-        //                         result = { success: true, message: `Looking up information for: ${query_text}` };
-        //                         await this.speak(result.message);
-
-        //                         const data = await this.runFileSearchTool(query_text);
-        //                         const snippet = data.output?.[1]?.content?.[0]?.text || "No relevant document content found.";
-
-        //                         // this.speak(snippet);
-        //                         // 🧠 Let OpenAI handle speaking and history
-        //                         result.message = snippet;
-
-
-        //                         break;
-        //                     }
-        //                     default:
-        //                         result.message = `Unknown action type: ${action_type}`;
-        //                 }
-        //                 break;
-        //             }
-
-        //             case 'file_search_tool': {
-        //                 const { search_query } = args;
-        //                 result = { success: true, message: `Searching documents for: ${search_query}. I will provide the results shortly.` };
-        //                 await this.speak(result.message);
-
-        //                 const data = await this.runFileSearchTool(search_query);
-        //                 const snippet = data.output?.[1]?.content?.[0]?.text || "No relevant document content found.";
-
-        //                 // 🧠 Let OpenAI handle speaking and history
-        //                 result.message = snippet;
-        //                 // this.speak(snippet);
-
-        //                 break;
-        //             }
-
-        //             default: {
-        //                 console.warn(`Function call received for unknown tool: ${name}`);
-        //                 result.message = `Tool '${name}' is not implemented.`;
-        //             }
-        //         }
-        //     } catch (error) {
-        //         console.error(`Error handling function call ${name}:`, error);
-        //         result.message = `An error occurred while trying to ${name}.`;
-        //     }
-
-        //     return result;
-        // },
 
         async handleFunctionCall(name, args) {
             console.log(`Handling function call: ${name}`, args);
@@ -1139,49 +789,6 @@ Use either the main keyword or its synonym.`,
                         const { target_type, identifier, document_query } = args;
 
                         switch (target_type) {
-                            // case 'gig': {
-                            //     const gigs = this.$store.state.gigHistory || [];
-                            //     const isCryptic = /^[A-Z0-9]{3,}$/.test(identifier.trim());
-                            //     let matchedGigs = [];
-
-                            //     if (isCryptic) {
-                            //         const gig = gigs.find(g => g.gig_cryptic.toUpperCase() === identifier.trim().toUpperCase());
-                            //         if (gig) matchedGigs = [gig];
-                            //     } else {
-                            //         const parsed = this.parseTimeReference(identifier);
-                            //         const now = new Date();
-                            //         if (parsed) {
-                            //             const referenceTime = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), parsed.hour, parsed.minute || 0));
-                            //             matchedGigs = gigs.filter(g => {
-                            //                 let rawTime = g.start_datetime;
-                            //                 if (!rawTime.includes("T")) rawTime = rawTime.replace(" ", "T") + "Z";
-                            //                 const gigTime = new Date(rawTime);
-                            //                 return gigTime > now && Math.abs(gigTime - referenceTime) <= 30 * 60 * 1000;
-                            //             });
-                            //             matchedGigs.sort((a, b) => new Date(a.start_datetime.replace(" ", "T") + "Z") - new Date(b.start_datetime.replace(" ", "T") + "Z"));
-                            //         }
-                            //     }
-
-                            //     if (matchedGigs.length === 0) {
-                            //         const now = new Date();
-                            //         const upcoming = gigs.filter(g => new Date(g.start_datetime.replace(" ", "T") + "Z") > now)
-                            //             .sort((a, b) => new Date(a.start_datetime.replace(" ", "T") + "Z") - new Date(b.start_datetime.replace(" ", "T") + "Z"));
-                            //         if (upcoming.length === 0) {
-                            //             result = { success: false, message: `No upcoming gigs were found at all.` };
-                            //         } else {
-                            //             const list = upcoming.slice(0, 5).map(g => this.formatGigInfo(g)).join('\n');
-                            //             result = { success: false, message: `I couldn't find a gig at that time, but here are your upcoming gigs:\n${list}` };
-                            //         }
-                            //     } else if (matchedGigs.length > 1) {
-                            //         const list = matchedGigs.slice(0, 3).map(g => this.formatGigInfo(g)).join('\n');
-                            //         result = { success: false, message: `I found multiple gigs around that time:\n${list}\nCan you specify the job or model?` };
-                            //     } else {
-                            //         const gig = matchedGigs[0];
-                            //         this.$router.push(`/gig/${gig.gig_id}`);
-                            //         result = { success: true, message: `Sure, opening Gig ${gig.gig_cryptic}` };
-                            //     }
-                            //     break;
-                            // }
 
                             case 'gig': {
                                 const gigs = this.$store.state.gigOpenAIObject || [];
@@ -1278,16 +885,40 @@ Use either the main keyword or its synonym.`,
                                 if (!args.confirm_call) return "";
                                 const gig = this.$store.state.gigData;
                                 if (gig?.client_phone_number) {
-                                    window.open(`tel:${gig.client_phone_number}`, "_self");
+                                    window.open(`tel:${gig.client_phone_number}`, "_blank");
                                     result = { success: true, message: `Sure, calling ${gig.client_name} now.` };
                                 } else {
                                     result = { success: false, message: `Sorry, I couldn't find the client's phone number.` };
                                 }
                                 break;
                             }
+
                             case 'send_sms': {
-                                bus.emit("trigger-send-status", sms_type);
-                                result = { success: true, message: `Sending \"${sms_type.replace(/-/g, ' ')}\" message to the client now.` };
+                                if (sms_type === 'template') {
+                                    if (!sms_template) {
+                                        result = {
+                                            success: false,
+                                            message: `Template SMS type requires a specific status like "arriving-early", "on-time", or "behind-schedule".`
+                                        };
+                                    } else {
+                                        bus.emit("trigger-send-status", sms_template); // Send the exact template
+                                        result = {
+                                            success: true,
+                                            message: `Sending "${sms_template.replace(/-/g, ' ')}" message to the client now.`
+                                        };
+                                    }
+                                } else if (sms_type === 'blank') {
+                                    bus.emit("trigger-send-status", "blank");
+                                    result = {
+                                        success: true,
+                                        message: `Opening a custom message composer for the client.`
+                                    };
+                                } else {
+                                    result = {
+                                        success: false,
+                                        message: `Unknown sms_type: "${sms_type}". It must be either "template" or "blank".`
+                                    };
+                                }
                                 break;
                             }
                             case 'open_map': {
@@ -1333,91 +964,6 @@ Use either the main keyword or its synonym.`,
             return result;
         },
 
-
-      
-
-
-        // Original Version
-        // async handleFunctionCall(name, args) {
-        //     switch (name) {
-        //         case 'query_about_machine': {
-        //             const data = await this.runFileSearchTool(args.user_query)
-        //             const snippet = data.output?.[1]?.content?.[0]?.text || ''
-        //             return snippet
-        //                 ? `Here’s what I found in the docs: ${snippet}`
-        //                 : `Sorry, I couldn't find anything on that.`
-        //         }
-
-        //         case 'call_client_by_voice': {
-        //             if (!args.confirm_call) return "";
-        //             const gigId = this.$route?.params?.id;
-        //             const gig = this.$store.state.gigHistory.find(g => g.gig_id == gigId);
-        //             if (gig?.client_phone_number) {
-        //                 window.open(`tel:${gig.client_phone_number}`, "_self");
-        //                 return `Sure, calling ${gig.client_name} now.`;
-        //             } else {
-        //                 return `Sorry, I couldn't find the client's phone number.`;
-        //             }
-        //         }
-
-        //         case 'send_status_message': {
-        //             bus.emit("trigger-send-status", args.status);
-        //             return `Sending "${args.status.replace(/-/g, ' ')}" message to the client now.`;
-        //         }
-
-        //         case 'open_google_map': {
-        //             bus.emit("trigger-open-map");
-        //             return `Opening Google Maps to the client's address now.`;
-        //         }
-
-        //         case 'send_email': {
-        //             bus.emit("trigger-send-email");
-        //             return `Opening your Mail App`;
-        //         }
-
-        //         case 'open_gig_from_voice': {
-        //             const code = args.gig_cryptic?.toUpperCase();
-        //             const gig = this.$store.state.gigHistory.find(g => g.gig_cryptic.toUpperCase() === code);
-        //             if (!gig) return `Sorry, I couldn't find a gig matching ${code}`;
-        //             this.$router.push(`/gig/${gig.gig_id}`);
-        //             return `Sure, opening Gig ${gig.gig_cryptic}`;
-        //         }
-
-        //         case 'navigate_to_page': {
-        //             const map = {
-        //                 profile: "/profile",
-        //                 "set-schedule": "/set-schedule",
-        //                 "guild-profile": "/guild-profile",
-        //                 notification: "/notification",
-        //                 dashboard: "/dashboard",
-        //                 schedules: "/schedules",
-        //                 analytics: "/analytics",
-        //             };
-        //             const path = map[args.destination];
-        //             if (!path) return `Sorry, I don't recognize the page "${args.destination}"`;
-
-        //             this.$router.push(path);
-
-        //             return `Navigating to your ${args.destination.replace(/-/g, ' ')} page.`;
-        //         }
-
-        //         case 'open_model_page': {
-        //             const gigs = this.$store.state.gigHistory || [];
-        //             let gig = args.gig_cryptic
-        //                 ? gigs.find(g => g.gig_cryptic.toUpperCase() === args.gig_cryptic.toUpperCase())
-        //                 : gigs[0];
-        //             if (!gig || !gig.machine) return `I couldn't find a model page to open.`;
-        //             const { model_number } = gig.machine;
-        //             const id = gig.gig_id;
-        //             if (!id) return `You don’t have a gig associated with this machine.`;
-        //             this.$router.push(`/model/${model_number}/gig/${id}`);
-        //             return `Opening model page for ${model_number}`;
-        //         }
-
-        //         default:
-        //             return `Sorry, I don't recognize the action "${name}"`;
-        //     }
-        // },
         notifyMapPopupBlocked() {
             const message = "It looks like your browser or app blocked the Google Maps window. Please check your popup settings or permissions.";
 
