@@ -432,6 +432,8 @@ export default {
                         })
                         .reduce((sum, gig) => sum + parseFloat(gig.gig_price || 0), 0);
 
+                    const gigOpenAIObject = [];
+
 
                     // Transform the data for latestUpdates.
                     // Also, adjust the rawTime into a proper ISO UTC string if needed.
@@ -496,7 +498,16 @@ export default {
                         if (this.gigPotentialEarnings.length > 0) {
                             potentialGigPrice = Math.max(...this.gigPotentialEarnings.map(item => item.amount));
                         }
-    
+
+                        
+                        // {gigID: 11, gigTime: 1:30pm, gigID: ja5-unk, gigClient: Client Name} from Jacob
+                        gigOpenAIObject.push({
+                            gigID: gig.gig_id,
+                            gigTime: this.formatTo12Hour(gig.start_datetime),
+                            gigCryptic: gig.gig_cryptic,
+                            gigClient: `${gig.client_name} ${gig.client_last_name}`
+                        });
+
                         return {
                             gig_id: gig.gig_id,
                             rawTime: rawTime, // Save the raw datetime in ISO UTC format
@@ -542,6 +553,10 @@ export default {
                         return gigDateUTC === todayUTC;
                     })
                         .reduce((sum, gig) => sum + parseFloat(gig.potentialGigPrice || 0), 0);
+
+                    this.$store.commit("setGigOpenAIObject", gigOpenAIObject);
+
+
 
                 } else {
                     this.totalGigPrice = 0;
@@ -616,6 +631,14 @@ export default {
             if (!str) return ""; // Return an empty string if str is undefined/null
             return str.replace(/\b\w/g, (char) => char.toUpperCase());
         },
+        formatTo12Hour(timeString) {
+            const date = new Date(timeString.replace(" ", "T")); // Local time
+            return date.toLocaleTimeString("en-US", {
+                hour: 'numeric',
+                minute: '2-digit',
+                hour12: true
+            }).toLowerCase();
+        }
     },
 };
 </script>

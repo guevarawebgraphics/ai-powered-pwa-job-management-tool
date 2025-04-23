@@ -10,7 +10,8 @@ const store = createStore({
     pdfFiles: [],
     gigHistory: [],
     gigData: [],
-    isDaxActive: false
+    isDaxActive: false,
+    gigOpenAIObject: []
   },
   mutations: {
     setNotificationData(state, payload) {
@@ -43,6 +44,9 @@ const store = createStore({
     },
     setDaxActive(state, payload) {
       state.isDaxActive = payload;
+    },
+    setGigOpenAIObject(state, payload) {
+      state.gigOpenAIObject = payload;
     }
   },
   actions: {
@@ -79,6 +83,9 @@ const store = createStore({
     },
     setDaxActive({ commit }, message) {
       commit('setDaxActive', message);
+    },
+    setGigOpenAIObject({ commit }, message) {
+      commit('setGigOpenAIObject', message);
     },
   }
 });

@@ -152,7 +152,6 @@ export default {
         bus.off("dax-map-popup-blocked", this.notifyMapPopupBlocked);
     },
     mounted() {
-
     },
     watch: {
         $route() {
@@ -626,18 +625,19 @@ Use either the main keyword or its synonym.`,
                     name: "navigate_to_gig_context",
                     description: `Use this tool to navigate within gig-related contexts.
 
-Supported destinations:
-1. **Gigs:** Use job identifiers like:
-   - Cryptic codes (e.g., 'GIG123')
-   - Time-based references (e.g., 'the 2 PM job', 'my 11 AM gig')
+                    Supported destinations:
+                    1. **Gigs:** Associate to a gig ID with job identifiers like:
+                    - Cryptic codes (e.g., 'GIG123')
+                    - Time-based references (e.g., 'the 2 PM job', 'my 11 AM gig')
+                    - Associated client details (e.g., 'Robert Mack's gig')
 
-2. **Gig Views** (requires active gig context):
-   - 'Client Page' → View client details
-   - 'Machine Page' → View appliance information
+                    2. **Gig Views** (requires active gig context):
+                    - 'Client Page' → View client details
+                    - 'Machine Page' → View appliance information
 
-3. **Machine Documents** (requires gig + machine context):
-   - Document types: 'tech sheet', 'service manual', 'parts list', 'service pointer'
-   - Optional query (e.g., 'noisy operation') for narrowing results.`,
+                    3. **Machine Documents** (requires gig + machine context):
+                    - Document types: 'tech sheet', 'service manual', 'parts list', 'service pointer'
+                    - Optional query (e.g., 'noisy operation') for narrowing results.`,
                     parameters: {
                         type: "object",
                         properties: {
@@ -646,9 +646,13 @@ Supported destinations:
                                 enum: ["gig", "gig_client_page", "gig_machine_page", "machine_document"],
                                 description: "Type of navigation: a gig, its client page, its machine page, or a specific document"
                             },
+                            // identifier: {
+                            //     type: "string",
+                            //     description: "Gig code (e.g., 'GIG123'), time reference (e.g., '2 PM job'), or document type"
+                            // },
                             identifier: {
                                 type: "string",
-                                description: "Gig code (e.g., 'GIG123'), time reference (e.g., '2 PM job'), or document type"
+                                description: "Gig ID based on correlated information to your <knowledge>"
                             },
                             document_query: {
                                 type: "string",
@@ -722,7 +726,7 @@ Supported destinations:
                     }
                 });
 
-
+                console.log(`DAX Gigs: ${JSON.stringify(this.$store.state.gigOpenAIObject) }`);
                 // --- Session Update Event ---
                 const event = {
                     type: "session.update",
@@ -732,17 +736,24 @@ Supported destinations:
                         tools: tools, // Use the new consolidated tools array
                         tool_choice: "auto", // Let OpenAI decide which tool (and args) fit the user's request
                         // Update instructions to mention synonyms and context sensitivity
-                        instructions: `You are DAX, a voice assistant for appliance repair technicians. You are embedded in their work app.
+                        instructions: `
+                        <bio>You are DAX. Your name is DAX, a voice technicial assistant for professional appliance repair technicians. You are embedded in their work app.</bio>
+
+                        <knowledge>
                         Current Page Context: ${currentPage}
                         Page Content Context: "${pageContent.trim()}"
+                        Here is a list of the gigs with the ID that corresponds to the info in the object
+                        ${JSON.stringify(this.$store.state.gigOpenAIObject)}
+                        </knowledge>
 
-                        Key Tasks & Rules:
+                        <important_rules>
                         - Help navigate the app using the 'navigate' tool. Recognize synonyms: Calendar/Schedule, Notification, Analytics/Stats, Profile/Settings, Gigs/Jobs. Handle navigation requests like "show me", "pull up", "go to".
                         - Perform actions related to gigs (call, SMS, map, query machine) using the 'perform_action' tool. Understand context: template SMS are for status updates (usually from gig list/details), blank SMS for custom messages (usually from client page).
                         - Use the 'file_search_tool' to answer questions requiring information from uploaded documents (PDFs, manuals).
                         - Handle time-based gig requests (e.g., "pull up my 2 o'clock job") by using the 'navigate' tool with a time identifier.
                         - Be concise, technical, and assume user expertise. Focus on diagnostics, codes, parts, and procedures.
                         - Use available tools when appropriate based on the user request and current context.
+                        </important_rules>
                         `,
                     },
                 };
@@ -1128,49 +1139,99 @@ Supported destinations:
                         const { target_type, identifier, document_query } = args;
 
                         switch (target_type) {
+                            // case 'gig': {
+                            //     const gigs = this.$store.state.gigHistory || [];
+                            //     const isCryptic = /^[A-Z0-9]{3,}$/.test(identifier.trim());
+                            //     let matchedGigs = [];
+
+                            //     if (isCryptic) {
+                            //         const gig = gigs.find(g => g.gig_cryptic.toUpperCase() === identifier.trim().toUpperCase());
+                            //         if (gig) matchedGigs = [gig];
+                            //     } else {
+                            //         const parsed = this.parseTimeReference(identifier);
+                            //         const now = new Date();
+                            //         if (parsed) {
+                            //             const referenceTime = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), parsed.hour, parsed.minute || 0));
+                            //             matchedGigs = gigs.filter(g => {
+                            //                 let rawTime = g.start_datetime;
+                            //                 if (!rawTime.includes("T")) rawTime = rawTime.replace(" ", "T") + "Z";
+                            //                 const gigTime = new Date(rawTime);
+                            //                 return gigTime > now && Math.abs(gigTime - referenceTime) <= 30 * 60 * 1000;
+                            //             });
+                            //             matchedGigs.sort((a, b) => new Date(a.start_datetime.replace(" ", "T") + "Z") - new Date(b.start_datetime.replace(" ", "T") + "Z"));
+                            //         }
+                            //     }
+
+                            //     if (matchedGigs.length === 0) {
+                            //         const now = new Date();
+                            //         const upcoming = gigs.filter(g => new Date(g.start_datetime.replace(" ", "T") + "Z") > now)
+                            //             .sort((a, b) => new Date(a.start_datetime.replace(" ", "T") + "Z") - new Date(b.start_datetime.replace(" ", "T") + "Z"));
+                            //         if (upcoming.length === 0) {
+                            //             result = { success: false, message: `No upcoming gigs were found at all.` };
+                            //         } else {
+                            //             const list = upcoming.slice(0, 5).map(g => this.formatGigInfo(g)).join('\n');
+                            //             result = { success: false, message: `I couldn't find a gig at that time, but here are your upcoming gigs:\n${list}` };
+                            //         }
+                            //     } else if (matchedGigs.length > 1) {
+                            //         const list = matchedGigs.slice(0, 3).map(g => this.formatGigInfo(g)).join('\n');
+                            //         result = { success: false, message: `I found multiple gigs around that time:\n${list}\nCan you specify the job or model?` };
+                            //     } else {
+                            //         const gig = matchedGigs[0];
+                            //         this.$router.push(`/gig/${gig.gig_id}`);
+                            //         result = { success: true, message: `Sure, opening Gig ${gig.gig_cryptic}` };
+                            //     }
+                            //     break;
+                            // }
+
                             case 'gig': {
-                                const gigs = this.$store.state.gigHistory || [];
-                                const isCryptic = /^[A-Z0-9]{3,}$/.test(identifier.trim());
+                                const gigs = this.$store.state.gigOpenAIObject || [];
+                                const identifierText = identifier.trim().toLowerCase();
+                                const gig = gigs.find(g => g.gigCryptic.toUpperCase() === identifierText.toUpperCase());
+
                                 let matchedGigs = [];
 
-                                if (isCryptic) {
-                                    const gig = gigs.find(g => g.gig_cryptic.toUpperCase() === identifier.trim().toUpperCase());
+                                if (gig) {
                                     if (gig) matchedGigs = [gig];
                                 } else {
-                                    const parsed = this.parseTimeReference(identifier);
-                                    const now = new Date();
-                                    if (parsed) {
-                                        const referenceTime = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), parsed.hour, parsed.minute || 0));
-                                        matchedGigs = gigs.filter(g => {
-                                            let rawTime = g.start_datetime;
-                                            if (!rawTime.includes("T")) rawTime = rawTime.replace(" ", "T") + "Z";
-                                            const gigTime = new Date(rawTime);
-                                            return gigTime > now && Math.abs(gigTime - referenceTime) <= 30 * 60 * 1000;
-                                        });
-                                        matchedGigs.sort((a, b) => new Date(a.start_datetime.replace(" ", "T") + "Z") - new Date(b.start_datetime.replace(" ", "T") + "Z"));
+                                    // Match by 12-hour formatted time like "12:00 am"
+                                    const byTime = gigs.find(g => g.gigTime === identifierText);
+                                    if (byTime) matchedGigs = [byTime];
+
+                                    // Optional: support matching by client name (e.g. "stacey tate")
+                                    if (!byTime) {
+                                        matchedGigs = gigs.filter(g => g.gigClient.toLowerCase().includes(identifierText));
                                     }
                                 }
 
                                 if (matchedGigs.length === 0) {
-                                    const now = new Date();
-                                    const upcoming = gigs.filter(g => new Date(g.start_datetime.replace(" ", "T") + "Z") > now)
-                                        .sort((a, b) => new Date(a.start_datetime.replace(" ", "T") + "Z") - new Date(b.start_datetime.replace(" ", "T") + "Z"));
-                                    if (upcoming.length === 0) {
-                                        result = { success: false, message: `No upcoming gigs were found at all.` };
-                                    } else {
-                                        const list = upcoming.slice(0, 5).map(g => this.formatGigInfo(g)).join('\n');
-                                        result = { success: false, message: `I couldn't find a gig at that time, but here are your upcoming gigs:\n${list}` };
-                                    }
+                                    const list = gigs.slice(0, 5).map(g =>
+                                        `${g.gigCryptic} (${g.gigTime}) for ${g.gigClient}`
+                                    ).join('\n');
+                                    result = {
+                                        success: false,
+                                        message: `I couldn't find a gig matching "${identifier}". Here are your upcoming gigs:\n${list}`
+                                    };
                                 } else if (matchedGigs.length > 1) {
-                                    const list = matchedGigs.slice(0, 3).map(g => this.formatGigInfo(g)).join('\n');
-                                    result = { success: false, message: `I found multiple gigs around that time:\n${list}\nCan you specify the job or model?` };
+                                    const list = matchedGigs.slice(0, 3).map(g =>
+                                        `${g.gigCryptic} (${g.gigTime}) for ${g.gigClient}`
+                                    ).join('\n');
+                                    result = {
+                                        success: false,
+                                        message: `I found multiple gigs that match:\n${list}\nCan you specify the time or name more clearly?`
+                                    };
                                 } else {
                                     const gig = matchedGigs[0];
-                                    this.$router.push(`/gig/${gig.gig_id}`);
-                                    result = { success: true, message: `Sure, opening Gig ${gig.gig_cryptic}` };
+                                    this.$router.push(`/gig/${gig.gigID}`);
+                                    result = {
+                                        success: true,
+                                        message: `Sure, opening Gig ${gig.gigCryptic} for ${gig.gigClient}`
+                                    };
                                 }
+
                                 break;
                             }
+
+
 
                             case 'gig_client_page': {
                                 const gig = this.$store.state.gigData;
