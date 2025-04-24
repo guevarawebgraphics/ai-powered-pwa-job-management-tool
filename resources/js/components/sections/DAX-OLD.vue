@@ -1,23 +1,44 @@
-
 <template>
+    <!-- DAX Button to open the modal -->
+    <button type="button" @click="openModal" v-if="page !== 'Model' && page !== 'GigReport'"
+        class="bg-white min-h-[100px] rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-center justify-center text-center transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
 
+        <div class="flex items-center justify-center space-x-2">
+            <i class="fas fa-headphones-simple text-lg text-[#171A1FFF]"></i>
+            <span class="text-xl font-medium text-[#666666FF]">
+                DAX
+            </span>
+        </div>
+    </button>
+
+    <div v-else-if="page === 'GigReport'" @click="openModal"
+        class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px] border p-4 flex flex-col items-start cursor-pointer
+           transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95 focus:ring-2 focus:ring-gray-300">
+        <i class="fas fa-headset text-2xl text-gray-700"></i>
+        <p class="text-sm font-medium mt-2">DAX</p>
+    </div>
+
+    <div @click="openModal"
+        class="bg-white shadow-md rounded-lg p-4 flex items-center justify-center mt-6 cursor-pointer" v-else>
+        <i class="fas fa-headset text-3xl text-gray-700"></i>
+        <p class="text-sm font-medium ml-2">DAX</p>
+    </div>
 
     <!-- Modal -->
-    <div v-if="showModal" class="fixed inset-x-0 top-16 bottom-16 z-40
-         bg-white flex flex-col items-center justify-center
-         px-4 py-6 overflow-y-auto">
+    <div v-if="showModal"
+        class="fixed inset-0 z-50 bg-[#fff] flex flex-col items-center justify-center text-white px-4 py-6">
 
         <!-- Exit Button -->
         <button @click="closeModal" class="absolute top-5 right-5 text-[#333] text-2xl">✖</button>
 
         <!-- Dynamic Conversation State Heading -->
-        <div class="text-gray-800 mb-4 text-center ">
+        <div class="text-gray-800 mb-4 text-center">
             <template v-if="recording">
-                <h3 class="text-3xl font-semibold leading-tight">Listening...</h3>
-                <p class="text-3xl text-gray-500 mt-1">Speak now</p>
+                <h2 class="text-4xl font-semibold leading-tight">Listening...</h2>
+                <p class="text-4xl text-gray-500 mt-1">Speak now</p>
             </template>
             <template v-else>
-                <h3 class="text-3xl font-semibold leading-tight">Talk to DAX</h3>
+                <h2 class="text-4xl font-semibold leading-tight">Talk to DAX</h2>
                 <p class="text-2xl text-gray-500 mt-1">Press the button to start talking</p>
             </template>
         </div>
@@ -49,10 +70,10 @@
         <!-- Toggle Recording Button -->
         <button @click="this.$store.state.isDaxActive ? stopRecording() : startRecording()" :class="['relative w-20 h-20 rounded-full shadow-lg flex items-center justify-center text-white text-3xl transition',
             this.$store.state.isDaxActive ? 'bg-red-500 pulse-active' : 'bg-blue-500 hover:scale-110']" :style="{
-                transform: this.$store.state.isDaxActive
-                    ? `scale(${1 + volume * 1.5})`
-                    : 'scale(1)'
-            }">
+        transform: this.$store.state.isDaxActive
+            ? `scale(${1 + volume * 1.5})`
+            : 'scale(1)'
+    }">
             <i :class="this.$store.state.isDaxActive ? 'fas fa-stop' : 'fas fa-microphone'"></i>
         </button>
     </div>
@@ -121,36 +142,22 @@ export default {
             isSpeaking: false,
             lastAssistantMessage: '',
             wasManuallyStopped: false,
-            _openDaxHandler: null,
-            _mapBlockedHandler: null,
-            _lastFileSearchQuery: null,
-        }; 
+        };
     },
     created() {
-        // bus.on("open-dax", this.openModal);
-        // bus.on("dax-map-popup-blocked", this.notifyMapPopupBlocked);
-        // wrap them in arrows so `this` really is your component…
-        this._openDaxHandler = () => this.openModal();
-        this._mapBlockedHandler = () => this.notifyMapPopupBlocked();
-        bus.on("open-dax", this._openDaxHandler);
-        bus.on("dax-map-popup-blocked", this._mapBlockedHandler);
+        bus.on("open-dax", this.openModal);
+        bus.on("dax-map-popup-blocked", this.notifyMapPopupBlocked);
         // this.restoreDaxState();
     },
     beforeUnmount() {
-        // bus.off("open-dax", this.openModal);
-        // bus.off("dax-map-popup-blocked", this.notifyMapPopupBlocked);
-        bus.off("open-dax", this._openDaxHandler);
-        bus.off("dax-map-popup-blocked", this._mapBlockedHandler);
+        bus.off("open-dax", this.openModal);
+        bus.off("dax-map-popup-blocked", this.notifyMapPopupBlocked);
     },
     mounted() {
 
     },
     watch: {
-        $route(to, from) {
-
-            if (this.showModal) {
-                this.showModal = false;
-            }
+        $route() {
             if (this.$store.state.isDaxActive) {
                 console.log("🔁 Route changed — restoring active DAX session");
                 this.recording = true;
@@ -172,10 +179,6 @@ export default {
         openModal() {
             this.showModal = true;
             this.recording = this.$store.state.isDaxActive; // ✅ Sync mic visual state
-
-            if (this.localStream) {
-                this.startVolumeLoop();
-            }
         },
         closeModal() {
             this.showModal = false;
@@ -191,10 +194,7 @@ export default {
         },
         async startRecording() {
             console.log(`Restarting : `, this.recording);
-            if (this.recording) {
-                this.startVolumeLoop();
-                return
-            } 
+            if (this.recording) return; // ✅ Don't re-init if already active
             this.recording = true;
             this.$store.commit("setDaxActive", true);
 
@@ -344,20 +344,17 @@ export default {
                     }
 
                     if (msg.type === "tool_call" && msg.tool_name === "file_search") {
-                        // const resultText = msg.result?.content?.[0]?.text;
+                        const resultText = msg.result?.content?.[0]?.text;
 
-                        // if (resultText) {
-                        //     this.$store.commit('appendToChatHistory', {
-                        //         role: 'assistant',
-                        //         content: resultText
-                        //     });
+                        if (resultText) {
+                            this.$store.commit('appendToChatHistory', {
+                                role: 'assistant',
+                                content: resultText
+                            });
 
 
-                        //     this.typingReply = '';
-                        // }
-
-                        console.log("🔕 ignoring duplicate file_search tool_call");
-                        return;
+                            this.typingReply = '';
+                        }
                     }
 
                     // ✅ Final user transcript (from your voice)
@@ -400,8 +397,26 @@ export default {
                 // 3. prepare a buffer to read time‑domain data
                 this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
 
-                // Kick off the continuous volume loop
-                this.startVolumeLoop();
+                // 4. start a loop to update `this.volume`
+                const updateVolume = () => {
+                    if (!this.analyser || !this.dataArray) return;
+
+                    this.analyser.getByteTimeDomainData(this.dataArray);
+                    let sum = 0;
+                    for (let i = 0; i < this.dataArray.length; i++) {
+                        const v = (this.dataArray[i] - 128) / 128;
+                        sum += v * v;
+                    }
+                    const rms = Math.sqrt(sum / this.dataArray.length);
+                    this.volume = rms;
+
+                    if (this.showModal && this.localStream) {
+                        this._volumeFrameRequest = requestAnimationFrame(updateVolume);
+                    } else {
+                        this.volume = 0;
+                    }
+                };
+                updateVolume();
 
 
 
@@ -529,12 +544,6 @@ export default {
 
             // 🧹 6. Cleanup audio analysis
             console.log("🧹 Cleaning up audio analysis tools...");
-
-            if (this._volumeFrameRequest) {
-                cancelAnimationFrame(this._volumeFrameRequest)
-                this._volumeFrameRequest = null
-            }
-
             this.volume = 0;
             this.audioContext = null;
             this.analyser = null;
@@ -900,7 +909,6 @@ export default {
                         result = path
                             ? (this.$router.push(path), { success: true, message: `Navigating to "${destination}"` })
                             : { success: false, message: `Sorry, I don't recognize the page "${destination}"` };
-                            
                         break;
                     }
 
@@ -1065,28 +1073,14 @@ export default {
 
                     // 🗂️ File Search Tool (fallback)
                     case 'file_search_tool': {
-                        const query = args.search_query.trim().toLowerCase();
-
-                        // dedupe
-                        if (this._lastFileSearchQuery === query) {
-                            console.log('Skipping duplicate…');
-                            result = { success: true, message: '' };
-                            break;
-                        }
-
-                        // remember & run
-                        this._lastFileSearchQuery = query;
-                        result = { success: true, message: `Searching documents for: ${args.search_query}` };
+                        const { search_query } = args;
+                        result = { success: true, message: `Searching documents for: ${search_query}. I will provide the results shortly.` };
                         await this.speak(result.message);
-                        const data = await this.runFileSearchTool(query);
-
-                        // reset here so you can re-run same query next time
-                        this._lastFileSearchQuery = null;
-
-                        result.message = data.output?.[1]?.content?.[0]?.text || "No relevant document content found.";
+                        const data = await this.runFileSearchTool(search_query);
+                        const snippet = data.output?.[1]?.content?.[0]?.text || "No relevant document content found.";
+                        result.message = snippet;
                         break;
                     }
-
 
                     default: {
                         console.warn(`Function call received for unknown tool: ${name}`);
@@ -1097,11 +1091,6 @@ export default {
                 console.error(`Error handling function call ${name}:`, error);
                 result.message = `An error occurred while trying to ${name}.`;
             }
-
-
-            // if (result.success) {
-            //     this.closeModal();
-            // }
 
             return result;
         },
@@ -1200,39 +1189,12 @@ export default {
         estimateSpeechTime(text) {
             const words = text.trim().split(/\s+/).length;
             return words * 250;
-        }, 
-        startVolumeLoop() {
-            // cancel any old loop
-            if (this._volumeFrameRequest) cancelAnimationFrame(this._volumeFrameRequest)
-
-            const updateVolume = () => {
-                if (!this.analyser || !this.dataArray) return
-
-                this.analyser.getByteTimeDomainData(this.dataArray)
-                let sum = 0
-                for (let i = 0; i < this.dataArray.length; i++) {
-                    const v = (this.dataArray[i] - 128) / 128
-                    sum += v * v
-                }
-                this.volume = Math.sqrt(sum / this.dataArray.length)
-
-                // only continue while modal is open and mic is streaming
-                if (this.showModal && this.localStream) {
-                    this._volumeFrameRequest = requestAnimationFrame(updateVolume)
-                } else {
-                    this.volume = 0
-                }
-            }
-
-            updateVolume()
-        },
+        }
 
 
     },
 };
 </script>
-
-
 
 <style scoped>
 /* Add your component-specific styles here */

@@ -11,7 +11,10 @@ const store = createStore({
     gigHistory: [],
     gigData: [],
     isDaxActive: false,
-    gigOpenAIObject: []
+    gigOpenAIObject: [],
+    daxChatHistory: [],
+    user_id: null,
+    vector_id: null,
   },
   mutations: {
     setNotificationData(state, payload) {
@@ -47,6 +50,18 @@ const store = createStore({
     },
     setGigOpenAIObject(state, payload) {
       state.gigOpenAIObject = payload;
+    },
+    appendToChatHistory(state, payload) {
+      state.daxChatHistory.push(payload);
+    },
+    resetChatHistory(state) {
+      state.daxChatHistory = [];
+    },
+    setUserID(state, payload) {
+      state.user_id = payload;
+    },
+    setVectorID(state, payload) {
+      state.vector_id = payload;
     }
   },
   actions: {
@@ -86,6 +101,18 @@ const store = createStore({
     },
     setGigOpenAIObject({ commit }, message) {
       commit('setGigOpenAIObject', message);
+    },
+    appendToChatHistory({ commit }, message) {
+      commit('appendToChatHistory', message);
+    },
+    resetChatHistory({ commit }) {
+      commit('resetChatHistory');
+    },
+    setUserID({ commit }, message) {
+      commit('setUserID', message);
+    },
+    setVectorID({ commit }, message) {
+      commit('setVectorID', message);
     },
   }
 });
