@@ -28,7 +28,7 @@
                     <span class="space-x-1 text-xs text-gray-600 mt-3" v-if="this.selectedRepair.solution"
                         v-html="this.selectedRepair.solution.replace(/\n/g, '<br/>')">
                     </span>
-                    <span class="pace-x-1 text-xs text-gray-600 mt-4"><strong>Parts Needed:&nbsp;</strong> {{
+                    <span class="pace-x-1 text-xs text-gray-600 mt-4" v-if="this.selectedRepair.partsNeeded"><strong>Parts Needed:&nbsp;</strong> {{
                         this.selectedRepair.partsNeeded.join(", ")
                         }}
                     </span>
@@ -65,7 +65,32 @@
 
 
 
-                <DAX :page="'Repair'" :user_id="techId" />
+                <!-- <DAX :page="'Repair'" :user_id="techId" /> -->
+
+                <button type="button" @click="openDax" v-if="page !== 'Model' && page !== 'GigReport'" class="bg-white min-h-[100px] rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px]
+            border p-4 flex flex-col items-center justify-center text-center
+             transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95
+             focus:ring-2 focus:ring-gray-300">
+                    <div class="flex items-center justify-center space-x-2">
+                        <i class="fas fa-headphones-simple text-lg text-[#171A1FFF]"></i>
+                        <span class="text-xl font-medium text-[#666666FF]">DAX</span>
+                    </div>
+                </button>
+
+                <div v-else-if="page === 'GigReport'" @click="openDax" class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px]
+             border p-4 flex flex-col items-start cursor-pointer
+             transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95
+             focus:ring-2 focus:ring-gray-300">
+                    <i class="fas fa-headset text-2xl text-gray-700"></i>
+                    <p class="text-sm font-medium mt-2">DAX</p>
+                </div>
+
+                <div v-else @click="openDax"
+                    class="bg-white shadow-md rounded-lg p-4 flex items-center justify-center mt-6 cursor-pointer">
+                    <i class="fas fa-headset text-3xl text-gray-700"></i>
+                    <p class="text-sm font-medium ml-2">DAX</p>
+                </div>
+
 
 
                 <div
@@ -160,12 +185,11 @@
 <script>
 import NavBar from "../sections/Navbar.vue";
 import BottomNav from "../sections/Bottombar.vue";
-import DAX from "../sections/DAX.vue";
-
+import { bus } from '../sections/DAX.vue';
 import axios from "axios"; // Ensure ax
 
 export default {
-    components: { NavBar, BottomNav, DAX },
+    components: { NavBar, BottomNav },
     name: "GigRepairPage",
     data() {
         return {
@@ -183,6 +207,11 @@ export default {
         this.repairId = this.$route.params.repairId;
         if (this.gigId) {
             this.gigDetail(this.gigId);
+        }
+    },
+    computed: {
+        page() {
+            return this.$route.name;
         }
     },
     watch: {
@@ -206,6 +235,7 @@ export default {
 
                 this.gigData = response.data.data[0];
                 this.machineData = this.gigData.machine;
+                this.$store.commit("setVectorID", this.machineData.vector_id);
                 this.techId = this.gigData.assigned_tech_id;
 
                 let topRepairs = this.gigData.top_recommended_repairs;
@@ -238,6 +268,9 @@ export default {
         },
         transformToEmbedUrl(youtubeUrl) {
             return `https://www.youtube.com/embed/${youtubeUrl.videoId}`;
+        },
+        openDax() {
+            bus.emit('open-dax')
         }
     }
 };

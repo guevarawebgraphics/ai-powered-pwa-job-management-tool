@@ -43,7 +43,31 @@
                     <p class="text-sm font-medium mt-2">DAX</p>
                 </div> -->
 
-                <DAX :page="'GigReport'" :user_id="techID" :vector_id="this.gigData.machine.vector_id" />
+                <!-- <DAX :page="'GigReport'" :user_id="techID" :vector_id="this.gigData.machine.vector_id" /> -->
+
+                <button type="button" @click="openDax" v-if="page !== 'Model' && page !== 'GigReport'" class="bg-white min-h-[100px] rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px]
+            border p-4 flex flex-col items-center justify-center text-center
+             transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95
+             focus:ring-2 focus:ring-gray-300">
+                    <div class="flex items-center justify-center space-x-2">
+                        <i class="fas fa-headphones-simple text-lg text-[#171A1FFF]"></i>
+                        <span class="text-xl font-medium text-[#666666FF]">DAX</span>
+                    </div>
+                </button>
+
+                <div v-else-if="page === 'GigReport'" @click="openDax" class="bg-white rounded-[12px] shadow-[rgba(100,100,111,0.2)_0px_7px_29px_0px]
+             border p-4 flex flex-col items-start cursor-pointer
+             transition-all duration-200 ease-in-out transform hover:scale-105 active:scale-95
+             focus:ring-2 focus:ring-gray-300">
+                    <i class="fas fa-headset text-2xl text-gray-700"></i>
+                    <p class="text-sm font-medium mt-2">DAX</p>
+                </div>
+
+                <div v-else @click="openDax"
+                    class="bg-white shadow-md rounded-lg p-4 flex items-center justify-center mt-6 cursor-pointer">
+                    <i class="fas fa-headset text-3xl text-gray-700"></i>
+                    <p class="text-sm font-medium ml-2">DAX</p>
+                </div>
 
 
                 <div @click="openGigPotentialEarning()"
@@ -375,11 +399,11 @@ import axios from "axios"; // Ensure ax
 import Swal from 'sweetalert2'; // Import SweetAlert2
 import EmojiPicker from "vue3-emoji-picker";
 import "vue3-emoji-picker/css";
-import DAX from "../sections/DAX.vue";
+import { bus } from '../sections/DAX.vue'; 
 
 export default {
     // components: { NavBar, BottomNav, EmojiPicker },
-    components: { NavBar, BottomNav, EmojiPicker, DAX },
+    components: { NavBar, BottomNav, EmojiPicker },
     name: "GigReportPage",
     data() {
         return {
@@ -489,6 +513,9 @@ export default {
             } else {
                 return "bg-red-600 hover:bg-red-700"; // Red for End and Submit Report
             }
+        },
+        page() {
+            return this.$route.name;
         }
     },
     methods: {
@@ -1018,6 +1045,9 @@ export default {
         },
         openGigPotentialEarning() {
             this.isGigPotentialOpen = true;
+        },
+        openDax() {
+            bus.emit('open-dax')
         }
 
 

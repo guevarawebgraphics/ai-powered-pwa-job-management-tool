@@ -35,33 +35,33 @@ import store from './store';
 
 const routes = [
     // Public Routes
-    { path: '/', name: 'Index' , component: Home },
-    { path: '/login', name: 'Login', component: Login },
-    { path: '/register', name: 'Register', component: Register },
-    { path: '/otp-error', name: 'OTPError', component: OTPError },
-    { path: '/otp-success', name: 'OTPSuccess', component: OTPSuccess },
-    { path: '/otp', name: 'OTP', component: OTP },
-    { path: '/forgot-password', name: 'Forgot', component: Forget },
-    { path: '/reset-password', name: 'Reset', component: ResetPassword },
+    { path: '/', name: 'Index' , component: Home,     meta: { showDax: false } },
+    { path: '/login', name: 'Login', component: Login,     meta: { showDax: false } },
+    { path: '/register', name: 'Register', component: Register,     meta: { showDax: false } },
+    { path: '/otp-error', name: 'OTPError', component: OTPError,     meta: { showDax: false } },
+    { path: '/otp-success', name: 'OTPSuccess', component: OTPSuccess,     meta: { showDax: false } },
+    { path: '/otp', name: 'OTP', component: OTP,     meta: { showDax: false } },
+    { path: '/forgot-password', name: 'Forgot', component: Forget,     meta: { showDax: false } },
+    { path: '/reset-password', name: 'Reset', component: ResetPassword,     meta: { showDax: false } },
     
     // Protected Routes (Require Authentication)
-    { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/set-schedule', name: 'SetSchedule', component: SetSchedule, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/guild-profile', name: 'Guild', component: GuildProfile, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/notification', name: 'Notification', component: Notification, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/dashboard', name: 'Dashboard', component: Dashboard, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/schedules', name: 'Schedules', component: Schedules, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/gig/:id', name: 'GigPage', component: GigIndex, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/gig-start', name: 'GigStart', component: GigStart, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/gig-end', name: 'GigEnd', component: GigEnd, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/gig-report/:id', name: 'GigReport', component: GigReport, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/gig/:gigId/repair/:repairId', name: 'Repair', component: GigRepair, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/model/:id/gig/:gigId?', name: 'Model', component: ModelPage, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/customer/:id/gig/:gigId', name: 'Customer', component: Customer, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/model2/:id/gig/:gigId?', name: 'Model2', component: Model2, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/analytics', name: 'Analytics', component: Analytics, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/analytics/type/:type?', name: 'AnalyticType', component: AnalyticType, meta: { requiresAuth: true, requiresVerification: true } },
-    { path: '/dax', name: 'Dax', component: DAX, meta: { requiresAuth: true, requiresVerification: true } },
+    { path: '/profile', name: 'Profile', component: Profile, meta: { requiresAuth: true, requiresVerification: true, showDax: false } },
+    { path: '/set-schedule', name: 'SetSchedule', component: SetSchedule, meta: { requiresAuth: true, requiresVerification: true, showDax: false } },
+    { path: '/guild-profile', name: 'Guild', component: GuildProfile, meta: { requiresAuth: true, requiresVerification: true, showDax: true } },
+    { path: '/notification', name: 'Notification', component: Notification, meta: { requiresAuth: true, requiresVerification: true, showDax: false } },
+    { path: '/dashboard', name: 'Dashboard', component: Dashboard, meta: { requiresAuth: true, requiresVerification: true, showDax: true } },
+    { path: '/schedules', name: 'Schedules', component: Schedules, meta: { requiresAuth: true, requiresVerification: true, showDax: true } },
+    { path: '/gig/:id', name: 'GigPage', component: GigIndex, meta: { requiresAuth: true, requiresVerification: true, showDax: true } },
+    { path: '/gig-start', name: 'GigStart', component: GigStart, meta: { requiresAuth: true, requiresVerification: true, showDax: false } },
+    { path: '/gig-end', name: 'GigEnd', component: GigEnd, meta: { requiresAuth: true, requiresVerification: true, showDax: false } },
+    { path: '/gig-report/:id', name: 'GigReport', component: GigReport, meta: { requiresAuth: true, requiresVerification: true, showDax: true } },
+    { path: '/gig/:gigId/repair/:repairId', name: 'Repair', component: GigRepair, meta: { requiresAuth: true, requiresVerification: true, showDax: true } },
+    { path: '/model/:id/gig/:gigId?', name: 'Model', component: ModelPage, meta: { requiresAuth: true, requiresVerification: true, showDax: true } },
+    { path: '/customer/:id/gig/:gigId', name: 'Customer', component: Customer, meta: { requiresAuth: true, requiresVerification: true, showDax: true } },
+    { path: '/model2/:id/gig/:gigId?', name: 'Model2', component: Model2, meta: { requiresAuth: true, requiresVerification: true, showDax: true } },
+    { path: '/analytics', name: 'Analytics', component: Analytics, meta: { requiresAuth: true, requiresVerification: true, showDax: false } },
+    { path: '/analytics/type/:type?', name: 'AnalyticType', component: AnalyticType, meta: { requiresAuth: true, requiresVerification: true, showDax: false } },
+    { path: '/dax', name: 'Dax', component: DAX, meta: { requiresAuth: true, requiresVerification: true, showDax: true } },
 ];
 
 const router = createRouter({
@@ -74,7 +74,7 @@ router.beforeEach(async (to, from, next) => {
   store.dispatch('showLoader');
   const token = localStorage.getItem('token');
   const authPages = ['Login', 'Register', 'Home', 'OTP', 'Forget', 'ResetPassword'];
-
+  console.log();
   // 1. If we have a token, block access to login/register/etc.
   if (token) {
     if ( authPages.includes(to.name)) {
@@ -89,6 +89,9 @@ router.beforeEach(async (to, from, next) => {
           headers: { Authorization: `Bearer ${token}` }
         });
         const isVerified = data.user.is_verified;
+
+        store.commit('setUserID', data.user.id);
+
 
         if (to.meta.requiresVerification && !isVerified) {
           store.dispatch('hideLoader');
