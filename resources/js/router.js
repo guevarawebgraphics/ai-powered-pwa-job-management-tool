@@ -77,9 +77,14 @@ router.beforeEach(async (to, from, next) => {
   console.log();
   // 1. If we have a token, block access to login/register/etc.
   if (token) {
-    if ( authPages.includes(to.name)) {
+    // if ( authPages.includes(to.name)) {
+    //   store.dispatch('hideLoader');
+    //   return next('/dashboard');
+    // }
+
+    if (!to.meta.requiresAuth) {
       store.dispatch('hideLoader');
-      return next('/dashboard');
+      return next({ name: 'Dashboard', replace: true });
     }
 
     // 2. If route is protected, verify the token (and user)
