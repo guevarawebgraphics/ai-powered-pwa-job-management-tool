@@ -40,7 +40,7 @@ const routes = [
     { path: '/register', name: 'Register', component: Register,     meta: { showDax: false } },
     { path: '/otp-error', name: 'OTPError', component: OTPError,     meta: { showDax: false } },
     { path: '/otp-success', name: 'OTPSuccess', component: OTPSuccess,     meta: { showDax: false } },
-    { path: '/otp', name: 'OTP', component: OTP,     meta: { showDax: false } },
+    { path: '/otp', name: 'OTP', component: OTP, meta: { requiresAuth: true, showDax: false } },
     { path: '/forgot-password', name: 'Forgot', component: Forget,     meta: { showDax: false } },
     { path: '/reset-password', name: 'Reset', component: ResetPassword,     meta: { showDax: false } },
     
