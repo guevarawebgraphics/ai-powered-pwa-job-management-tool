@@ -438,21 +438,23 @@ export default {
 
             const messages = {
                 "blank": [
-                    `Hi ${this.customerData.client_name}, it’s ${this.techData.first_name} with Appliance Repair American. 👋`,
-                    `Hello ${this.customerData.client_name}! This is ${this.techData.first_name}. 😊`,
-                    `Greetings ${this.customerData.client_name}, this is ${this.techData.first_name} with Appliance Repair American. 🔧`,
+                    `Hi ${this.customerData.client_name}, it’s ${this.gigData.tech_first_name} with Appliance Repair American. 👋`,
+                    `Hello ${this.customerData.client_name}! This is ${this.gigData.tech_first_name}. 😊`,
+                    `Greetings ${this.customerData.client_name}, this is ${this.gigData.tech_first_name} with Appliance Repair American. 🔧`,
                 ],
                 "template": [
-                    `Hi ${this.customerData.client_name}, it’s ${this.techData.first_name} with Appliance Repair American. 👋`,
-                    `Hello ${this.customerData.client_name}! This is ${this.techData.first_name}. 😊`,
-                    `Greetings ${this.customerData.client_name}, this is ${this.techData.first_name} with Appliance Repair American. 🔧`,
+                    `Hi ${this.customerData.client_name}, it’s ${this.gigData.tech_first_name} with Appliance Repair American. 👋`,
+                    `Hello ${this.customerData.client_name}! This is ${this.gigData.tech_first_name}  😊`,
+                    `Greetings ${this.customerData.client_name}, this is ${this.gigData.tech_first_name} with Appliance Repair American. 🔧`,
                 ],
             };
 
+            console.log(this.techData);
 
             const selectedMessage =
                 messages[type][Math.floor(Math.random() * messages[type].length)];
 
+            console.log(selectedMessage);
             const smsLink = `sms:${this.customerData.phone_number}?&body=${encodeURIComponent(
                 selectedMessage
             )}`;
