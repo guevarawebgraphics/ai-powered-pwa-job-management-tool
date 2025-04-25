@@ -215,7 +215,7 @@ export default {
                         return;
                     }
 
-                    console.log(`this.re`, this.recording = true);
+                    console.log(`this.recording`, this.recording = true);
                     console.log("🎤 Voice input detected");
 
                     for (let i = event.resultIndex; i < event.results.length; i++) {
@@ -292,6 +292,22 @@ export default {
                         return;
                     }
 
+                    // ✅ Final user transcript (from your voice)
+                    if (
+                        msg.type === "response.item.done" &&
+                        msg.item?.role === "user" &&
+                        msg.item?.content?.[0]?.text
+                    ) {
+                        const userText = msg.item.content[0].text;
+                        const last = this.$store.state.daxChatHistory.slice(-1)[0] || {};
+                        if (last.role !== 'user' || last.content !== userText) {
+                            this.$store.commit('appendToChatHistory', {
+                                role: 'user',
+                                content: userText
+                            });
+                        }
+                    }
+
                     if (msg.type === 'response.function_call_arguments.done') {
 
                         const msg = JSON.parse(ev.data)
@@ -330,6 +346,7 @@ export default {
                         this.typingReply += msg.delta;
                         this.scrollToBottom();
                     }
+                    
 
                     // ✅ When AI is done speaking, finalize transcript
                     if (msg.type === "response.audio_transcript.done" && msg.transcript) {
@@ -360,22 +377,7 @@ export default {
                         return;
                     }
 
-                    // ✅ Final user transcript (from your voice)
-                    if (
-                        msg.type === "response.item.done" &&
-                        msg.item?.role === "user" &&
-                        msg.item?.content?.[0]?.text
-                    ) {
-                        const userText = msg.item.content[0].text;
-
-
-                        this.$store.commit('appendToChatHistory', {
-                            role: 'user',
-                            content: userText
-                        });
-
-                        this.scrollToBottom();
-                    }
+                   
 
                 });
 
@@ -596,17 +598,18 @@ export default {
 
                     2. **Gig Views** (requires active gig context):
                     - 'Client Page' → View client details
-                    - 'Machine Page' → View appliance information
+                    - 'Machine Page' → View appliance information`,
 
-                    3. **Machine Documents** (requires gig + machine context):
-                    - Document types: 'tech sheet', 'service manual', 'parts list', 'service pointer'
-                    - Optional query (e.g., 'noisy operation') for narrowing results.`,
+
+                        //     3. ** Machine Documents** (requires gig + machine context):
+                        // - Document types: 'tech sheet', 'service manual', 'parts list', 'service pointer'
+                        //     - Optional query(e.g., 'noisy operation') for narrowing results.`,
                     parameters: {
                         type: "object",
                         properties: {
                             target_type: {
                                 type: "string",
-                                enum: ["gig", "gig_client_page", "gig_machine_page", "machine_document"],
+                                enum: ["gig", "gig_client_page", "gig_machine_page"], // Remove , "machine_document" as duplicate function calling during file search tool
                                 description: "Type of navigation: a gig, its client page, its machine page, or a specific document"
                             },
                             // identifier: {
@@ -639,7 +642,11 @@ export default {
                     1.  **Calling Client:** Initiate a voice call to the client associated with the current gig.
                     2.  **Sending SMS:** Send text messages. Use 'template' type for status updates like 'behind-schedule', 'on-time', 'arriving-early' (typically from Gig page context). Use 'blank' type for a standard message composer (typically from Client page context).
                     3.  **Opening Map:** Show directions to the client's address for the current gig using Google Maps.
-                    4.  **Querying Machine Info:** Ask for technical details or search documents related to the machine in the current gig (distinct from navigating to a specific document type).`,
+                    4.  **Querying Machine Info:** Ask for technical details or search documents related to the machine in the current gig (distinct from navigating to a specific document type).
+                        (requires gig + machine context):
+                        - Document types: 'tech sheet', 'service manual', 'parts list', 'service pointer'
+                        - Optional query(e.g., 'noisy operation') for narrowing results.
+                    `,
                     parameters: {
                         type: "object",
                         properties: {
@@ -672,22 +679,22 @@ export default {
                 // Decide if this should be separate or integrated into 'query_machine_info'.
                 // For now, keeping it separate if your `runFileSearchTool` logic is distinct.
                 // Consider renaming 'query_about_machine' if you keep it separate.
-                tools.push({
-                    type: "function",
-                    name: "file_search_tool", // Renamed from query_about_machine for clarity if it specifically uses vector search
-                    description: "Use this function to search uploaded documents (PDFs, tech sheets etc.) when the user asks a question that likely requires information from specific files.",
-                    parameters: {
-                        type: "object",
-                        strict: true, // Assuming you want strict validation
-                        properties: {
-                            search_query: { // Renamed from user_query for clarity
-                                type: "string",
-                                description: "The user's question or search term to look up in the documents. Phrase it clearly."
-                            }
-                        },
-                        required: ["search_query"]
-                    }
-                });
+                // tools.push({
+                //     type: "function",
+                //     name: "file_search_tool", // Renamed from query_about_machine for clarity if it specifically uses vector search
+                //     description: "Use this function to search uploaded documents (PDFs, tech sheets etc.) when the user asks a question that likely requires information from specific files.",
+                //     parameters: {
+                //         type: "object",
+                //         strict: true, // Assuming you want strict validation
+                //         properties: {
+                //             search_query: { // Renamed from user_query for clarity
+                //                 type: "string",
+                //                 description: "The user's question or search term to look up in the documents. Phrase it clearly."
+                //             }
+                //         },
+                //         required: ["search_query"]
+                //     }
+                // });
 
                 // console.log(`DAX Gigs: ${JSON.stringify(this.$store.state.gigOpenAIObject) }`);
                 // --- Session Update Event ---
@@ -712,7 +719,7 @@ export default {
                         <important_rules>
                         - Help navigate the app using the 'navigate' tool. Recognize synonyms: Calendar/Schedule, Notification, Analytics/Stats, Profile/Settings, Gigs/Jobs. Handle navigation requests like "show me", "pull up", "go to".
                         - Perform actions related to gigs (call, SMS, map, query machine) using the 'perform_action' tool. Understand context: template SMS are for status updates (usually from gig list/details), blank SMS for custom messages (usually from client page).
-                        - Use the 'file_search_tool' to answer questions requiring information from uploaded documents (PDFs, manuals).
+                        - Use the 'perform_action' to answer questions requiring information from uploaded documents (PDFs, manuals).
                         - Handle time-based gig requests (e.g., "pull up my 2 o'clock job") by using the 'navigate' tool with a time identifier.
                         - Be concise, technical, and assume user expertise. Focus on diagnostics, codes, parts, and procedures.
                         - Use available tools when appropriate based on the user request and current context.
@@ -982,14 +989,16 @@ export default {
                                 break;
                             }
 
-                            case 'machine_document': {
-                                result = { success: true, message: `Searching documents for: ${identifier}` };
-                                await this.speak(result.message);
-                                const data = await this.runFileSearchTool(document_query || identifier);
-                                const snippet = data.output?.[1]?.content?.[0]?.text || "No relevant document content found.";
-                                result.message = snippet;
-                                break;
-                            }
+                            // case 'machine_document': {
+                            //     result = { success: true, message: `Searching documents for: ${identifier}` };
+                            //     await this.speak(result.message);
+                            //     const data = await this.runFileSearchTool(document_query || identifier);
+                            //     const snippet = data.output?.[1]?.content?.[0]?.text || "No relevant document content found.";
+                            //     result.message = snippet;
+
+                            //     console.log(`machine_document: `, result);
+                            //     break;
+                            // }
 
                             default:
                                 result.message = `Unknown gig context target: ${target_type}`;
@@ -1055,6 +1064,7 @@ export default {
                                 const data = await this.runFileSearchTool(query_text);
                                 const snippet = data.output?.[1]?.content?.[0]?.text || "No relevant document content found.";
                                 result.message = snippet;
+                                console.log(`query_machine_info: ` , result);
                                 break;
                             }
                             default:
@@ -1064,28 +1074,35 @@ export default {
                     }
 
                     // 🗂️ File Search Tool (fallback)
-                    case 'file_search_tool': {
-                        const query = args.search_query.trim().toLowerCase();
+                    // case 'file_search_tool': {
+                    //     const query = args.search_query.trim().toLowerCase();
 
-                        // dedupe
-                        if (this._lastFileSearchQuery === query) {
-                            console.log('Skipping duplicate…');
-                            result = { success: true, message: '' };
-                            break;
-                        }
+                    //     // 🔁 Prevent duplicate immediate calls
+                    //     if (this._lastFileSearchQuery === query) {
+                    //         console.log('⏭️ Skipping duplicate file_search_tool call:', query);
+                    //         result = { success: true, message: '' };
+                    //         break;
+                    //     }
 
-                        // remember & run
-                        this._lastFileSearchQuery = query;
-                        result = { success: true, message: `Searching documents for: ${args.search_query}` };
-                        await this.speak(result.message);
-                        const data = await this.runFileSearchTool(query);
+                    //     // remember it BEFORE running
+                    //     this._lastFileSearchQuery = query;
 
-                        // reset here so you can re-run same query next time
-                        this._lastFileSearchQuery = null;
+                    //     result = { success: true, message: `Searching documents for: ${query}` };
+                    //     await this.speak(result.message);
 
-                        result.message = data.output?.[1]?.content?.[0]?.text || "No relevant document content found.";
-                        break;
-                    }
+                    //     const data = await this.runFileSearchTool(query);
+
+                    //     // reset so a similar future query isn't skipped indefinitely
+                    //     setTimeout(() => {
+                    //         this._lastFileSearchQuery = null;
+                    //     }, 3000); // 3 seconds debounce window
+
+                    //     result.message = data.output?.[1]?.content?.[0]?.text || "No relevant document content found.";
+
+                    //     console.log(`file_search_tool: `, result);
+                    //     break;
+                    // }
+
 
 
                     default: {
