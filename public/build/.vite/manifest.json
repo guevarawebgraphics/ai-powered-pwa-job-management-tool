@@ -28,12 +28,12 @@
     "src": "public/images/washing-machine.png"
   },
   "resources/css/app.css": {
-    "file": "assets/app-CUgDnLSu.css",
+    "file": "assets/app-DHVNIXPb.css",
     "src": "resources/css/app.css",
     "isEntry": true
   },
   "resources/js/app.js": {
-    "file": "assets/app-CXYnGB2I.js",
+    "file": "assets/app-BkTXqzKt.js",
     "name": "app",
     "src": "resources/js/app.js",
     "isEntry": true,
