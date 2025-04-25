@@ -111,13 +111,36 @@ export default {
                 window.location.href = '/login';
 
             } catch (error) {
-                console.error('Login failed:', error.response?.data || error);
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Login Failed',
-                    text: 'Invalid email or password. Please try again.',
-                });
+                console.error('Register failed:', error.response?.data || error);
+
+                if (error.response && error.response.status === 422) {
+                    const errors = error.response.data.errors;
+                    let errorMessages = '';
+
+                    for (const key in errors) {
+                        if (errors.hasOwnProperty(key)) {
+                            const joinedErrors = errors[key].map(msg => `❌ ${msg}`).join('<br>');
+                            errorMessages += `<div style="margin-bottom: 10px;">${joinedErrors}</div>`;
+                        }
+                    }
+
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Registration Failed',
+                        html: errorMessages,
+                        confirmButtonText: 'OK'
+                    });
+
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: '⚠️ Something went wrong',
+                        text: `❌ ${error.response?.data?.message || 'Please try again later.'}`,
+                        confirmButtonText: 'OK'
+                    });
+                }
             }
+
         }
     }
 };
