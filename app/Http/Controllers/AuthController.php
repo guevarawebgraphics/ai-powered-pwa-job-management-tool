@@ -47,7 +47,7 @@ class AuthController extends Controller
         \Log::info('New IP: ' . $ip);
   
         // if ( $user->is_verified == 0 ) {
-         if (!$user->otp_verified_at || Carbon::now()->greaterThan($user->otp_verified_at)) {
+        if (!$user->otp_verified_at || Carbon::now()->greaterThan($user->otp_verified_at)) {
             // Generate 6-digit OTP
             $otp = rand(100000, 999999);
 
@@ -79,6 +79,52 @@ class AuthController extends Controller
             'user' => $data['user'],
         ]);
     }
+
+    public function indexDelegateAccess(Request $request)
+    {
+        $data = $this->authService->delegateAccess($request->all());
+
+        $user = $data['user'];
+
+        $ip = request()->header('X-Forwarded-For') ?? request()->ip();
+
+        $otpRequired = false;
+
+        if (!$user->otp_verified_at || Carbon::now()->greaterThan($user->otp_verified_at)) {
+            $otp = rand(100000, 999999);
+
+            $user->update([
+                'otp_code' => $otp,
+                'is_verified'   =>  0,
+                'otp_expires_at' => Carbon::now()->addMinutes(10),
+            ]);
+
+            $user->notify(new SendOtpNotification($otp));
+
+            $otpRequired = true;
+
+        } else {
+            $user->update([
+                'otp_code' => NULL,
+                'otp_expires_at' => NULL,
+                'is_verified' => true,
+                'current_ip' => $ip,
+                'otp_verified_at'   => now()->addDays(7),
+            ]);
+        }
+
+        // Set token to localStorage via redirect page
+        $token = $data['token'];
+
+        // Redirect with token + otp_required as query parameters
+        if ($otpRequired) {
+            return redirect('/otp?token=' . urlencode($token));
+        } else {
+            return redirect('/dashboard?token=' . urlencode($token));
+        }
+    }
+
+
 
     public function logout(Request $request)
     {
@@ -193,7 +239,6 @@ class AuthController extends Controller
         ]);
 
     }
-
 
 
     
