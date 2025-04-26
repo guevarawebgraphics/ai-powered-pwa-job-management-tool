@@ -51,6 +51,15 @@ export default {
             return "border-gray-300 focus:ring-blue-300";
         }
     },
+    mounted() {
+        // Check if token exists in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const tokenFromUrl = urlParams.get('token');
+
+        if (tokenFromUrl) {
+            localStorage.setItem('token', tokenFromUrl);
+        }
+    },
     methods: {
         focusNext(index, event) {
             if (event.target.value && index < 5) {

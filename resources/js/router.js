@@ -72,9 +72,23 @@ const router = createRouter({
 // Navigation Guard to show/hide pre-loader and perform auth checks
 router.beforeEach(async (to, from, next) => {
   store.dispatch('showLoader');
-  const token = localStorage.getItem('token');
+
+  
+  let token = localStorage.getItem('token');
+
+  // 🛑 If no token yet, check if token is passed from URL
+  if (!token) {
+    const urlParams = new URLSearchParams(window.location.search);
+    const tokenFromUrl = urlParams.get('token');
+    if (tokenFromUrl) {
+      localStorage.setItem('token', tokenFromUrl);
+      token = tokenFromUrl;
+    }
+  }
+
+
   const authPages = ['Login', 'Register', 'Home', 'OTP', 'Forget', 'ResetPassword'];
-  console.log();
+
   // 1. If we have a token, block access to login/register/etc.
   if (token) {
     // if ( authPages.includes(to.name)) {

@@ -370,6 +370,14 @@ export default {
         const date = new Date();
         const options = { month: "long", day: "numeric" };
         // this.formattedDate = date.toLocaleDateString("en-US", options);
+
+        // Check if token exists in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const tokenFromUrl = urlParams.get('token');
+
+        if (tokenFromUrl) {
+            localStorage.setItem('token', tokenFromUrl);
+        }
     },
     computed: {
         page() {

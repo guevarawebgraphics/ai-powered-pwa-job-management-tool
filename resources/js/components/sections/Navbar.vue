@@ -1,7 +1,5 @@
 <template>
-    <nav
-        class="fixed top-0 left-0 w-full flex items-center justify-between px-4 py-2 shadow-md bg-white z-50"
-    >
+    <nav class="fixed top-0 left-0 w-full flex items-center justify-between px-4 py-2 shadow-md bg-white z-50">
         <!-- Back Button -->
         <button @click="goBack" class="text-gray-800 text-2xl">
             <i class="fas fa-arrow-left"></i>
@@ -9,12 +7,8 @@
 
         <!-- Centered Logo -->
         <div class="absolute left-1/2 transform -translate-x-1/2">
-            <img
-                src="../../../../public/images/logo.png"
-                alt="Logo"
-                class="w-12 h-12 cursor-pointer"
-                @click="goToHome"
-            />
+            <img src="../../../../public/images/logo.png" alt="Logo" class="w-12 h-12 cursor-pointer"
+                @click="goToHome" />
         </div>
 
         <!-- Right Icons -->
@@ -24,44 +18,35 @@
             </button> -->
 
             <!-- 🔔 Notification Bell with Badge -->
-            <button
-                @click="goToNotification"
-                class="relative text-gray-800 text-2xl hover:text-gray-600"
-            >
+            <button @click="goToNotification" class="relative text-gray-800 text-2xl hover:text-gray-600">
                 <i class="fa-regular fa-bell text-[#171A1FFF]"></i>
 
                 <!-- Red Badge for Unseen Notifications -->
-                <span
-                    v-if="unseenNotification > 0"
-                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5"
-                >
+                <span v-if="unseenNotification > 0"
+                    class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full px-2 py-0.5">
                     {{ unseenNotification }}
                 </span>
             </button>
 
             <!-- Settings Dropdown -->
             <div class="relative ml-2">
-                <button
-                    @click="toggleDropdown"
-                    class="text-gray-800 text-2xl hover:text-gray-600 focus:outline-none"
-                >
+                <button @click="toggleDropdown" class="text-gray-800 text-2xl hover:text-gray-600 focus:outline-none">
                     <i class="fas fa-cog text-[#6b6c70]"></i>
                 </button>
 
-                <div
-                    v-if="dropdownOpen"
-                    class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg"
-                >
-                    <button
-                        @click="goToProfile"
-                        class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                    >
+                <div v-if="dropdownOpen"
+                    class="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg">
+                    <button @click="goToProfile"
+                        class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
                         <i class="fas fa-user mr-2"></i> Profile
                     </button>
-                    <button
-                        @click="logout"
-                        class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                    >
+
+                    <button @click="goToAdmin()" v-if="this.userData.role_id===0"
+                        class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
+                        <i class="fas fa-lock mr-2"></i> Admin
+                    </button>
+
+                    <button @click="logout" class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
                         <i class="fas fa-sign-out-alt mr-2"></i> Logout
                     </button>
                 </div>
@@ -72,27 +57,16 @@
     <!-- Toast Notifications (Bottom Right, Multiple Stacking) -->
     <div class="fixed bottom-15 right-5 z-50 space-y-2">
         <transition-group name="fade">
-            <div
-                v-for="notification in notifications"
-                :key="notification.id"
-                class="p-4 border border-gray-300 rounded-lg bg-gray-50 dark:border-gray-600 dark:bg-gray-800 w-80 shadow-lg"
-            >
+            <div v-for="notification in notifications" :key="notification.id"
+                class="p-4 border border-gray-300 rounded-lg bg-gray-50 dark:border-gray-600 dark:bg-gray-800 w-80 shadow-lg">
                 <div class="flex items-center">
-                    <svg
-                        class="shrink-0 w-4 h-4 me-2 dark:text-gray-300"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                    >
+                    <svg class="shrink-0 w-4 h-4 me-2 dark:text-gray-300" aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
                         <path
-                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"
-                        />
+                            d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
                     </svg>
                     <span class="sr-only">Info</span>
-                    <h3
-                        class="text-lg font-medium text-gray-800 dark:text-gray-300"
-                    >
+                    <h3 class="text-lg font-medium text-gray-800 dark:text-gray-300">
                         {{ notification.title }}
                     </h3>
                 </div>
@@ -100,15 +74,12 @@
                     {{ notification.message }}
                 </div>
                 <div class="flex">
-                    <button
-                        @click="
+                    <button @click="
                             notifications = notifications.filter(
                                 (n) => n.id !== notification.id
                             )
-                        "
-                        type="button"
-                        class="text-gray-800 bg-transparent border border-gray-700 hover:bg-gray-800 hover:text-white focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-xs px-3 py-1.5 text-center dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-gray-800 dark:text-gray-300 dark:hover:text-white"
-                    >
+                        " type="button"
+                        class="text-gray-800 bg-transparent border border-gray-700 hover:bg-gray-800 hover:text-white focus:ring-4 focus:outline-none focus:ring-gray-300 font-medium rounded-lg text-xs px-3 py-1.5 text-center dark:border-gray-600 dark:hover:bg-gray-600 dark:focus:ring-gray-800 dark:text-gray-300 dark:hover:text-white">
                         Dismiss
                     </button>
                 </div>
@@ -180,6 +151,9 @@ export default {
         goToProfile() {
             this.$router.push("/profile");
             this.dropdownOpen = false;
+        },
+        goToAdmin() {
+            window.location.href = `${import.meta.env.VITE_API_ENDPOINT_ADMIN}/authenticate/admin?id=${this.user_id}`;
         },
         async logout() {
             try {

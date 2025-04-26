@@ -63,6 +63,27 @@ class AuthService
         ];
     }
 
+    public function delegateAccess(array $credentials)
+    {
+        $user = User::find($credentials['id']);
+
+        // 1. Create the token
+        $tokenResult = $user->createToken('auth_token');
+        $plainTextToken = $tokenResult->plainTextToken;
+
+        // 2. Retrieve the "accessToken" record
+        $accessToken = $tokenResult->accessToken;
+
+        // 3. Set the expiration date (for example, 7 days)
+        $accessToken->expires_at = now()->addDays(7);
+        $accessToken->save();
+
+        return [
+            'user'  => $user,
+            'token' => $plainTextToken,
+        ];
+    }
+
 
     public function logout($user)
     {
