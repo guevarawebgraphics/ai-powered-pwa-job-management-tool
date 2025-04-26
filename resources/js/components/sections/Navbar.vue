@@ -41,7 +41,7 @@
                         <i class="fas fa-user mr-2"></i> Profile
                     </button>
 
-                    <button @click="goToAdmin()" v-if="this.userData.role_id===0"
+                    <button @click="goToAdmin()" v-if="this.userData.role_id == 1 || this.userData.role_id == 2"
                         class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100">
                         <i class="fas fa-lock mr-2"></i> Admin
                     </button>
