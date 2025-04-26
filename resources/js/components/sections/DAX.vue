@@ -47,14 +47,38 @@
         </div>
 
         <!-- Toggle Recording Button -->
-        <button @click="this.$store.state.isDaxActive ? stopRecording() : startRecording()" :class="['relative w-20 h-20 rounded-full shadow-lg flex items-center justify-center text-white text-3xl transition',
+        <!-- <button @click="this.$store.state.isDaxActive ? stopRecording() : startRecording()" :class="['relative w-20 h-20 rounded-full shadow-lg flex items-center justify-center text-white text-3xl transition',
             this.$store.state.isDaxActive ? 'bg-red-500 pulse-active' : 'bg-blue-500 hover:scale-110']" :style="{
                 transform: this.$store.state.isDaxActive
                     ? `scale(${1 + volume * 1.5})`
                     : 'scale(1)'
             }">
             <i :class="this.$store.state.isDaxActive ? 'fas fa-stop' : 'fas fa-microphone'"></i>
+        </button> -->
+
+        <button @click="this.$store.state.isDaxActive ? stopRecording() : startRecording()" :disabled="daxInitializing"
+            :class="[
+                'relative w-20 h-20 rounded-full shadow-lg flex items-center justify-center text-white text-3xl transition',
+                // preserve your live vs idle colors & animations
+                recording
+                    ? 'bg-red-500 pulse-active'
+                    : 'bg-blue-500 hover:scale-110'
+            ]" :style="{
+    // keep your volume-based scale effect
+    transform: recording ? `scale(${1 + volume * 1.5})` : 'scale(1)'
+}">
+            <!-- spinner on top when initializing -->
+            <template v-if="daxInitializing">
+                <i class="fas fa-spinner fa-spin"></i>
+            </template>
+            <!-- otherwise your normal play/pause icons -->
+            <template v-else>
+                <i :class="recording ? 'fas fa-stop' : 'fas fa-microphone'"></i>
+            </template>
         </button>
+
+
+
     </div>
 </template>
 
@@ -103,6 +127,7 @@ export default {
         return {
             showModal: false,
             recording: false,
+            daxConnected: false,
             speaking: false,
             chatHistory: [],
             typingReply: '', // Holds the current text being typed out
@@ -125,6 +150,12 @@ export default {
             _mapBlockedHandler: null,
             _lastFileSearchQuery: null,
         }; 
+    },
+    computed: {
+        daxInitializing() {
+            // true if “we’ve clicked Start” but “haven’t yet opened the channel”
+            return this.recording && !this.daxConnected
+        }
     },
     created() {
         // bus.on("open-dax", this.openModal);
@@ -190,6 +221,9 @@ export default {
             // this.stopRecording();
         },
         async startRecording() {
+
+
+
             console.log(`Restarting : `, this.recording);
             if (this.recording) {
                 this.startVolumeLoop();
@@ -278,6 +312,7 @@ export default {
                 this.dataChannel = this.peerConnection.createDataChannel("ai-signaling");
                 this.dataChannel.addEventListener("open", () => {
                     console.log("Data channel open");
+                    this.daxConnected = true;
                     this.configureData();
                 });
 
@@ -440,6 +475,7 @@ export default {
             console.log("⛔ STOP RECORDING INIT");
 
             this.recording = false;
+            this.daxConnected = false;
             this.$store.commit("setDaxActive", false);
             this.wasManuallyStopped = true;
 
