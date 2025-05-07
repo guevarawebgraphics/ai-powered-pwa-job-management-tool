@@ -1,4 +1,4 @@
-# Appliance Repair American – Laravel + Vue.js PWA
+# AI Powered Job Management Tool – Laravel + Vue.js PWA
 
 **AI-powered Progressive Web App (PWA)** built using **Laravel 11** and **Vue.js**, designed for scheduling, communications, and intelligent automation in the appliance repair industry.
 
@@ -6,7 +6,7 @@
 
 ## 🚀 Project Overview
 
-Appliance Repair American is a modern, scalable, AI-integrated platform built to optimize appliance repair operations. It includes:
+AI Powered Job Management Tool is a modern, scalable, AI-integrated platform built to optimize appliance repair operations. It includes:
 
 -   📆 **Dynamic Calendar & Scheduling**
 -   🤖 **AI Features** powered by OpenAI
