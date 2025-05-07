@@ -51,38 +51,36 @@ Appliance Repair American is a modern, scalable, AI-integrated platform built to
 
 1. **Clone the repo**
 
-````git clone https://github.com/yourusername/appliance-repair-american.git
-cd appliance-repair-american```
+```json
+git clone https://github.com/yourusername/appliance-repair-american.git
+cd appliance-repair-american
+```
 
 2. **Install PHP & JS deps**
-````
 
+```json
 composer install
 npm install
-
 ```
 
 3. **Configure environment**
-```
-
+```json
 cp .env.example .env
 php artisan key:generate
-
 ```
 
 4. **Run migrations**
-```
-
+```json
 php artisan migrate
-
 ```
 
-5. **Start development stack**
-```
 
+6. **Start development stack**
+
+```json
 composer run dev
-
 ```
+
 
 ---
 
