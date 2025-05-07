@@ -5,6 +5,9 @@
 /storage/*.key
 /storage/pail
 /vendor
+.env
+.env.local
+.env.production
 .env.backup
 .phpactor.json
 .phpunit.result.cache
